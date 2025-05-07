@@ -31,14 +31,16 @@ export function MainLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-cream">
       {/* Sidebar Toggle for Mobile */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden"
-        onClick={() => setSidebarOpen(true)}
-      >
-        <Menu className="h-5 w-5 text-primary" />
-      </Button>
+      {isMobile && !sidebarOpen && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed top-4 left-4 z-50 bg-white/80 shadow-sm rounded-md"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <Menu className="h-5 w-5 text-primary" />
+        </Button>
+      )}
       
       {/* Sidebar */}
       <Sidebar 
@@ -51,7 +53,8 @@ export function MainLayout({
       {/* Main Content Area */}
       <div className={cn(
         "flex-1 flex flex-col transition-all duration-200",
-        !isMobile && sidebarOpen ? "ml-64" : "ml-0",
+        isMobile ? "ml-0" : (sidebarOpen ? "ml-64" : "ml-0"),
+        "w-full"
       )}>
         {/* Top Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-4 sticky top-0 z-30">
@@ -140,7 +143,11 @@ export function MainLayout({
         {/* Main Chat + Tools Area */}
         <div className="flex-1 flex overflow-hidden">
           {/* Main Content */}
-          <div className="flex-1 flex flex-col h-full">
+          <div className={cn(
+            "flex-1 flex flex-col h-full",
+            // When right panel is shown in desktop mode, adjust width
+            showRightPanel && !isMobile ? "w-3/5" : "w-full"
+          )}>
             {children}
           </div>
           
