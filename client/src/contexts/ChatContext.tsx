@@ -1,14 +1,7 @@
 import React, { createContext, useState, useCallback, useEffect } from "react";
 import { ChatConversation, ChatMessage } from "@/types";
 import { createChatSession, sendMessage as sendGeminiMessage } from "@/lib/gemini";
-import { 
-  getChatHistory, 
-  createChat, 
-  updateChatTitle, 
-  deleteChat, 
-  getChatMessages, 
-  addChatMessage 
-} from "@/lib/supabase";
+import { createUserProfile } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
