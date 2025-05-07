@@ -1,22 +1,31 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { apiRequest } from "@/lib/queryClient";
-import { RecommendationSet, RecommendationItem } from "@/types/recommendations";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Loader2, RefreshCw, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from 'react';
+import { X, RefreshCw, Calendar, Trash2, Lightbulb } from 'lucide-react';
+import { useRecommendations } from '@/hooks/useRecommendations';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { RecommendationSet, RecommendationItem } from '@/types/recommendations';
 
-export default function RecommendationDashboard() {
-  const { user } = useAuth();
+interface RecommendationDashboardProps {
+  onClose?: () => void;
+}
+
+export default function RecommendationDashboard({ onClose }: RecommendationDashboardProps) {
   const { toast } = useToast();
-  const [recommendations, setRecommendations] = useState<(RecommendationSet & { items: RecommendationItem[] })[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [generating, setGenerating] = useState(false);
+  const { 
+    recommendations, 
+    loading, 
+    generating, 
+    fetchRecommendations, 
+    generateRecommendations, 
+    deleteRecommendationSet 
+  } = useRecommendations();
+  const [selectedTab, setSelectedTab] = useState('all');
   const [currentSeason] = useState<'spring' | 'summer' | 'fall' | 'winter'>(
-    // Simple logic to determine current season in Northern hemisphere
     () => {
       const month = new Date().getMonth();
       if (month >= 2 && month <= 4) return 'spring';
@@ -27,209 +36,210 @@ export default function RecommendationDashboard() {
   );
 
   useEffect(() => {
-    if (user) {
-      loadRecommendations();
-    }
-  }, [user]);
+    fetchRecommendations();
+  }, [fetchRecommendations]);
 
-  const loadRecommendations = async () => {
-    if (!user) return;
-    
+  const handleGenerateRecommendations = async () => {
     try {
-      setLoading(true);
-      const data = await apiRequest(`/api/recommendations/${user.id}`, { method: 'GET' });
-      setRecommendations(data);
-    } catch (error) {
-      console.error("Error loading recommendations:", error);
+      await generateRecommendations({ currentSeason });
       toast({
-        title: "Failed to load recommendations",
-        description: "An error occurred while loading your recommendations.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const generateRecommendations = async () => {
-    if (!user) return;
-    
-    try {
-      setGenerating(true);
-      const data = await apiRequest('/api/recommendations/generate', {
-        method: 'POST',
-        body: JSON.stringify({
-          userId: user.id,
-          currentSeason
-        })
-      });
-      
-      // Add new recommendation set to the list
-      setRecommendations(prev => [data, ...prev]);
-      
-      toast({
-        title: "Recommendations generated",
-        description: "New recommendations have been created based on your data.",
+        title: 'Recommendations Generated',
+        description: 'New insights based on your data have been created.',
       });
     } catch (error) {
-      console.error("Error generating recommendations:", error);
-      toast({
-        title: "Failed to generate recommendations",
-        description: "An error occurred while creating new recommendations.",
-        variant: "destructive",
-      });
-    } finally {
-      setGenerating(false);
+      console.error('Error generating recommendations:', error);
     }
   };
 
-  const deleteRecommendationSet = async (id: string) => {
+  const handleDeleteRecommendation = async (id: string) => {
     try {
-      await apiRequest(`/api/recommendations/${id}`, { method: 'DELETE' });
-      setRecommendations(prev => prev.filter(set => set.id !== id));
-      
-      toast({
-        title: "Recommendations deleted",
-        description: "The recommendation set has been deleted.",
-      });
+      await deleteRecommendationSet(id);
     } catch (error) {
-      console.error("Error deleting recommendation set:", error);
-      toast({
-        title: "Failed to delete recommendations",
-        description: "An error occurred while deleting the recommendation set.",
-        variant: "destructive",
-      });
+      console.error('Error deleting recommendation:', error);
     }
   };
 
-  const getSourceColor = (source: string) => {
-    switch (source) {
-      case 'analysis': return 'bg-blue-100 text-blue-800';
-      case 'chat': return 'bg-purple-100 text-purple-800';
-      case 'pattern': return 'bg-orange-100 text-orange-800';
-      case 'seasonal': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'crop': return 'bg-green-100 text-green-800';
-      case 'business': return 'bg-blue-100 text-blue-800';
-      case 'resource': return 'bg-amber-100 text-amber-800';
-      case 'market': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'bg-green-100 text-green-800';
-    if (confidence >= 0.6) return 'bg-blue-100 text-blue-800';
-    if (confidence >= 0.4) return 'bg-amber-100 text-amber-800';
+  const getConfidenceBadgeColor = (confidence: string) => {
+    const confidenceNum = parseFloat(confidence);
+    if (confidenceNum >= 0.8) return 'bg-green-100 text-green-800';
+    if (confidenceNum >= 0.6) return 'bg-blue-100 text-blue-800';
+    if (confidenceNum >= 0.4) return 'bg-yellow-100 text-yellow-800';
     return 'bg-red-100 text-red-800';
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="mt-2 text-gray-600">Loading recommendations...</p>
-      </div>
-    );
-  }
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date);
+  };
+
+  const getSourceIcon = (source: string) => {
+    switch (source) {
+      case 'analysis':
+        return '📊';
+      case 'chat':
+        return '💬';
+      case 'pattern':
+        return '📈';
+      case 'seasonal':
+        return '🌱';
+      default:
+        return '💡';
+    }
+  };
+
+  // Filter recommendations by type if a specific tab is selected
+  const filteredRecommendations = recommendations.filter(rec => {
+    if (selectedTab === 'all') return true;
+    return rec.items.some(item => item.type === selectedTab);
+  });
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Personalized Recommendations</h2>
-          <p className="text-gray-600">
-            Custom insights based on your analysis results and interaction history
-          </p>
-        </div>
+    <div className="h-full overflow-y-auto bg-white p-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
+          <Lightbulb size={24} />
+          <span>Smart Recommendations</span>
+        </h2>
+        {onClose && (
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        )}
+      </div>
+      
+      <p className="text-muted-foreground mt-1 mb-4">
+        AI-generated insights based on your agricultural data, chat history, and analysis.
+      </p>
+      
+      <div className="flex items-center gap-2 mb-6 mt-4">
         <Button 
-          onClick={generateRecommendations} 
+          onClick={handleGenerateRecommendations} 
           disabled={generating}
-          className="bg-primary hover:bg-primary/90"
+          className="bg-primary hover:bg-primary/90 text-white"
         >
           {generating ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Generating...
             </>
           ) : (
             <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Generate Recommendations
+              <Lightbulb className="mr-2 h-4 w-4" />
+              Generate New Recommendations
             </>
           )}
         </Button>
+        
+        <Badge variant="outline" className="flex items-center gap-1 ml-2">
+          <Calendar className="h-3 w-3" />
+          <span className="capitalize">{currentSeason}</span>
+        </Badge>
       </div>
-
-      {recommendations.length === 0 ? (
-        <Card className="p-6 text-center">
-          <h3 className="text-lg font-medium">No recommendations yet</h3>
-          <p className="text-gray-600 mt-2">
-            Generate your first set of personalized recommendations based on your data.
+      
+      <Tabs defaultValue="all" value={selectedTab} onValueChange={setSelectedTab} className="mb-6">
+        <TabsList className="mb-4">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="crop">Crops</TabsTrigger>
+          <TabsTrigger value="business">Business</TabsTrigger>
+          <TabsTrigger value="market">Market</TabsTrigger>
+          <TabsTrigger value="resource">Resources</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2].map((n) => (
+            <Card key={n} className="mb-6">
+              <CardHeader className="pb-3">
+                <Skeleton className="h-5 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-32" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredRecommendations.length === 0 ? (
+        <div className="text-center py-10 bg-cream/30 rounded-lg">
+          <Lightbulb className="mx-auto h-10 w-10 text-primary/50 mb-3" />
+          <h3 className="text-lg font-medium text-gray-700 mb-1">No recommendations yet</h3>
+          <p className="text-muted-foreground mb-4">
+            Generate your first set of personalized recommendations
           </p>
           <Button 
-            onClick={generateRecommendations} 
-            variant="outline" 
-            className="mt-4"
+            onClick={handleGenerateRecommendations} 
             disabled={generating}
+            className="bg-primary hover:bg-primary/90 text-white"
           >
-            {generating ? "Generating..." : "Generate Recommendations"}
+            {generating ? 'Generating...' : 'Generate Recommendations'}
           </Button>
-        </Card>
+        </div>
       ) : (
         <div className="space-y-6">
-          {recommendations.map((recSet) => (
-            <Card key={recSet.id} className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="flex items-center">
-                    <span className="text-xs bg-gray-100 text-gray-800 rounded-full px-2 py-1">
-                      {new Date(recSet.created_at).toLocaleDateString()}
-                    </span>
-                    <Badge className="ml-2 bg-primary/20 text-primary hover:bg-primary/30 border-none">
-                      {currentSeason.charAt(0).toUpperCase() + currentSeason.slice(1)} Season
-                    </Badge>
+          {filteredRecommendations.map((recSet) => (
+            <Card key={recSet.id} className="mb-6 overflow-hidden">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-xl">{recSet.summary}</CardTitle>
+                    <CardDescription className="flex items-center mt-1">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      <span>{formatDate(recSet.created_at)}</span>
+                    </CardDescription>
                   </div>
-                  <h3 className="text-xl font-bold mt-2">Agricultural Insights</h3>
-                  <p className="text-gray-700 mt-1">{recSet.summary}</p>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => handleDeleteRecommendation(recSet.id)}
+                    className="text-gray-500 hover:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => deleteRecommendationSet(recSet.id)}
-                >
-                  <Trash2 className="h-5 w-5 text-gray-500 hover:text-red-500" />
-                </Button>
-              </div>
-
-              <Separator className="my-4" />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                {recSet.items.map((item) => (
-                  <div key={item.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-bold text-gray-800">{item.title}</h4>
-                      <div className="flex space-x-2">
-                        <span className={`text-xs rounded-full px-2 py-1 ${getTypeColor(item.type)}`}>
-                          {item.type}
-                        </span>
-                        <span className={`text-xs rounded-full px-2 py-1 ${getSourceColor(item.source)}`}>
-                          {item.source}
-                        </span>
-                        <span className={`text-xs rounded-full px-2 py-1 ${getConfidenceColor(parseFloat(item.confidence))}`}>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {recSet.items.map((item) => (
+                    <div 
+                      key={item.id} 
+                      className="border rounded-md p-4 bg-cream/10 hover:bg-cream/30 transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{getSourceIcon(item.source)}</span>
+                          <h4 className="font-medium text-primary">{item.title}</h4>
+                        </div>
+                        <Badge 
+                          variant="outline" 
+                          className={getConfidenceBadgeColor(item.confidence)}
+                        >
                           {Math.round(parseFloat(item.confidence) * 100)}%
-                        </span>
+                        </Badge>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-600">{item.description}</p>
+                      <div className="flex items-center mt-3 justify-between">
+                        <Badge variant="secondary" className="capitalize">
+                          {item.type}
+                        </Badge>
                       </div>
                     </div>
-                    <p className="text-gray-600 mt-2">{item.description}</p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter className="bg-cream/20 pt-3 pb-3 px-6 text-xs text-muted-foreground">
+                <p>
+                  Recommendations based on your historical data and current agricultural conditions.
+                </p>
+              </CardFooter>
             </Card>
           ))}
         </div>

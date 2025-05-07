@@ -6,6 +6,7 @@ import ChatInterface from "@/components/chat/ChatInterface";
 import BusinessFeasibility from "@/components/tools/BusinessFeasibility";
 import DemandForecasting from "@/components/tools/DemandForecasting";
 import OptimizationAnalysis from "@/components/tools/OptimizationAnalysis";
+import RecommendationDashboard from "@/components/recommendations/RecommendationDashboard";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -32,6 +33,8 @@ export default function Dashboard() {
         return <DemandForecasting onClose={handleCloseToolPanel} />;
       case "optimizationAnalysis":
         return <OptimizationAnalysis onClose={handleCloseToolPanel} />;
+      case "recommendations":
+        return <RecommendationDashboard />;
       default:
         return null;
     }

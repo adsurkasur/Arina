@@ -12,13 +12,23 @@ export function useRecommendations() {
   const [recommendations, setRecommendations] = useState<(RecommendationSet & { items: RecommendationItem[] })[]>([]);
 
   const fetchRecommendations = useCallback(async () => {
-    if (!user) return;
+    if (!user) return [];
     
     try {
       setLoading(true);
-      const data = await apiRequest(`/api/recommendations/${user.id}`, { 
-        method: 'GET'
+      // Using the proper types to avoid TypeScript errors
+      const response = await fetch(`/api/recommendations/${user.id}`, { 
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch recommendations');
+      }
+
+      const data = await response.json() as (RecommendationSet & { items: RecommendationItem[] })[];
       setRecommendations(data);
       return data;
     } catch (error) {
@@ -39,13 +49,22 @@ export function useRecommendations() {
     
     try {
       setGenerating(true);
-      const data = await apiRequest('/api/recommendations/generate', {
+      const response = await fetch('/api/recommendations/generate', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           userId: user.id,
           ...params
         })
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate recommendations');
+      }
+
+      const data = await response.json() as (RecommendationSet & { items: RecommendationItem[] });
       
       setRecommendations(prev => [data, ...prev]);
       
@@ -70,7 +89,17 @@ export function useRecommendations() {
 
   const deleteRecommendationSet = useCallback(async (id: string) => {
     try {
-      await apiRequest(`/api/recommendations/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/recommendations/${id}`, { 
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete recommendation set');
+      }
+      
       setRecommendations(prev => prev.filter(rec => rec.id !== id));
       
       toast({
