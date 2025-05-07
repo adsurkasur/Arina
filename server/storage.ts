@@ -31,7 +31,7 @@ export interface IStorage {
   getAnalysisResult(id: string): Promise<AnalysisResult | undefined>;
   createAnalysisResult(result: InsertAnalysisResult): Promise<AnalysisResult>;
   deleteAnalysisResult(id: string): Promise<void>;
-  
+
   // Recommendation operations
   getRecommendationSets(userId: string): Promise<RecommendationSet[]>;
   getRecommendationSet(id: string): Promise<RecommendationSet | undefined>;
@@ -82,8 +82,12 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async createConversation(conversationData: InsertChatConversation): Promise<ChatConversation> {
-    const result = await db.insert(chatConversations).values(conversationData).returning();
+  async createConversation(conversation: InsertChatConversation): Promise<ChatConversation> {
+    const result = await db.insert(chatConversations).values({
+      ...conversation,
+      updated_at: new Date(),
+      created_at: new Date()
+    }).returning();
     return result[0];
   }
 
@@ -93,17 +97,17 @@ export class DatabaseStorage implements IStorage {
       ...data,
       updated_at: new Date()
     };
-    
+
     const result = await db
       .update(chatConversations)
       .set(updateData)
       .where(eq(chatConversations.id, id))
       .returning();
-      
+
     if (result.length === 0) {
       throw new Error("Conversation not found");
     }
-    
+
     return result[0];
   }
 
@@ -123,13 +127,13 @@ export class DatabaseStorage implements IStorage {
 
   async createMessage(messageData: InsertChatMessage): Promise<ChatMessage> {
     const result = await db.insert(chatMessages).values(messageData).returning();
-    
+
     // Update the conversation's updated_at timestamp
     await db
       .update(chatConversations)
       .set({ updated_at: new Date() })
       .where(eq(chatConversations.id, messageData.conversation_id));
-      
+
     return result[0];
   }
 
@@ -168,7 +172,7 @@ export class DatabaseStorage implements IStorage {
   async deleteAnalysisResult(id: string): Promise<void> {
     await db.delete(analysisResults).where(eq(analysisResults.id, id));
   }
-  
+
   // Recommendation operations
   async getRecommendationSets(userId: string): Promise<RecommendationSet[]> {
     return await db
@@ -177,12 +181,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(recommendationSets.user_id, userId))
       .orderBy(desc(recommendationSets.created_at));
   }
-  
+
   async getRecommendationSet(id: string): Promise<RecommendationSet | undefined> {
     const result = await db.select().from(recommendationSets).where(eq(recommendationSets.id, id));
     return result[0];
   }
-  
+
   async getRecommendationItems(setId: string): Promise<RecommendationItem[]> {
     return await db
       .select()
@@ -190,17 +194,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(recommendationItems.set_id, setId))
       .orderBy(desc(recommendationItems.created_at));
   }
-  
+
   async createRecommendationSet(setData: InsertRecommendationSet): Promise<RecommendationSet> {
     const result = await db.insert(recommendationSets).values(setData).returning();
     return result[0];
   }
-  
+
   async createRecommendationItem(itemData: InsertRecommendationItem): Promise<RecommendationItem> {
     const result = await db.insert(recommendationItems).values(itemData).returning();
     return result[0];
   }
-  
+
   async deleteRecommendationSet(id: string): Promise<void> {
     // The cascade delete will handle removing items automatically
     await db.delete(recommendationSets).where(eq(recommendationSets.id, id));

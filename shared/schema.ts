@@ -44,7 +44,7 @@ export const insertChatConversationSchema = createInsertSchema(chatConversations
   id: true,
   created_at: true,
   updated_at: true,
-});
+}).required();
 
 // Chat messages table
 export const chatMessages = pgTable("chat_messages", {
