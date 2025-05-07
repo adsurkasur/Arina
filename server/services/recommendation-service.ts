@@ -20,20 +20,20 @@ export class RecommendationService {
   async generateRecommendations(params: GenerateRecommendationsParams): Promise<RecommendationSet & { items: RecommendationItem[] }> {
     try {
       const { userId, currentSeason } = params;
-      
+
       // Get user's analysis results
       const analysisResults = await storage.getAnalysisResults(userId);
-      
+
       // Get conversations for the user
       const conversations = await storage.getConversations(userId);
-      
+
       // Get messages from all conversations
       const chatMessages = [];
       for (const conversation of conversations) {
         const messages = await storage.getMessages(conversation.id);
         chatMessages.push(...messages);
       }
-      
+
       // Generate recommendations
       const recommendationInput = {
         userId,
@@ -41,26 +41,26 @@ export class RecommendationService {
         chatHistory: chatMessages,
         currentSeason
       };
-      
+
       // Use our recommendation engine to generate recommendations
       const recommendations = generateRecommendations(recommendationInput);
-      
+
       // Store in the database
       const setId = uuid();
-      
+
       const insertSetData: InsertRecommendationSet = {
         id: setId,
         user_id: userId,
         summary: recommendations.summary,
-        created_at: new Date().toISOString()
+        created_at: new Date()
       };
-      
+
       // Create the recommendation set
       const recommendationSet = await storage.createRecommendationSet(insertSetData);
-      
+
       // Create all recommendation items
       const items: RecommendationItem[] = [];
-      
+
       for (const rec of recommendations.recommendations) {
         const insertItemData: InsertRecommendationItem = {
           id: uuid(),
@@ -71,13 +71,13 @@ export class RecommendationService {
           confidence: rec.confidence,
           data: rec.data,
           source: rec.source,
-          created_at: new Date().toISOString()
+          created_at: new Date()
         };
-        
+
         const item = await storage.createRecommendationItem(insertItemData);
         items.push(item);
       }
-      
+
       return {
         ...recommendationSet,
         items
@@ -95,10 +95,10 @@ export class RecommendationService {
     try {
       // Get all recommendation sets for the user
       const sets = await storage.getRecommendationSets(userId);
-      
+
       // For each set, get its items
       const result = [];
-      
+
       for (const set of sets) {
         const items = await storage.getRecommendationItems(set.id);
         result.push({
@@ -106,7 +106,7 @@ export class RecommendationService {
           items
         });
       }
-      
+
       return result;
     } catch (error) {
       console.error('Error getting user recommendations:', error);
@@ -121,14 +121,14 @@ export class RecommendationService {
     try {
       // Get the recommendation set
       const set = await storage.getRecommendationSet(setId);
-      
+
       if (!set) {
         return null;
       }
-      
+
       // Get the items for this set
       const items = await storage.getRecommendationItems(setId);
-      
+
       return {
         ...set,
         items
