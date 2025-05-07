@@ -31,150 +31,132 @@ export interface IStorage {
   deleteAnalysisResult(id: string): Promise<void>;
 }
 
-// In-memory storage implementation
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private conversations: Map<string, ChatConversation>;
-  private messages: Map<string, ChatMessage>;
-  private analysisResults: Map<string, AnalysisResult>;
+import { db } from "./db";
+import { 
+  users, chatConversations, chatMessages, analysisResults,
+  usersRelations, chatConversationsRelations, chatMessagesRelations, analysisResultsRelations
+} from "@shared/schema";
+import { eq, and, desc } from "drizzle-orm";
 
-  constructor() {
-    this.users = new Map();
-    this.conversations = new Map();
-    this.messages = new Map();
-    this.analysisResults = new Map();
-  }
-
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.email === email);
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
   }
 
   async createUser(userData: InsertUser): Promise<User> {
-    const now = new Date().toISOString();
-    const user: User = {
-      ...userData,
-      created_at: now
-    };
-    this.users.set(user.id, user);
-    return user;
+    const result = await db.insert(users).values(userData).returning();
+    return result[0];
   }
 
   // Chat conversation operations
   async getConversations(userId: string): Promise<ChatConversation[]> {
-    return Array.from(this.conversations.values())
-      .filter(conversation => conversation.user_id === userId)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return await db
+      .select()
+      .from(chatConversations)
+      .where(eq(chatConversations.user_id, userId))
+      .orderBy(desc(chatConversations.updated_at));
   }
 
   async getConversation(id: string): Promise<ChatConversation | undefined> {
-    return this.conversations.get(id);
+    const result = await db.select().from(chatConversations).where(eq(chatConversations.id, id));
+    return result[0];
   }
 
   async createConversation(conversationData: InsertChatConversation): Promise<ChatConversation> {
-    const now = new Date().toISOString();
-    const id = uuidv4();
-    const conversation: ChatConversation = {
-      id,
-      ...conversationData,
-      created_at: now,
-      updated_at: now
-    };
-    this.conversations.set(id, conversation);
-    return conversation;
+    const result = await db.insert(chatConversations).values(conversationData).returning();
+    return result[0];
   }
 
   async updateConversation(id: string, data: Partial<ChatConversation>): Promise<ChatConversation> {
-    const conversation = this.conversations.get(id);
-    if (!conversation) {
+    // Set the updated_at timestamp
+    const updateData = {
+      ...data,
+      updated_at: new Date()
+    };
+    
+    const result = await db
+      .update(chatConversations)
+      .set(updateData)
+      .where(eq(chatConversations.id, id))
+      .returning();
+      
+    if (result.length === 0) {
       throw new Error("Conversation not found");
     }
-
-    const updated: ChatConversation = {
-      ...conversation,
-      ...data,
-      updated_at: new Date().toISOString()
-    };
-    this.conversations.set(id, updated);
-    return updated;
+    
+    return result[0];
   }
 
   async deleteConversation(id: string): Promise<void> {
-    // Delete associated messages first
-    const messagesToDelete = Array.from(this.messages.values())
-      .filter(message => message.conversation_id === id);
-    
-    for (const message of messagesToDelete) {
-      this.messages.delete(message.id);
-    }
-    
-    // Then delete the conversation
-    this.conversations.delete(id);
+    // The cascade delete will handle removing messages automatically
+    await db.delete(chatConversations).where(eq(chatConversations.id, id));
   }
 
   // Chat message operations
   async getMessages(conversationId: string): Promise<ChatMessage[]> {
-    return Array.from(this.messages.values())
-      .filter(message => message.conversation_id === conversationId)
-      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    return await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.conversation_id, conversationId))
+      .orderBy(chatMessages.created_at);
   }
 
   async createMessage(messageData: InsertChatMessage): Promise<ChatMessage> {
-    const id = uuidv4();
-    const now = new Date().toISOString();
-    const message: ChatMessage = {
-      id,
-      ...messageData,
-      created_at: now
-    };
-    this.messages.set(id, message);
+    const result = await db.insert(chatMessages).values(messageData).returning();
     
-    // Update conversation's updated_at timestamp
-    const conversation = this.conversations.get(messageData.conversation_id);
-    if (conversation) {
-      this.updateConversation(conversation.id, { updated_at: now });
-    }
-    
-    return message;
+    // Update the conversation's updated_at timestamp
+    await db
+      .update(chatConversations)
+      .set({ updated_at: new Date() })
+      .where(eq(chatConversations.id, messageData.conversation_id));
+      
+    return result[0];
   }
 
   // Analysis result operations
   async getAnalysisResults(userId: string, type?: string): Promise<AnalysisResult[]> {
-    let results = Array.from(this.analysisResults.values())
-      .filter(result => result.user_id === userId);
-    
     if (type) {
-      results = results.filter(result => result.type === type);
+      return await db
+        .select()
+        .from(analysisResults)
+        .where(
+          and(
+            eq(analysisResults.user_id, userId),
+            eq(analysisResults.type, type)
+          )
+        )
+        .orderBy(desc(analysisResults.updated_at));
+    } else {
+      return await db
+        .select()
+        .from(analysisResults)
+        .where(eq(analysisResults.user_id, userId))
+        .orderBy(desc(analysisResults.updated_at));
     }
-    
-    return results.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 
   async getAnalysisResult(id: string): Promise<AnalysisResult | undefined> {
-    return this.analysisResults.get(id);
+    const result = await db.select().from(analysisResults).where(eq(analysisResults.id, id));
+    return result[0];
   }
 
   async createAnalysisResult(resultData: InsertAnalysisResult): Promise<AnalysisResult> {
-    const id = uuidv4();
-    const now = new Date().toISOString();
-    const result: AnalysisResult = {
-      id,
-      ...resultData,
-      created_at: now,
-      updated_at: now
-    };
-    this.analysisResults.set(id, result);
-    return result;
+    const result = await db.insert(analysisResults).values(resultData).returning();
+    return result[0];
   }
 
   async deleteAnalysisResult(id: string): Promise<void> {
-    this.analysisResults.delete(id);
+    await db.delete(analysisResults).where(eq(analysisResults.id, id));
   }
 }
 
 // Export a singleton instance
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
