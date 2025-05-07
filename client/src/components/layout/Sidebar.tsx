@@ -47,8 +47,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobile, openTool }: SidebarProps)
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-200 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full",
-          "md:translate-x-0"
+          isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Mobile Close Button */}

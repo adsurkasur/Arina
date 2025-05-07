@@ -50,11 +50,21 @@ export function MainLayout({
       
       {/* Main Content Area */}
       <div className={cn(
-        "flex-1 flex flex-col",
-        !isMobile && "ml-64",
+        "flex-1 flex flex-col transition-all duration-200",
+        !isMobile && sidebarOpen ? "ml-64" : "ml-0",
       )}>
         {/* Top Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-4 sticky top-0 z-30">
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mr-3 text-primary"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
           <h1 className="text-xl font-heading font-semibold text-primary hidden md:block">
             Agricultural Intelligence Platform
           </h1>
