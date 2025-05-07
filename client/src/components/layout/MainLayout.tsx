@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { cn } from "@/lib/theme";
 import { useMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "./Sidebar";
+import { ProfileDropdown } from "./ProfileDropdown";
 import { Menu, Bell, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -20,6 +23,7 @@ export function MainLayout({
   setShowRightPanel,
   setActiveTool
 }: MainLayoutProps) {
+  const { user } = useAuth();
   const isMobile = useMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
   
@@ -71,13 +75,15 @@ export function MainLayout({
           <h1 className="text-xl font-heading font-semibold text-primary hidden md:block">
             Agricultural Intelligence Platform
           </h1>
-          <div className="ml-auto flex items-center space-x-4">
+          <div className="ml-auto flex items-center space-x-3">
             <Button variant="outline" size="icon" className="rounded-full">
               <HelpCircle className="h-5 w-5 text-gray-600" />
             </Button>
             <Button variant="outline" size="icon" className="rounded-full">
               <Bell className="h-5 w-5 text-gray-600" />
             </Button>
+            <Separator orientation="vertical" className="h-8 mx-1" />
+            {user && <ProfileDropdown openTool={openTool} />}
           </div>
         </header>
         
