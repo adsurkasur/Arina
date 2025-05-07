@@ -12,6 +12,7 @@ import {
   User,
   PanelLeft,
   Menu,
+  Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -155,6 +156,26 @@ export function Sidebar({
                     className="bg-cream text-primary"
                   >
                     <p>Optimize profit, cost & resources</p>
+                  </TooltipContent>
+                </Tooltip>
+              </li>
+              
+              <li>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => openTool("recommendations")}
+                      className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                    >
+                      <Lightbulb className="h-5 w-5 mr-3" />
+                      <span>Smart Recommendations</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    className="bg-cream text-primary"
+                  >
+                    <p>Personalized insights based on your data</p>
                   </TooltipContent>
                 </Tooltip>
               </li>
