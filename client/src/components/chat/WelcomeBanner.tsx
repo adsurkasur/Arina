@@ -102,15 +102,3 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
     </>
   );
 }
-import React from 'react';
-
-export default function WelcomeBanner() {
-  return (
-    <div className="text-center py-8">
-      <h2 className="text-2xl font-semibold text-primary mb-3">Welcome to ArinaAI</h2>
-      <p className="text-gray-600">
-        Start a conversation to get AI-powered agricultural insights and recommendations.
-      </p>
-    </div>
-  );
-}

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import WelcomeBanner from "./WelcomeBanner";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
 import { ChatMessage } from "@/types";
