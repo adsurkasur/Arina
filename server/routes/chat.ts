@@ -1,13 +1,13 @@
 
 import { Router } from 'express';
-import { supabase } from '../db';
 import { getGeminiResponse } from '../services/gemini-service';
+import { supabase } from '../db';
 
 const router = Router();
 
 router.post('/chat', async (req, res) => {
   try {
-    const { messages, selectedFeature, userId } = req.body;
+    const { messages, selectedFeature, userId, conversationId } = req.body;
     
     // Get user context from Supabase
     const { data: userProfile } = await supabase
@@ -18,18 +18,21 @@ router.post('/chat', async (req, res) => {
       
     const memoryContext = {
       profile: userProfile,
-      // Add any other context you want to include
+      feature: selectedFeature
     };
 
     const response = await getGeminiResponse(messages, selectedFeature, memoryContext);
     
-    // Store the conversation in Supabase
-    await supabase.from('chat_messages').insert({
-      user_id: userId,
-      role: 'assistant',
-      content: response,
-      feature: selectedFeature
-    });
+    // Store the assistant's response in Supabase
+    if (conversationId) {
+      await supabase
+        .from('chat_messages')
+        .insert({
+          conversation_id: conversationId,
+          role: 'assistant',
+          content: response
+        });
+    }
 
     res.json({ response });
   } catch (error) {
