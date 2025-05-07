@@ -49,10 +49,9 @@ export class RecommendationService {
       const setId = uuid();
 
       const insertSetData: InsertRecommendationSet = {
-        id: setId,
         user_id: userId,
         summary: recommendations.summary,
-        created_at: new Date()
+        created_at: new Date().toISOString()
       };
 
       // Create the recommendation set
@@ -68,10 +67,10 @@ export class RecommendationService {
           type: rec.type,
           title: rec.title,
           description: rec.description,
-          confidence: rec.confidence,
+          confidence: rec.confidence.toString(),
           data: rec.data,
           source: rec.source,
-          created_at: new Date()
+          created_at: new Date().toISOString()
         };
 
         const item = await storage.createRecommendationItem(insertItemData);
