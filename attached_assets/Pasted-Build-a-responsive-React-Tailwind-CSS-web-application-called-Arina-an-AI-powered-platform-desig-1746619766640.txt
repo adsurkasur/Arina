@@ -1,0 +1,83 @@
+Build a responsive React + Tailwind CSS web application called "Arina", an AI-powered platform designed to help farmers assess business feasibility, forecast demand, and perform optimization analysis (profit maximization, cost minimization, and goal programming). It integrates Gemini API for chatbot functionality and uses Firebase for Google Auth and Supabase for database storage.
+
+🔧 Key Features:
+
+1. Chatbot Arina (Gemini API):
+   - Chat interface centered on the screen.
+   - Chat uses Google Gemini API for reasoning and real-time web browsing.
+   - Chat history is stored per user in Supabase and includes rename, delete, and memory reuse features.
+
+2. Business Tools (in Sidebar):
+   - **Business Feasibility Analysis**:
+     - User inputs:
+       - Investment costs (can add multiple components)
+       - Operational costs (multiple components)
+       - Production cost per unit
+       - Sales volume per month
+       - Markup (%)
+     - Calculated outputs:
+       - HPP (Unit Cost)
+       - BEP (Break Even Point in Units & Rupiah)
+       - ROI
+       - Net Profit
+       - Payback Period
+       - Profit Margin
+     - Results saved to database and usable as context in chat.
+
+   - **Demand Forecasting**:
+     - SMA:
+       ```
+       SMA = (D1 + D2 + ... + Dn) / n
+       ```
+     - Exponential Smoothing:
+       ```
+       Ft = α * Dt-1 + (1 - α) * Ft-1
+       ```
+
+   - **Optimization Analysis**:
+     - **Profit Maximization / Cost Minimization**:
+       - Use Linear Programming (Simplex Method).
+       - Users define objective function and constraints.
+     - **Goal Programming**:
+       - Allow multiple objectives with user-defined priority.
+       - Each goal should accept:
+         - Objective function
+         - Target value
+         - Priority level
+       - Handle deviation variables for under/overachievement.
+       - Display solution summary and graphical explanation if possible.
+       - Example use case: “maximize profit while minimizing land usage and labor hours.”
+
+3. Sidebar Design:
+   - Top-left toggleable sidebar.
+   - Color scheme: Dark Green `#1F3A13` and Light Cream `#F9F9EF`.
+   - Each tool uses icons and tooltips.
+   - Accessible on both desktop and mobile devices.
+
+4. Chatroom Layout:
+   - Chat window in center of screen.
+   - Quick-access buttons to analysis tools appear above chat.
+   - Only logged-in users can access the chat feature.
+   - Chat memory from Supabase is reused in relevant conversations.
+
+5. Authentication:
+   - Google Sign-In via Firebase.
+   - Manual email/password registration stored in Supabase.
+   - Route protection: redirect users to login if not authenticated.
+
+6. Database:
+   - Supabase stores:
+     - Manual user accounts
+     - Chat history with metadata (title, content, timestamp)
+     - Chat memories per user
+     - Saved business analysis results and optimization history
+   - Firebase handles:
+     - Google Sign-In only
+
+⚙️ Technologies:
+- Frontend: React + Tailwind CSS
+- Backend: Supabase (data), Firebase (Google Auth)
+- AI: Google Gemini API (chat, reasoning, web browsing)
+
+🎯 Purpose:
+Empower farmers with easy-to-use tools and AI chat to make smart, modern, data-driven business decisions. Designed to be beginner-friendly, responsive, and insightful.
