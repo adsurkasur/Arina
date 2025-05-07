@@ -29,12 +29,22 @@ export interface IStorage {
   getAnalysisResult(id: string): Promise<AnalysisResult | undefined>;
   createAnalysisResult(result: InsertAnalysisResult): Promise<AnalysisResult>;
   deleteAnalysisResult(id: string): Promise<void>;
+  
+  // Recommendation operations
+  getRecommendationSets(userId: string): Promise<RecommendationSet[]>;
+  getRecommendationSet(id: string): Promise<RecommendationSet | undefined>;
+  getRecommendationItems(setId: string): Promise<RecommendationItem[]>;
+  createRecommendationSet(set: InsertRecommendationSet): Promise<RecommendationSet>;
+  createRecommendationItem(item: InsertRecommendationItem): Promise<RecommendationItem>;
+  deleteRecommendationSet(id: string): Promise<void>;
 }
 
 import { db } from "./db";
 import { 
   users, chatConversations, chatMessages, analysisResults,
-  usersRelations, chatConversationsRelations, chatMessagesRelations, analysisResultsRelations
+  recommendationSets, recommendationItems,
+  usersRelations, chatConversationsRelations, chatMessagesRelations, analysisResultsRelations,
+  recommendationSetsRelations, recommendationItemsRelations
 } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 

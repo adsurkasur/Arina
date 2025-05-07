@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, jsonb, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, jsonb, uuid, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
@@ -16,6 +16,7 @@ export const users = pgTable("users", {
 export const usersRelations = relations(users, ({ many }) => ({
   conversations: many(chatConversations),
   analysisResults: many(analysisResults),
+  recommendationSets: many(recommendationSets),
 }));
 
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -89,6 +90,53 @@ export const insertAnalysisResultSchema = createInsertSchema(analysisResults).om
   updated_at: true,
 });
 
+// Recommendation sets table (defining this first to avoid reference errors)
+export const recommendationSets = pgTable("recommendation_sets", {
+  id: uuid("id").primaryKey().notNull().$defaultFn(() => uuidv4()),
+  user_id: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  summary: text("summary").notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// Recommendation items table
+export const recommendationItems = pgTable("recommendation_items", {
+  id: uuid("id").primaryKey().notNull().$defaultFn(() => uuidv4()),
+  set_id: uuid("set_id").notNull().references(() => recommendationSets.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // 'crop', 'business', 'resource', 'market'
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  confidence: text("confidence").notNull(), // Stored as text but represents a 0-1 score
+  data: jsonb("data").notNull(),
+  source: text("source").notNull(), // 'analysis', 'chat', 'pattern', 'seasonal'
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// Define relations
+export const recommendationSetsRelations = relations(recommendationSets, ({ one, many }) => ({
+  user: one(users, {
+    fields: [recommendationSets.user_id],
+    references: [users.id],
+  }),
+  items: many(recommendationItems),
+}));
+
+export const recommendationItemsRelations = relations(recommendationItems, ({ one }) => ({
+  set: one(recommendationSets, {
+    fields: [recommendationItems.set_id],
+    references: [recommendationSets.id],
+  }),
+}));
+
+export const insertRecommendationSetSchema = createInsertSchema(recommendationSets).omit({
+  id: true,
+  created_at: true,
+});
+
+export const insertRecommendationItemSchema = createInsertSchema(recommendationItems).omit({
+  id: true,
+  created_at: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -101,3 +149,9 @@ export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 
 export type AnalysisResult = typeof analysisResults.$inferSelect;
 export type InsertAnalysisResult = z.infer<typeof insertAnalysisResultSchema>;
+
+export type RecommendationItem = typeof recommendationItems.$inferSelect;
+export type InsertRecommendationItem = z.infer<typeof insertRecommendationItemSchema>;
+
+export type RecommendationSet = typeof recommendationSets.$inferSelect;
+export type InsertRecommendationSet = z.infer<typeof insertRecommendationSetSchema>;
