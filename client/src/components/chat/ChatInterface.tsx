@@ -1,25 +1,69 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
 import { ChatMessage } from "@/types";
 import ChatBubble from "./ChatBubble";
 import ChatInput from "./ChatInput";
 import WelcomeBanner from "./WelcomeBanner";
+import TypingIndicator from "./TypingIndicator";
+import ThinkingAnimation from "./ThinkingAnimation";
 
 export default function ChatInterface() {
   const { messages, isLoading, sendMessage, isSending } = useChat();
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showThinking, setShowThinking] = useState(false);
+  const [lastMessageAnimated, setLastMessageAnimated] = useState<string | null>(null);
   
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom when new messages arrive or when typing indicator appears
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isSending]);
+  
+  // Show the more advanced thinking animation after a delay
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (isSending) {
+      // Initially show the typing indicator
+      setShowThinking(false);
+      
+      // After 2 seconds, switch to the thinking animation for longer responses
+      timer = setTimeout(() => {
+        setShowThinking(true);
+      }, 2000);
+    } else {
+      setShowThinking(false);
+    }
+    
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isSending]);
+  
+  // Keep track of which message was last animated to prevent re-animating
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length-1].role === 'assistant') {
+      const lastMsg = messages[messages.length-1];
+      if (lastMsg.content && !lastMessageAnimated) {
+        setLastMessageAnimated(lastMsg.content);
+      }
+    }
+  }, [messages, lastMessageAnimated]);
   
   const handleSendMessage = (content: string) => {
     if (content.trim()) {
       sendMessage(content);
+      // Reset animation tracking when sending a new message
+      setLastMessageAnimated(null);
     }
+  };
+  
+  // Check if a message should be animated
+  const shouldAnimateMessage = (message: ChatMessage, index: number) => {
+    return message.role === 'assistant' && 
+           index === messages.length - 1 && 
+           message.content === lastMessageAnimated;
   };
   
   return (
@@ -40,21 +84,11 @@ export default function ChatInterface() {
                 message={message} 
                 userName={user?.name || "User"}
                 userImage={user?.photoURL}
+                animate={shouldAnimateMessage(message, index)}
               />
             ))}
             {isSending && (
-              <div className="flex mb-4">
-                <div className="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white">
-                  <span className="text-lg">A</span>
-                </div>
-                <div className="ml-3 bg-white p-3 rounded-tr-lg rounded-br-lg rounded-bl-lg shadow-sm max-w-[80%]">
-                  <div className="flex space-x-2">
-                    <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                    <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-                  </div>
-                </div>
-              </div>
+              showThinking ? <ThinkingAnimation /> : <TypingIndicator />
             )}
           </div>
         )}
