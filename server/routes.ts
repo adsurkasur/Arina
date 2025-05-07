@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { recommendationService } from "./services/recommendation-service";
+import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes for user management
@@ -104,6 +106,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/analysis/:id", async (req, res) => {
     try {
       await storage.deleteAnalysisResult(req.params.id);
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // API routes for recommendations
+  app.get("/api/recommendations/:userId", async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const recommendations = await recommendationService.getUserRecommendations(userId);
+      res.json(recommendations);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  app.get("/api/recommendations/set/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const recommendationSet = await recommendationService.getRecommendationSet(id);
+      
+      if (!recommendationSet) {
+        return res.status(404).json({ message: "Recommendation set not found" });
+      }
+      
+      res.json(recommendationSet);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Generate new recommendations
+  const generateRecommendationsSchema = z.object({
+    userId: z.string(),
+    currentSeason: z.enum(['spring', 'summer', 'fall', 'winter']).optional()
+  });
+  
+  app.post("/api/recommendations/generate", async (req, res) => {
+    try {
+      const validationResult = generateRecommendationsSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: "Invalid request data", 
+          details: validationResult.error.format() 
+        });
+      }
+      
+      const recommendations = await recommendationService.generateRecommendations(validationResult.data);
+      res.status(201).json(recommendations);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  app.delete("/api/recommendations/:id", async (req, res) => {
+    try {
+      await recommendationService.deleteRecommendationSet(req.params.id);
       res.status(204).send();
     } catch (error: any) {
       res.status(500).json({ message: error.message });

@@ -2,7 +2,9 @@ import {
   User, InsertUser, 
   ChatConversation, InsertChatConversation,
   ChatMessage, InsertChatMessage,
-  AnalysisResult, InsertAnalysisResult
+  AnalysisResult, InsertAnalysisResult,
+  RecommendationSet, InsertRecommendationSet,
+  RecommendationItem, InsertRecommendationItem
 } from "@shared/schema";
 import { v4 as uuidv4 } from "uuid";
 
@@ -165,6 +167,43 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAnalysisResult(id: string): Promise<void> {
     await db.delete(analysisResults).where(eq(analysisResults.id, id));
+  }
+  
+  // Recommendation operations
+  async getRecommendationSets(userId: string): Promise<RecommendationSet[]> {
+    return await db
+      .select()
+      .from(recommendationSets)
+      .where(eq(recommendationSets.user_id, userId))
+      .orderBy(desc(recommendationSets.created_at));
+  }
+  
+  async getRecommendationSet(id: string): Promise<RecommendationSet | undefined> {
+    const result = await db.select().from(recommendationSets).where(eq(recommendationSets.id, id));
+    return result[0];
+  }
+  
+  async getRecommendationItems(setId: string): Promise<RecommendationItem[]> {
+    return await db
+      .select()
+      .from(recommendationItems)
+      .where(eq(recommendationItems.set_id, setId))
+      .orderBy(desc(recommendationItems.created_at));
+  }
+  
+  async createRecommendationSet(setData: InsertRecommendationSet): Promise<RecommendationSet> {
+    const result = await db.insert(recommendationSets).values(setData).returning();
+    return result[0];
+  }
+  
+  async createRecommendationItem(itemData: InsertRecommendationItem): Promise<RecommendationItem> {
+    const result = await db.insert(recommendationItems).values(itemData).returning();
+    return result[0];
+  }
+  
+  async deleteRecommendationSet(id: string): Promise<void> {
+    // The cascade delete will handle removing items automatically
+    await db.delete(recommendationSets).where(eq(recommendationSets.id, id));
   }
 }
 
