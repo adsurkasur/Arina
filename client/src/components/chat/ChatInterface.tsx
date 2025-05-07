@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { ChatMessage } from "@/types";
 import ChatBubble from "./ChatBubble";
 import ChatInput from "./ChatInput";
-import WelcomeBanner from "./WelcomeBanner";
 import TypingIndicator from "./TypingIndicator";
 import ThinkingAnimation from "./ThinkingAnimation";
 
@@ -75,7 +74,11 @@ export default function ChatInterface() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : messages.length === 0 ? (
-          <WelcomeBanner />
+          <div className="flex justify-center items-center h-full">
+            <div className="text-center text-gray-500">
+              <p>Start a new conversation by typing a message below.</p>
+            </div>
+          </div>
         ) : (
           <div className="max-w-2xl mx-auto">
             {messages.map((message: ChatMessage, index: number) => (
