@@ -1,39 +1,39 @@
 import React, { useState } from 'react';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
+  RefreshCw, Calendar, Trash2, Lightbulb,
   BarChart4, TrendingUp, ShoppingCart, Leaf, 
-  AlertCircle, Calendar, RefreshCw, Trash2
+  AlertCircle
 } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { format } from 'date-fns';
 
 export function RecommendationsList() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('all');
-  const [season, setSeason] = useState<'spring' | 'summer' | 'fall' | 'winter'>('spring');
+  const [currentTab, setCurrentTab] = useState('all');
+  const [currentSeason] = useState<'spring' | 'summer' | 'fall' | 'winter'>(
+    () => {
+      const month = new Date().getMonth();
+      if (month >= 2 && month <= 4) return 'spring';
+      if (month >= 5 && month <= 7) return 'summer';
+      if (month >= 8 && month <= 10) return 'fall';
+      return 'winter';
+    }
+  );
   
   const {
-    recommendationSets,
-    isLoadingSets,
-    selectedSet,
-    setSelectedSetId,
-    isLoadingSelectedSet,
+    recommendations,
+    loading,
+    generating,
+    fetchRecommendations,
     generateRecommendations,
-    isGenerating,
-    deleteRecommendation,
-    isDeleting
+    deleteRecommendationSet
   } = useRecommendations();
 
   if (!user) {
@@ -47,12 +47,27 @@ export function RecommendationsList() {
   }
 
   const handleGenerate = () => {
-    generateRecommendations(season);
+    generateRecommendations({ currentSeason });
   };
 
-  const handleDelete = (setId: string) => {
+  const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this recommendation set?')) {
-      deleteRecommendation(setId);
+      deleteRecommendationSet(id);
+    }
+  };
+
+  const getSourceIcon = (source: string) => {
+    switch (source) {
+      case 'analysis':
+        return <BarChart4 className="h-4 w-4 text-blue-500" />;
+      case 'chat':
+        return <TrendingUp className="h-4 w-4 text-green-500" />;
+      case 'pattern':
+        return <ShoppingCart className="h-4 w-4 text-purple-500" />;
+      case 'seasonal':
+        return <Leaf className="h-4 w-4 text-orange-500" />;
+      default:
+        return <AlertCircle className="h-4 w-4" />;
     }
   };
 
@@ -71,244 +86,170 @@ export function RecommendationsList() {
     }
   };
 
-  const getSourceLabel = (source: string) => {
-    switch (source) {
-      case 'analysis':
-        return 'Analysis';
-      case 'chat':
-        return 'Chat';
-      case 'pattern':
-        return 'Pattern';
-      case 'seasonal':
-        return 'Seasonal';
-      default:
-        return source;
-    }
+  const getConfidenceBadgeColor = (confidence: string | number) => {
+    const confidenceValue = typeof confidence === 'string' ? parseFloat(confidence) : confidence;
+    if (confidenceValue >= 0.8) return "bg-green-100 text-green-800 border-green-300";
+    if (confidenceValue >= 0.6) return "bg-blue-100 text-blue-800 border-blue-300";
+    if (confidenceValue >= 0.4) return "bg-yellow-100 text-yellow-800 border-yellow-300";
+    return "bg-red-100 text-red-800 border-red-300";
   };
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'business':
-        return 'Business';
-      case 'market':
-        return 'Market';
-      case 'resource':
-        return 'Resource';
-      case 'crop':
-        return 'Crop';
-      default:
-        return type;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'business':
-        return 'bg-blue-100 text-blue-800';
-      case 'market':
-        return 'bg-purple-100 text-purple-800';
-      case 'resource':
-        return 'bg-amber-100 text-amber-800';
-      case 'crop':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'text-green-600';
-    if (confidence >= 0.6) return 'text-amber-600';
-    return 'text-gray-600';
-  };
-
-  const filterItemsByType = (items: any[] = [], type: string) => {
-    if (type === 'all') return items;
-    return items.filter(item => item.type === type);
-  };
+  // Filter recommendations based on the active tab
+  const filteredRecommendations = recommendations.filter(set => {
+    if (currentTab === 'all') return true;
+    return set.items.some(item => item.type === currentTab);
+  });
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-heading font-semibold text-primary">Recommendations</h2>
+      {/* Action buttons */}
+      <div className="flex items-center justify-between">
+        <Button 
+          onClick={handleGenerate} 
+          disabled={generating}
+          className="bg-primary hover:bg-primary/90 text-white"
+        >
+          {generating ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Lightbulb className="mr-2 h-4 w-4" />
+              Generate Recommendations
+            </>
+          )}
+        </Button>
         
-        <div className="flex space-x-2">
-          <Select value={season} onValueChange={(value: any) => setSeason(value)}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Season" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="spring">Spring</SelectItem>
-              <SelectItem value="summer">Summer</SelectItem>
-              <SelectItem value="fall">Fall</SelectItem>
-              <SelectItem value="winter">Winter</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button 
-            onClick={handleGenerate} 
-            disabled={isGenerating || !user?.id}
-            className="flex items-center"
-          >
-            {isGenerating ? (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Generate
-              </>
-            )}
-          </Button>
-        </div>
+        <Badge variant="outline" className="flex items-center gap-1 ml-2">
+          <Calendar className="h-3 w-3" />
+          <span className="capitalize">{currentSeason}</span>
+        </Badge>
       </div>
-
-      {isLoadingSets ? (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-gray-500">Loading recommendation sets...</p>
-          </CardContent>
-        </Card>
-      ) : recommendationSets && recommendationSets.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {recommendationSets.map((set) => (
-            <Card key={set.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg font-heading">{
-                    set.summary.length > 70 
-                      ? set.summary.substring(0, 70) + "..." 
-                      : set.summary
-                  }</CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => handleDelete(set.id)}
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500" />
-                  </Button>
-                </div>
-                <CardDescription>
-                  <Calendar className="inline-block mr-1 h-3 w-3" />
-                  {format(new Date(set.created_at), 'MMM d, yyyy')}
-                  <span className="mx-1">•</span>
-                  {set.items.length} recommendations
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pb-2">
+      
+      {/* Tabs for filtering recommendations */}
+      <Tabs defaultValue="all" value={currentTab} onValueChange={setCurrentTab}>
+        <TabsList className="grid grid-cols-5 w-full">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="crop">Crops</TabsTrigger>
+          <TabsTrigger value="business">Business</TabsTrigger>
+          <TabsTrigger value="market">Market</TabsTrigger>
+          <TabsTrigger value="resource">Resources</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value={currentTab} className="mt-4">
+          {loading ? (
+            // Loading state
+            <div className="space-y-4">
+              {[1, 2].map(i => (
+                <Card key={i} className="overflow-hidden">
+                  <CardHeader className="pb-2">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/3 mt-2" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-3/4" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : recommendations.length === 0 ? (
+            // Empty state
+            <Card>
+              <CardContent className="pt-6 pb-6 text-center">
+                <Lightbulb className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-500 mb-2">No recommendations available yet</p>
+                <p className="text-gray-400 text-sm mb-4">
+                  Generate recommendations based on your data and chat history
+                </p>
                 <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={() => setSelectedSetId(set.id)}
+                  onClick={handleGenerate} 
+                  disabled={generating}
+                  className="bg-primary hover:bg-primary/90 text-white"
                 >
-                  View Details
+                  {generating ? "Generating..." : "Generate Now"}
                 </Button>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-3 py-6">
-              <p className="text-gray-500">No recommendation sets found.</p>
-              <p className="text-sm text-gray-400">
-                Generate recommendations based on your chat history and analysis results.
-              </p>
-              <Button 
-                onClick={handleGenerate} 
-                disabled={isGenerating || !user?.id}
-                className="mt-4"
-              >
-                Generate Recommendations
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Selected Recommendation Set Detail */}
-      {selectedSet && (
-        <Card className="mt-6">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="font-heading">{selectedSet.summary}</CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setSelectedSetId(null)}
-              >
-                Close
-              </Button>
-            </div>
-            <CardDescription>
-              Created on {format(new Date(selectedSet.created_at), 'MMMM d, yyyy')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="w-full mb-4">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="business">Business</TabsTrigger>
-                <TabsTrigger value="market">Market</TabsTrigger>
-                <TabsTrigger value="resource">Resource</TabsTrigger>
-                <TabsTrigger value="crop">Crop</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value={activeTab} className="mt-0">
-                <ScrollArea className="h-[400px] pr-4">
-                  <div className="space-y-4">
-                    {isLoadingSelectedSet ? (
-                      <p className="text-center text-gray-500">Loading recommendations...</p>
-                    ) : filterItemsByType(selectedSet.items, activeTab).length > 0 ? (
-                      filterItemsByType(selectedSet.items, activeTab).map((item) => (
-                        <Card key={item.id} className="overflow-hidden">
-                          <div className={`h-1 ${getTypeColor(item.type).split(' ')[0]}`}></div>
-                          <CardHeader className="pb-2">
-                            <div className="flex justify-between items-start">
-                              <div className="flex items-center space-x-2">
-                                <div className={`p-1.5 rounded-full ${getTypeColor(item.type)}`}>
-                                  {getTypeIcon(item.type)}
-                                </div>
-                                <CardTitle className="text-base font-medium">
-                                  {item.title}
-                                </CardTitle>
-                              </div>
-                              <Badge variant="outline">
-                                {getSourceLabel(item.source)}
-                              </Badge>
+          ) : (
+            // Recommendation sets
+            <div className="space-y-6">
+              {filteredRecommendations.map(set => (
+                <Card key={set.id} className="overflow-hidden">
+                  <CardHeader className="pb-2 bg-cream/10">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg font-medium text-primary">
+                          {set.summary}
+                        </CardTitle>
+                        <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {format(new Date(set.created_at), 'MMM d, yyyy')}
+                          </span>
+                          <span>•</span>
+                          <span>{set.items.length} recommendations</span>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(set.id)}
+                        className="h-8 w-8 text-gray-400 hover:text-red-500"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-4 pb-2">
+                    <div className="space-y-4">
+                      {set.items.map(item => (
+                        <div
+                          key={item.id}
+                          className="p-3 border border-gray-100 rounded-md hover:border-gray-200 transition-colors bg-white"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{getSourceIcon(item.source)}</span>
+                              <h4 className="font-medium text-primary">{item.title}</h4>
                             </div>
-                          </CardHeader>
-                          <CardContent className="pb-3">
-                            <p className="text-sm text-gray-700">
-                              {item.description}
-                            </p>
-                          </CardContent>
-                          <CardFooter className="pt-0 pb-3 flex justify-between items-center">
-                            <Badge variant="outline" className={getTypeColor(item.type)}>
-                              {getTypeLabel(item.type)}
+                            <Badge 
+                              variant="outline" 
+                              className={getConfidenceBadgeColor(item.confidence)}
+                            >
+                              {Math.round(typeof item.confidence === 'string' 
+                                ? parseFloat(item.confidence) * 100 
+                                : item.confidence * 100)}%
                             </Badge>
-                            <p className={`text-xs ${getConfidenceColor(item.confidence)}`}>
-                              Confidence: {Math.round(item.confidence * 100)}%
-                            </p>
-                          </CardFooter>
-                        </Card>
-                      ))
-                    ) : (
-                      <p className="text-center text-gray-500">
-                        No {activeTab !== 'all' ? activeTab : ''} recommendations found.
-                      </p>
-                    )}
-                  </div>
-                </ScrollArea>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
+                          </div>
+                          <p className="mt-2 text-sm text-gray-600">{item.description}</p>
+                          <div className="flex items-center mt-3 justify-between">
+                            <Badge variant="secondary" className="capitalize">
+                              {item.type}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  
+                  <CardFooter className="bg-cream/5 pt-3 pb-3 px-6 text-xs text-muted-foreground">
+                    <p>
+                      Recommendations based on your historical data and agricultural conditions.
+                    </p>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

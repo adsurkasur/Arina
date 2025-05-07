@@ -37,7 +37,7 @@ export default function Dashboard() {
       case "optimizationAnalysis":
         return <OptimizationAnalysis onClose={handleCloseToolPanel} />;
       case "recommendations":
-        return <RecommendationDashboard />;
+        return <RecommendationDashboard onClose={handleCloseToolPanel} />;
       case "settings":
         return <UserProfile onClose={handleCloseToolPanel} />;
       case "help":

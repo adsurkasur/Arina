@@ -1,13 +1,12 @@
-import { storage } from "../storage";
-import { 
-  ChatMessage, 
-  AnalysisResult, 
+import { v4 as uuid } from 'uuid';
+import { storage } from '../storage';
+import { generateRecommendations } from '@shared/recommendation-engine';
+import type { 
   RecommendationSet, 
-  InsertRecommendationSet, 
   RecommendationItem, 
+  InsertRecommendationSet, 
   InsertRecommendationItem 
-} from "@shared/schema";
-import { generateRecommendations } from "@shared/recommendation-engine";
+} from '@shared/schema';
 
 interface GenerateRecommendationsParams {
   userId: string;
@@ -15,106 +14,141 @@ interface GenerateRecommendationsParams {
 }
 
 export class RecommendationService {
-  
   /**
    * Generate recommendations based on user's analysis results and chat history
    */
-  async generateRecommendations(params: GenerateRecommendationsParams): Promise<RecommendationSet> {
-    const { userId, currentSeason } = params;
-    
-    // Fetch user's analysis results
-    const analysisResults = await storage.getAnalysisResults(userId);
-    
-    // Fetch user's chat history
-    // We'll combine all chat messages from all conversations
-    const conversations = await storage.getConversations(userId);
-    let allMessages: ChatMessage[] = [];
-    
-    for (const conversation of conversations) {
-      const messages = await storage.getMessages(conversation.id);
-      allMessages = [...allMessages, ...messages];
-    }
-    
-    // Generate recommendations using the engine
-    const recommendationData = generateRecommendations({
-      userId,
-      analysisResults,
-      chatHistory: allMessages,
-      currentSeason
-    });
-    
-    // Save recommendation set to database
-    const insertSetData: InsertRecommendationSet = {
-      user_id: userId,
-      summary: recommendationData.summary
-    };
-    
-    const savedSet = await storage.createRecommendationSet(insertSetData);
-    
-    // Save all recommendation items
-    const savedItems: RecommendationItem[] = [];
-    
-    for (const item of recommendationData.recommendations) {
-      const insertItemData: InsertRecommendationItem = {
-        set_id: savedSet.id,
-        type: item.type,
-        title: item.title,
-        description: item.description,
-        confidence: item.confidence.toString(), // Convert to string for storage
-        data: item.data,
-        source: item.source
+  async generateRecommendations(params: GenerateRecommendationsParams): Promise<RecommendationSet & { items: RecommendationItem[] }> {
+    try {
+      const { userId, currentSeason } = params;
+      
+      // Get user's analysis results
+      const analysisResults = await storage.getAnalysisResults(userId);
+      
+      // Get conversations for the user
+      const conversations = await storage.getConversations(userId);
+      
+      // Get messages from all conversations
+      const chatMessages = [];
+      for (const conversation of conversations) {
+        const messages = await storage.getMessages(conversation.id);
+        chatMessages.push(...messages);
+      }
+      
+      // Generate recommendations
+      const recommendationInput = {
+        userId,
+        analysisResults,
+        chatHistory: chatMessages,
+        currentSeason
       };
       
-      const savedItem = await storage.createRecommendationItem(insertItemData);
-      savedItems.push(savedItem);
+      // Use our recommendation engine to generate recommendations
+      const recommendations = generateRecommendations(recommendationInput);
+      
+      // Store in the database
+      const setId = uuid();
+      
+      const insertSetData: InsertRecommendationSet = {
+        id: setId,
+        user_id: userId,
+        summary: recommendations.summary,
+        created_at: new Date().toISOString()
+      };
+      
+      // Create the recommendation set
+      const recommendationSet = await storage.createRecommendationSet(insertSetData);
+      
+      // Create all recommendation items
+      const items: RecommendationItem[] = [];
+      
+      for (const rec of recommendations.recommendations) {
+        const insertItemData: InsertRecommendationItem = {
+          id: uuid(),
+          set_id: setId,
+          type: rec.type,
+          title: rec.title,
+          description: rec.description,
+          confidence: rec.confidence,
+          data: rec.data,
+          source: rec.source,
+          created_at: new Date().toISOString()
+        };
+        
+        const item = await storage.createRecommendationItem(insertItemData);
+        items.push(item);
+      }
+      
+      return {
+        ...recommendationSet,
+        items
+      };
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+      throw error;
     }
-    
-    // Return the saved set with its ID
-    return {
-      ...savedSet,
-      // Add items for convenience in the response
-      items: savedItems
-    } as RecommendationSet & { items: RecommendationItem[] };
   }
-  
+
   /**
    * Get all recommendation sets for a user
    */
   async getUserRecommendations(userId: string): Promise<(RecommendationSet & { items: RecommendationItem[] })[]> {
-    const sets = await storage.getRecommendationSets(userId);
-    const result = [];
-    
-    for (const set of sets) {
-      const items = await storage.getRecommendationItems(set.id);
-      result.push({
-        ...set,
-        items
-      });
+    try {
+      // Get all recommendation sets for the user
+      const sets = await storage.getRecommendationSets(userId);
+      
+      // For each set, get its items
+      const result = [];
+      
+      for (const set of sets) {
+        const items = await storage.getRecommendationItems(set.id);
+        result.push({
+          ...set,
+          items
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error getting user recommendations:', error);
+      throw error;
     }
-    
-    return result;
   }
-  
+
   /**
    * Get a specific recommendation set with its items
    */
   async getRecommendationSet(setId: string): Promise<(RecommendationSet & { items: RecommendationItem[] }) | null> {
-    const set = await storage.getRecommendationSet(setId);
-    if (!set) return null;
-    
-    const items = await storage.getRecommendationItems(setId);
-    
-    return {
-      ...set,
-      items
-    };
+    try {
+      // Get the recommendation set
+      const set = await storage.getRecommendationSet(setId);
+      
+      if (!set) {
+        return null;
+      }
+      
+      // Get the items for this set
+      const items = await storage.getRecommendationItems(setId);
+      
+      return {
+        ...set,
+        items
+      };
+    } catch (error) {
+      console.error('Error getting recommendation set:', error);
+      throw error;
+    }
   }
-  
+
   /**
    * Delete a recommendation set and all its items
    */
   async deleteRecommendationSet(setId: string): Promise<void> {
-    await storage.deleteRecommendationSet(setId);
+    try {
+      await storage.deleteRecommendationSet(setId);
+    } catch (error) {
+      console.error('Error deleting recommendation set:', error);
+      throw error;
+    }
   }
 }
 
