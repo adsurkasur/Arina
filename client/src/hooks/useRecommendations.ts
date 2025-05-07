@@ -1,54 +1,50 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from './useAuth';
-import { apiRequest } from '@/lib/queryClient';
+import { getQueryFn, queryClient } from '@/lib/queryClient';
 import { RecommendationSet, RecommendationItem, GenerateRecommendationsParams } from '@/types/recommendations';
 import { useToast } from './use-toast';
+import { useQuery, useMutation } from '@tanstack/react-query';
 
 export function useRecommendations() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [generating, setGenerating] = useState(false);
   const [recommendations, setRecommendations] = useState<(RecommendationSet & { items: RecommendationItem[] })[]>([]);
 
-  const fetchRecommendations = useCallback(async () => {
-    if (!user) return [];
-    
-    try {
-      setLoading(true);
-      // Using the proper types to avoid TypeScript errors
-      const response = await fetch(`/api/recommendations/${user.id}`, { 
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch recommendations');
+  // Use React Query for fetching recommendations
+  const { 
+    isLoading: loading, 
+    data: fetchedRecommendations,
+    refetch 
+  } = useQuery({
+    queryKey: ['recommendations', user?.id],
+    queryFn: getQueryFn<(RecommendationSet & { items: RecommendationItem[] })[]>({
+      on401: 'returnNull',
+      endpoint: user ? `/api/recommendations/${user.id}` : null,
+    }),
+    enabled: !!user,
+    onSuccess: (data) => {
+      if (data) {
+        setRecommendations(data);
       }
-
-      const data = await response.json() as (RecommendationSet & { items: RecommendationItem[] })[];
-      setRecommendations(data);
-      return data;
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Error fetching recommendations:', error);
       toast({
         title: 'Failed to load recommendations',
         description: 'Could not retrieve your personalized recommendations.',
         variant: 'destructive',
       });
-      return [];
-    } finally {
-      setLoading(false);
     }
-  }, [user, toast]);
+  });
 
-  const generateRecommendations = useCallback(async (params: Omit<GenerateRecommendationsParams, 'userId'>) => {
-    if (!user) return null;
-    
-    try {
-      setGenerating(true);
+  // Use React Query for generating recommendations
+  const { 
+    isPending: generating,
+    mutateAsync: generateRecommendationsMutation 
+  } = useMutation({
+    mutationFn: async (params: Omit<GenerateRecommendationsParams, 'userId'>) => {
+      if (!user) return null;
+      
       const response = await fetch('/api/recommendations/generate', {
         method: 'POST',
         headers: {
@@ -59,37 +55,40 @@ export function useRecommendations() {
           ...params
         })
       });
-
+      
       if (!response.ok) {
         throw new Error('Failed to generate recommendations');
       }
-
-      const data = await response.json() as (RecommendationSet & { items: RecommendationItem[] });
       
-      setRecommendations(prev => [data, ...prev]);
-      
-      toast({
-        title: 'Recommendations Generated',
-        description: 'New personalized recommendations are ready for you.',
-      });
-      
-      return data;
-    } catch (error) {
+      return await response.json() as (RecommendationSet & { items: RecommendationItem[] });
+    },
+    onSuccess: (data) => {
+      if (data) {
+        setRecommendations(prev => [data, ...prev]);
+        queryClient.invalidateQueries({ queryKey: ['recommendations', user?.id] });
+        
+        toast({
+          title: 'Recommendations Generated',
+          description: 'New personalized recommendations are ready for you.',
+        });
+      }
+    },
+    onError: (error) => {
       console.error('Error generating recommendations:', error);
       toast({
         title: 'Failed to Generate Recommendations',
         description: 'An error occurred while creating recommendations.',
         variant: 'destructive',
       });
-      return null;
-    } finally {
-      setGenerating(false);
     }
-  }, [user, toast]);
+  });
 
-  const deleteRecommendationSet = useCallback(async (id: string) => {
-    try {
-      const response = await fetch(`/api/recommendations/${id}`, { 
+  // Use React Query for deleting recommendations
+  const { 
+    mutateAsync: deleteRecommendationSetMutation 
+  } = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/recommendations/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -100,27 +99,49 @@ export function useRecommendations() {
         throw new Error('Failed to delete recommendation set');
       }
       
+      return id;
+    },
+    onSuccess: (id) => {
       setRecommendations(prev => prev.filter(rec => rec.id !== id));
+      queryClient.invalidateQueries({ queryKey: ['recommendations', user?.id] });
       
       toast({
         title: 'Recommendations Deleted',
         description: 'The recommendation set has been removed.',
       });
-      
-      return true;
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Error deleting recommendation:', error);
       toast({
         title: 'Failed to Delete Recommendations',
         description: 'An error occurred while deleting the recommendations.',
         variant: 'destructive',
       });
+    }
+  });
+  
+  // Wrapper functions to provide a cleaner API
+  const fetchRecommendations = useCallback(async () => {
+    if (!user) return [];
+    return await refetch();
+  }, [user, refetch]);
+  
+  const generateRecommendations = useCallback(async (params: Omit<GenerateRecommendationsParams, 'userId'>) => {
+    if (!user) return null;
+    return await generateRecommendationsMutation(params);
+  }, [user, generateRecommendationsMutation]);
+  
+  const deleteRecommendationSet = useCallback(async (id: string) => {
+    try {
+      await deleteRecommendationSetMutation(id);
+      return true;
+    } catch (error) {
       return false;
     }
-  }, [toast]);
+  }, [deleteRecommendationSetMutation]);
 
   return {
-    recommendations,
+    recommendations: recommendations || fetchedRecommendations || [],
     loading,
     generating,
     fetchRecommendations,
