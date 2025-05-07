@@ -7,12 +7,51 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 // User management
-export const createUserProfile = async (userId: string, email: string, name: string) => {
-  return await supabase
-    .from('users')
-    .insert([
-      { id: userId, email, name }
-    ]);
+export const createUserProfile = async (userId: string, email: string, name: string, photoURL?: string) => {
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        id: userId, 
+        email, 
+        name,
+        photo_url: photoURL 
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to create user profile') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error creating user profile:', error);
+    return { data: null, error };
+  }
+};
+
+export const getUserProfile = async (userId: string) => {
+  try {
+    // Use the Express API
+    const response = await fetch(`/api/users/${userId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to fetch user profile') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return { data: null, error };
+  }
 };
 
 // Chat history
@@ -146,31 +185,146 @@ export const addChatMessage = async (conversationId: string, role: 'user' | 'ass
 
 // Analysis results
 export const saveAnalysisResult = async (userId: string, type: string, data: any) => {
-  return await supabase
-    .from('analysis_results')
-    .insert([
-      { user_id: userId, type, data }
-    ])
-    .select()
-    .single();
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch('/api/analysis', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_id: userId, type, data }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to save analysis result') };
+    }
+    
+    const result = await response.json();
+    return { data: result, error: null };
+  } catch (error) {
+    console.error('Error saving analysis result:', error);
+    return { data: null, error };
+  }
 };
 
 export const getAnalysisResults = async (userId: string, type?: string) => {
-  let query = supabase
-    .from('analysis_results')
-    .select('*')
-    .eq('user_id', userId);
-  
-  if (type) {
-    query = query.eq('type', type);
+  try {
+    // Use the Express API instead of Supabase directly
+    const url = type 
+      ? `/api/analysis/${userId}?type=${encodeURIComponent(type)}`
+      : `/api/analysis/${userId}`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to fetch analysis results') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching analysis results:', error);
+    return { data: null, error };
   }
-  
-  return await query.order('created_at', { ascending: false });
 };
 
 export const deleteAnalysisResult = async (resultId: string) => {
-  return await supabase
-    .from('analysis_results')
-    .delete()
-    .eq('id', resultId);
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch(`/api/analysis/${resultId}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok && response.status !== 204) {
+      const errorData = await response.json().catch(() => ({}));
+      return { error: new Error(errorData.message || 'Failed to delete analysis result') };
+    }
+    
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting analysis result:', error);
+    return { error };
+  }
+};
+
+// Recommendations
+export const getRecommendations = async (userId: string) => {
+  try {
+    // Use the Express API
+    const response = await fetch(`/api/recommendations/${userId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to fetch recommendations') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching recommendations:', error);
+    return { data: null, error };
+  }
+};
+
+export const getRecommendationSet = async (setId: string) => {
+  try {
+    // Use the Express API
+    const response = await fetch(`/api/recommendations/set/${setId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to fetch recommendation set') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching recommendation set:', error);
+    return { data: null, error };
+  }
+};
+
+export const generateRecommendations = async (userId: string, currentSeason?: 'spring' | 'summer' | 'fall' | 'winter') => {
+  try {
+    // Use the Express API
+    const response = await fetch('/api/recommendations/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, currentSeason }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to generate recommendations') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error generating recommendations:', error);
+    return { data: null, error };
+  }
+};
+
+export const deleteRecommendation = async (recommendationId: string) => {
+  try {
+    // Use the Express API
+    const response = await fetch(`/api/recommendations/${recommendationId}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok && response.status !== 204) {
+      const errorData = await response.json().catch(() => ({}));
+      return { error: new Error(errorData.message || 'Failed to delete recommendation') };
+    }
+    
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting recommendation:', error);
+    return { error };
+  }
 };
