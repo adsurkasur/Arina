@@ -25,13 +25,27 @@ export const getChatHistory = async (userId: string) => {
 };
 
 export const createChat = async (userId: string, title: string) => {
-  return await supabase
-    .from('chat_conversations')
-    .insert([
-      { user_id: userId, title }
-    ])
-    .select()
-    .single();
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch('/api/conversations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_id: userId, title }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to create conversation') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error creating chat:', error);
+    return { data: null, error };
+  }
 };
 
 export const updateChatTitle = async (chatId: string, title: string) => {
