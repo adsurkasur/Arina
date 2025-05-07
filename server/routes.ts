@@ -20,10 +20,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/users", async (req, res) => {
     try {
-      const user = await storage.createUser(req.body);
-      res.status(201).json(user);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      const userData = req.body;
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.json(existingUser);
+      }
+
+      // Create new user if doesn't exist
+      const user = await storage.createUser(userData);
+      res.json(user);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).json({ message: 'Failed to create user' });
     }
   });
 
@@ -122,28 +132,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error.message });
     }
   });
-  
+
   app.get("/api/recommendations/set/:id", async (req, res) => {
     try {
       const id = req.params.id;
       const recommendationSet = await recommendationService.getRecommendationSet(id);
-      
+
       if (!recommendationSet) {
         return res.status(404).json({ message: "Recommendation set not found" });
       }
-      
+
       res.json(recommendationSet);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
-  
+
   // Generate new recommendations
   const generateRecommendationsSchema = z.object({
     userId: z.string(),
     currentSeason: z.enum(['spring', 'summer', 'fall', 'winter']).optional()
   });
-  
+
   app.post("/api/recommendations/generate", async (req, res) => {
     try {
       const validationResult = generateRecommendationsSchema.safeParse(req.body);
@@ -153,14 +163,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           details: validationResult.error.format() 
         });
       }
-      
+
       const recommendations = await recommendationService.generateRecommendations(validationResult.data);
       res.status(201).json(recommendations);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
-  
+
   app.delete("/api/recommendations/:id", async (req, res) => {
     try {
       await recommendationService.deleteRecommendationSet(req.params.id);
