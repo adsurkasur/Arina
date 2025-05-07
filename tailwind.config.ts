@@ -44,6 +44,12 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        // Custom colors for Arina
+        cream: {
+          DEFAULT: "#F9F9EF",
+          dark: "#EFEFE5",
+        },
+        'dark-green': "#1F3A13",
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",

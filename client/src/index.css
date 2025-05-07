@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* Main colors - Using exact values from requirement: Dark Green #1F3A13 and Light Cream #F9F9EF */
     --background: 60 33% 96%;
     --foreground: 20 14.3% 4.1%;
     --muted: 60 4.8% 95.9%;
@@ -14,7 +15,7 @@
     --card-foreground: 20 14.3% 4.1%;
     --border: 20 5.9% 90%;
     --input: 20 5.9% 90%;
-    --primary: 114 52% 15%;
+    --primary: 114 47% 16%; /* Dark Green #1F3A13 */
     --primary-foreground: 60 9.1% 97.8%;
     --secondary: 60 4.8% 95.9%;
     --secondary-foreground: 24 9.8% 10%;
@@ -26,8 +27,8 @@
     --radius: 0.5rem;
     
     /* Custom theme colors */
-    --sidebar-background: 114 52% 15%;
-    --sidebar-foreground: 60 9.1% 97.8%;
+    --sidebar-background: 114 47% 16%; /* Dark Green #1F3A13 */
+    --sidebar-foreground: 60 50% 96%; /* Light Cream #F9F9EF */
     --sidebar-primary: 100 31% 37%;
     --sidebar-primary-foreground: 60 9.1% 97.8%;
     --sidebar-accent: 100 20% 85%;
