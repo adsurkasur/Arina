@@ -64,9 +64,19 @@ export function Sidebar({ isOpen, setIsOpen, isMobile, openTool }: SidebarProps)
         
         {/* Sidebar Header */}
         <div className="p-4">
-          <h2 className="text-xl font-bold flex items-center">
-            <span className="mr-2">🌱</span> Arina
-          </h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold flex items-center">
+              <span className="mr-2">🌱</span> Arina
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-primary-foreground/10"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
           <p className="text-xs text-white/70 mt-1">
             Agricultural Intelligence Platform
           </p>
