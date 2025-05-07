@@ -3,8 +3,34 @@ import { ChatMessage } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sprout } from "lucide-react";
 import { cn } from "@/lib/theme";
-import ReactMarkdown from "react-markdown";
 import TextStreamingEffect from "./TextStreamingEffect";
+
+// Custom wrapper for markdown content
+const MarkdownContent = ({ content }: { content: string }) => {
+  return (
+    <div className="prose prose-sm max-w-none">
+      {/* Using the same wrapper pattern as in TextStreamingEffect */}
+      <div className="markdown-content">
+        {content.split('\n').map((line, i) => {
+          // Simple handling of markdown-like content
+          if (line.startsWith('# ')) {
+            return <h1 key={i} className="text-xl font-bold mb-2">{line.substring(2)}</h1>;
+          } else if (line.startsWith('## ')) {
+            return <h2 key={i} className="text-lg font-bold mb-2">{line.substring(3)}</h2>;
+          } else if (line.startsWith('### ')) {
+            return <h3 key={i} className="text-md font-bold mb-2">{line.substring(4)}</h3>;
+          } else if (line.startsWith('- ')) {
+            return <li key={i} className="ml-4 list-disc">{line.substring(2)}</li>;
+          } else if (line.trim() === '') {
+            return <br key={i} />;
+          } else {
+            return <p key={i} className="mb-2">{line}</p>;
+          }
+        })}
+      </div>
+    </div>
+  );
+};
 
 interface ChatBubbleProps {
   message: ChatMessage;
@@ -52,44 +78,7 @@ export default function ChatBubble({ message, userName, userImage, animate = fal
             onComplete={() => setShowAnimation(false)}
           />
         ) : (
-          <ReactMarkdown
-            className="prose prose-sm max-w-none"
-            components={{
-              a: ({ node, ...props }) => (
-                <a {...props} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" />
-              ),
-              ul: ({ node, ...props }) => (
-                <ul {...props} className="list-disc pl-5 my-2" />
-              ),
-              ol: ({ node, ...props }) => (
-                <ol {...props} className="list-decimal pl-5 my-2" />
-              ),
-              li: ({ node, ...props }) => (
-                <li {...props} className="my-1" />
-              ),
-              p: ({ node, ...props }) => (
-                <p {...props} className="mb-2" />
-              ),
-              code: ({ node, inline, ...props }) => (
-                inline
-                  ? <code {...props} className="bg-gray-100 p-0.5 rounded" />
-                  : <pre className="bg-gray-100 p-2 rounded overflow-x-auto"><code {...props} /></pre>
-              ),
-              table: ({ node, ...props }) => (
-                <div className="overflow-x-auto">
-                  <table {...props} className="border-collapse border border-gray-300 my-2" />
-                </div>
-              ),
-              th: ({ node, ...props }) => (
-                <th {...props} className="border border-gray-300 p-2 bg-gray-100" />
-              ),
-              td: ({ node, ...props }) => (
-                <td {...props} className="border border-gray-300 p-2" />
-              ),
-            }}
-          >
-            {message.content}
-          </ReactMarkdown>
+          <MarkdownContent content={message.content} />
         )}
       </div>
       
