@@ -1,12 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Sprout } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Sprout, Mail, Lock, User, Loader2 } from "lucide-react";
 
 export default function Login() {
-  const { isAuthenticated, isLoading, setShowAuthModal } = useAuth();
+  const { isAuthenticated, isLoading, loginWithEmail, registerWithEmailPassword } = useAuth();
   const [, navigate] = useLocation();
+  const [activeTab, setActiveTab] = useState("login");
+  
+  // Form states
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [formLoading, setFormLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
@@ -15,9 +27,47 @@ export default function Login() {
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  // Show the login/register modal
-  const handleOpenAuthModal = () => {
-    setShowAuthModal(true);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+    
+    try {
+      setFormLoading(true);
+      await loginWithEmail(email, password);
+    } catch (error: any) {
+      setError(error.message || "Failed to login. Please check your credentials.");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    
+    if (!name || !email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    
+    try {
+      setFormLoading(true);
+      await registerWithEmailPassword(name, email, password);
+    } catch (error: any) {
+      setError(error.message || "Failed to register. Please try again.");
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -29,125 +79,210 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
-      {/* Hero Section */}
-      <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl w-full space-y-8 text-center">
-          <div className="flex justify-center">
-            <div className="bg-primary text-white p-4 rounded-full">
-              <Sprout className="h-12 w-12" />
+    <div className="min-h-screen bg-cream flex">
+      {/* Left panel - Form */}
+      <div className="flex-1 flex flex-col justify-center items-center p-8">
+        <div className="w-full max-w-md">
+          <div className="flex justify-center mb-8">
+            <div className="bg-primary text-white p-3 rounded-full">
+              <Sprout className="h-8 w-8" />
             </div>
           </div>
-          <h1 className="mt-6 text-4xl font-heading font-bold text-primary sm:text-5xl">
+          
+          <h1 className="text-3xl font-bold text-center text-primary mb-2">
             Welcome to Arina
           </h1>
-          <p className="mt-2 text-xl text-gray-600 max-w-2xl mx-auto">
-            Your AI-powered platform for agricultural business analysis, forecasting, and optimization.
+          <p className="text-gray-600 text-center mb-8">
+            Your AI-powered platform for agricultural business analysis
           </p>
           
-          <div className="mt-8">
-            <Button
-              onClick={handleOpenAuthModal}
-              size="lg"
-              className="px-8 bg-primary hover:bg-primary/90 text-lg"
-            >
-              Sign In / Register
-            </Button>
-          </div>
+          <Card>
+            <CardHeader className="pb-4">
+              <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="login">Login</TabsTrigger>
+                  <TabsTrigger value="register">Register</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </CardHeader>
+            
+            <CardContent>
+              {error && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
+                  {error}
+                </div>
+              )}
+              
+              {activeTab === "login" ? (
+                <form onSubmit={handleLogin}>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your.email@example.com"
+                          className="pl-10"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="••••••••"
+                          className="pl-10"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
+                      {formLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Logging in...
+                        </>
+                      ) : (
+                        "Log in"
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleRegister}>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="name"
+                          type="text"
+                          placeholder="Your Name"
+                          className="pl-10"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="register-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="register-email"
+                          type="email"
+                          placeholder="your.email@example.com"
+                          className="pl-10"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="register-password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="register-password"
+                          type="password"
+                          placeholder="••••••••"
+                          className="pl-10"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
+                      {formLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating account...
+                        </>
+                      ) : (
+                        "Create Account"
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </CardContent>
+            
+            <CardFooter className="flex justify-center pb-4 pt-2">
+              <p className="text-sm text-gray-500">
+                {activeTab === "login" ? (
+                  <>
+                    Don't have an account?{" "}
+                    <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("register")}>
+                      Sign up
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    Already have an account?{" "}
+                    <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("login")}>
+                      Log in
+                    </Button>
+                  </>
+                )}
+              </p>
+            </CardFooter>
+          </Card>
         </div>
       </div>
-
-      {/* Features Section */}
-      <div className="bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-heading font-bold text-primary">Powerful Features</h2>
-            <p className="mt-2 text-lg text-gray-600">Designed to help farmers make smart business decisions.</p>
-          </div>
-
-          <div className="mt-10">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Feature 1 */}
-              <div className="bg-cream rounded-lg p-6 shadow-md tool-card">
-                <div className="flex items-start mb-4">
-                  <div className="bg-primary text-white p-2 rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <h3 className="ml-4 text-xl font-medium text-primary">Business Feasibility</h3>
-                </div>
-                <p className="text-gray-600">Analyze profitability, calculate break-even points, and determine ROI for your agricultural ventures.</p>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="bg-cream rounded-lg p-6 shadow-md tool-card">
-                <div className="flex items-start mb-4">
-                  <div className="bg-primary text-white p-2 rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                    </svg>
-                  </div>
-                  <h3 className="ml-4 text-xl font-medium text-primary">Demand Forecasting</h3>
-                </div>
-                <p className="text-gray-600">Predict future sales and market trends using advanced statistical methods like SMA and exponential smoothing.</p>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="bg-cream rounded-lg p-6 shadow-md tool-card">
-                <div className="flex items-start mb-4">
-                  <div className="bg-primary text-white p-2 rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                    </svg>
-                  </div>
-                  <h3 className="ml-4 text-xl font-medium text-primary">Optimization Analysis</h3>
-                </div>
-                <p className="text-gray-600">Maximize profits, minimize costs, and solve complex multi-objective problems with linear programming techniques.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Images Banner */}
-      <div className="py-8 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-4 overflow-x-auto py-4">
-            <img 
-              src="https://cdn.pixabay.com/photo/2016/11/08/05/50/agriculture-1807549_1280.jpg" 
-              alt="Modern farming technology with drone" 
-              className="h-48 w-auto object-cover rounded-lg shadow-md" 
-            />
-            <img 
-              src="https://cdn.pixabay.com/photo/2016/11/14/03/29/farmer-1822530_1280.jpg" 
-              alt="Agricultural business analysis" 
-              className="h-48 w-auto object-cover rounded-lg shadow-md" 
-            />
-            <img 
-              src="https://cdn.pixabay.com/photo/2016/11/08/05/54/agriculture-1807581_1280.jpg" 
-              alt="Farming optimization" 
-              className="h-48 w-auto object-cover rounded-lg shadow-md" 
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-center">
-            <div className="flex items-center">
-              <Sprout className="h-6 w-6 text-primary mr-2" />
-              <span className="text-xl font-heading font-bold text-primary">Arina</span>
-            </div>
-            <p className="mt-4 text-gray-500 text-sm">
-              © {new Date().getFullYear()} Arina. All rights reserved.
+      
+      {/* Right panel - Hero image */}
+      <div className="hidden lg:flex lg:w-1/2 bg-primary">
+        <div className="w-full p-12 flex flex-col justify-center items-center">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Smart Agriculture with AI</h2>
+            <p className="text-white/80 max-w-md">
+              Use Arina to analyze your agricultural business, 
+              forecast demand, optimize resources, and get AI-powered recommendations.
             </p>
           </div>
+          
+          <div className="grid grid-cols-2 gap-4 max-w-lg">
+            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+              <h3 className="text-white font-semibold mb-2">Business Feasibility</h3>
+              <p className="text-white/80 text-sm">Analyze profitability and determine ROI for your agricultural ventures</p>
+            </div>
+            
+            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+              <h3 className="text-white font-semibold mb-2">Demand Forecasting</h3>
+              <p className="text-white/80 text-sm">Predict future sales trends with advanced AI-powered forecasting</p>
+            </div>
+            
+            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+              <h3 className="text-white font-semibold mb-2">Optimization</h3>
+              <p className="text-white/80 text-sm">Maximize profits and optimize your agricultural resources</p>
+            </div>
+            
+            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+              <h3 className="text-white font-semibold mb-2">Smart Recommendations</h3>
+              <p className="text-white/80 text-sm">Get personalized insights based on your data and current season</p>
+            </div>
+          </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }
