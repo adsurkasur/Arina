@@ -6,12 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Sprout, Mail, Lock, User, Loader2 } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
-  const { isAuthenticated, isLoading, loginWithEmail, registerWithEmailPassword } = useAuth();
+  const { isAuthenticated, isLoading, loginWithEmail, registerWithEmailPassword, loginWithGoogle } = useAuth();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("login");
+  const [googleLoading, setGoogleLoading] = useState(false);
   
   // Form states
   const [email, setEmail] = useState("");
@@ -67,6 +70,18 @@ export default function Login() {
       setError(error.message || "Failed to register. Please try again.");
     } finally {
       setFormLoading(false);
+    }
+  };
+  
+  const handleGoogleSignIn = async () => {
+    setError("");
+    try {
+      setGoogleLoading(true);
+      await loginWithGoogle();
+    } catch (error: any) {
+      setError(error.message || "Failed to sign in with Google. Please try again.");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -158,6 +173,36 @@ export default function Login() {
                         "Log in"
                       )}
                     </Button>
+                    
+                    <div className="relative my-3">
+                      <div className="absolute inset-0 flex items-center">
+                        <Separator className="w-full" />
+                      </div>
+                      <div className="relative flex justify-center">
+                        <span className="bg-background px-2 text-xs text-gray-500">
+                          OR
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full border-gray-300 flex gap-2 items-center justify-center"
+                      onClick={handleGoogleSignIn}
+                      disabled={googleLoading}>
+                      {googleLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Connecting to Google...
+                        </>
+                      ) : (
+                        <>
+                          <FcGoogle className="h-5 w-5" />
+                          <span>Sign in with Google</span>
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </form>
               ) : (
@@ -219,6 +264,36 @@ export default function Login() {
                         </>
                       ) : (
                         "Create Account"
+                      )}
+                    </Button>
+                    
+                    <div className="relative my-3">
+                      <div className="absolute inset-0 flex items-center">
+                        <Separator className="w-full" />
+                      </div>
+                      <div className="relative flex justify-center">
+                        <span className="bg-background px-2 text-xs text-gray-500">
+                          OR
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full border-gray-300 flex gap-2 items-center justify-center"
+                      onClick={handleGoogleSignIn}
+                      disabled={googleLoading}>
+                      {googleLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Connecting to Google...
+                        </>
+                      ) : (
+                        <>
+                          <FcGoogle className="h-5 w-5" />
+                          <span>Sign up with Google</span>
+                        </>
                       )}
                     </Button>
                   </div>
