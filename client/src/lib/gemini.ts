@@ -1,3 +1,4 @@
+import { ChatMessage } from "@/types";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Initialize the Gemini API
@@ -13,39 +14,35 @@ export interface ChatMessage {
   content: string;
 }
 
-// Create a chat session
-export const createChatSession = async (history: ChatMessage[] = []) => {
-  try {
-    const model = genAI.getGenerativeModel({ model: defaultModelName });
-    const chat = model.startChat({
-      history: history.map((msg) => ({
-        role: msg.role,
-        parts: [{ text: msg.content }],
-      })),
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      },
-    });
+const API_URL = '/api/chat';
 
-    return chat;
-  } catch (error) {
-    console.error("Error creating chat session:", error);
-    throw error;
-  }
+export const createChatSession = async (history: ChatMessage[] = []) => {
+  return { history }; // Simplified session object
 };
 
-// Send a message and get a response
 export const sendMessage = async (
   chat: any,
   message: string,
+  feature: string = 'general'
 ): Promise<string> => {
   try {
-    const result = await chat.sendMessage(message);
-    const response = result.response;
-    return response.text();
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: [...(chat.history || []), { role: 'user', content: message }],
+        selectedFeature: feature
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get AI response');
+    }
+
+    const data = await response.json();
+    return data.response;
   } catch (error) {
     console.error("Error sending message:", error);
     throw error;
