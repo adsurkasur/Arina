@@ -17,11 +17,21 @@ export const createUserProfile = async (userId: string, email: string, name: str
 
 // Chat history
 export const getChatHistory = async (userId: string) => {
-  return await supabase
-    .from('chat_conversations')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch(`/api/conversations/${userId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to fetch chat history') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    return { data: null, error };
+  }
 };
 
 export const createChat = async (userId: string, title: string) => {
@@ -49,41 +59,89 @@ export const createChat = async (userId: string, title: string) => {
 };
 
 export const updateChatTitle = async (chatId: string, title: string) => {
-  return await supabase
-    .from('chat_conversations')
-    .update({ title })
-    .eq('id', chatId);
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch(`/api/conversations/${chatId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to update conversation title') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error updating chat title:', error);
+    return { data: null, error };
+  }
 };
 
 export const deleteChat = async (chatId: string) => {
-  // First delete chat messages
-  await supabase
-    .from('chat_messages')
-    .delete()
-    .eq('conversation_id', chatId);
-  
-  // Then delete the conversation
-  return await supabase
-    .from('chat_conversations')
-    .delete()
-    .eq('id', chatId);
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch(`/api/conversations/${chatId}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok && response.status !== 204) {
+      const errorData = await response.json().catch(() => ({}));
+      return { error: new Error(errorData.message || 'Failed to delete conversation') };
+    }
+    
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting chat:', error);
+    return { error };
+  }
 };
 
 // Chat messages
 export const getChatMessages = async (conversationId: string) => {
-  return await supabase
-    .from('chat_messages')
-    .select('*')
-    .eq('conversation_id', conversationId)
-    .order('created_at', { ascending: true });
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch(`/api/messages/${conversationId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to fetch messages') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    return { data: null, error };
+  }
 };
 
 export const addChatMessage = async (conversationId: string, role: 'user' | 'assistant', content: string) => {
-  return await supabase
-    .from('chat_messages')
-    .insert([
-      { conversation_id: conversationId, role, content }
-    ]);
+  try {
+    // Use the Express API instead of Supabase directly
+    const response = await fetch('/api/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ conversation_id: conversationId, role, content }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { data: null, error: new Error(errorData.message || 'Failed to add message') };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error adding chat message:', error);
+    return { data: null, error };
+  }
 };
 
 // Analysis results
