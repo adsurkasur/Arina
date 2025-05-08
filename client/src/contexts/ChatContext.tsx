@@ -47,7 +47,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [chatSession, setChatSession] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  
+
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
@@ -60,13 +60,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loadChatHistory = useCallback(async () => {
     if (!user) return;
-    
+
     try {
       setIsLoading(true);
       const { data, error } = await getChatHistory(user.id);
-      
+
       if (error) throw error;
-      
+
       if (data) {
         setConversations(data);
       }
@@ -83,7 +83,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const createNewChat = useCallback(async () => {
     if (!user) throw new Error("User not authenticated");
-    
+
     try {
       // Ensure user exists in database first
       await fetch('/api/users', {
@@ -98,22 +98,22 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       const { data, error } = await createChat(user.id, "New Conversation");
-      
+
       if (error) throw error;
-      
+
       if (data) {
         const newConversation = data;
         setConversations(prev => [newConversation, ...prev]);
         setActiveConversation(newConversation);
         setMessages([]);
-        
+
         // Initialize Gemini chat session
         const session = await createChatSession();
         setChatSession(session);
-        
+
         return newConversation;
       }
-      
+
       throw new Error("Failed to create new chat");
     } catch (error: any) {
       toast({
@@ -128,29 +128,41 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadConversation = useCallback(async (conversationId: string) => {
     try {
       setIsLoading(true);
-      
+
       // Find the conversation in the state
       const conversation = conversations.find(c => c.id === conversationId);
       if (!conversation) throw new Error("Conversation not found");
-      
+
       setActiveConversation(conversation);
-      
+
       // Load messages for this conversation
       const { data, error } = await getChatMessages(conversationId);
-      
+
       if (error) throw error;
-      
+
       if (data) {
         setMessages(data);
-        
+
         // Initialize Gemini chat session with history
-        const chatMessages = data.map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
-        
-        const session = await createChatSession(chatMessages);
-        setChatSession(session);
+        try {
+          const chatMessages = data.map(msg => ({
+            role: msg.role === 'assistant' ? 'model' : msg.role,
+            content: msg.content
+          }));
+
+          const session = await createChatSession(chatMessages);
+          if (!session) {
+            throw new Error('Failed to create chat session');
+          }
+          setChatSession(session);
+        } catch (error) {
+          console.error('Error initializing chat session:', error);
+          toast({
+            title: "Chat Error",
+            description: "Failed to initialize chat. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error: any) {
       toast({
@@ -178,31 +190,31 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return;
     }
-    
+
     await _sendMessage(activeConversation.id, content);
   }, [activeConversation, chatSession, createNewChat, toast]);
-  
+
   // Internal function to handle message sending
   const _sendMessage = async (conversationId: string, content: string) => {
     try {
       setIsSending(true);
-      
+
       // Add user message to UI immediately
       const userMessage: ChatMessage = {
         conversation_id: conversationId,
         role: 'user',
         content
       };
-      
+
       setMessages(prev => [...prev, userMessage]);
-      
+
       // Save user message to database
       await addChatMessage(conversationId, 'user', content);
-      
+
       // Wait for AI response with proper error handling
       try {
         const response = await sendGeminiMessage(chatSession, content);
-        
+
         if (!response) {
           console.error('Chat response is null:', { 
             chatSession, 
@@ -211,19 +223,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
           throw new Error("Empty response from model");
         }
-        
+
         // Add AI response to UI
         const assistantMessage: ChatMessage = {
           conversation_id: conversationId,
           role: 'assistant',
           content: response
         };
-        
+
         setMessages(prev => [...prev, assistantMessage]);
-        
+
         // Save assistant message to database
         await addChatMessage(conversationId, 'assistant', response);
-        
+
         return response;
       } catch (error: any) {
         if (error.status === 429) {
@@ -236,7 +248,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setMessages(prev => [...prev, errorMessage]);
           return;
         }
-        
+
         // Handle other errors
         const errorMessage: ChatMessage = {
           conversation_id: conversationId,
@@ -246,10 +258,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setMessages(prev => [...prev, errorMessage]);
         return;
       }
-      
+
       // Save assistant message to database
       await addChatMessage(conversationId, 'assistant', response);
-      
+
       // Update conversation title if it's the first message
       if (messages.length === 0 && activeConversation?.title === "New Conversation") {
         const newTitle = content.length > 30 ? content.substring(0, 30) + "..." : content;
@@ -269,21 +281,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const renameConversation = useCallback(async (conversationId: string, title: string) => {
     try {
       const { error } = await updateChatTitle(conversationId, title);
-      
+
       if (error) throw error;
-      
+
       // Update conversations list
       setConversations(prev => 
         prev.map(conv => 
           conv.id === conversationId ? { ...conv, title } : conv
         )
       );
-      
+
       // Update active conversation if needed
       if (activeConversation?.id === conversationId) {
         setActiveConversation(prev => prev ? { ...prev, title } : null);
       }
-      
+
       toast({
         title: "Conversation renamed",
         description: "The conversation has been renamed successfully",
@@ -300,19 +312,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteConversation = useCallback(async (conversationId: string) => {
     try {
       const { error } = await deleteChat(conversationId);
-      
+
       if (error) throw error;
-      
+
       // Remove from state
       setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-      
+
       // Clear active conversation if it was deleted
       if (activeConversation?.id === conversationId) {
         setActiveConversation(null);
         setMessages([]);
         setChatSession(null);
       }
-      
+
       toast({
         title: "Conversation deleted",
         description: "The conversation has been deleted successfully",
