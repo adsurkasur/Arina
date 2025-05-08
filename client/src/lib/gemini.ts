@@ -15,26 +15,29 @@ export interface ChatMessage {
 
 // Create a chat session
 export const createChatSession = async (history: ChatMessage[] = []) => {
-  try {
-    const model = genAI.getGenerativeModel({ model: defaultModelName });
-    const chat = model.startChat({
-      history: history.map((msg) => ({
-        role: msg.role,
-        parts: [{ text: msg.content }],
-      })),
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      },
-    });
-
-    return chat;
-  } catch (error) {
-    console.error("Error creating chat session:", error);
-    throw error;
+  if (!apiKey) {
+    throw new Error("Gemini API key not configured");
   }
+
+  const model = genAI.getGenerativeModel({ model: defaultModelName });
+  const chat = model.startChat({
+    history: history.map((msg) => ({
+      role: msg.role === 'assistant' ? 'model' : msg.role,
+      parts: [{ text: msg.content }],
+    })),
+    generationConfig: {
+      temperature: 0.7,
+      topK: 40,
+      topP: 0.95,
+      maxOutputTokens: 2048,
+    },
+  });
+
+  if (!chat) {
+    throw new Error("Failed to initialize chat session");
+  }
+
+  return chat;
 };
 
 // Send a message and get a response
