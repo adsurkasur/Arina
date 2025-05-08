@@ -17,7 +17,7 @@ import {
   ChevronDown,
   ChevronRight,
   Clock,
-  Plus
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,7 +80,6 @@ export function Sidebar({
               <span className="mr-2"></span> ArinaAI
             </h2>
           </div>
-          <p className="text-xs text-white/70 mt-1">Your Agribusiness Tools</p>
         </div>
 
         {/* Main Menu Section */}
@@ -102,7 +101,7 @@ export function Sidebar({
                   <ChevronRight className="h-4 w-4" />
                 )}
               </CollapsibleTrigger>
-              
+
               <CollapsibleContent>
                 <div className="pl-2 mt-1">
                   <TooltipProvider>
@@ -166,7 +165,7 @@ export function Sidebar({
                           </TooltipContent>
                         </Tooltip>
                       </li>
-                      
+
                       <li>
                         <Tooltip>
                           <TooltipTrigger asChild>

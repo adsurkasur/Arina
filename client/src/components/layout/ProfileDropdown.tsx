@@ -66,19 +66,27 @@ export function ProfileDropdown({ openTool }: ProfileDropdownProps) {
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleOpenDashboard("businessFeasibility")}>
+          <DropdownMenuItem
+            onClick={() => handleOpenDashboard("businessFeasibility")}
+          >
             <BarChart2 className="mr-2 h-4 w-4" />
             <span>Feasibility Analysis</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleOpenDashboard("demandForecasting")}>
+          <DropdownMenuItem
+            onClick={() => handleOpenDashboard("demandForecasting")}
+          >
             <Activity className="mr-2 h-4 w-4" />
             <span>Demand Forecasting</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleOpenDashboard("optimizationAnalysis")}>
+          <DropdownMenuItem
+            onClick={() => handleOpenDashboard("optimizationAnalysis")}
+          >
             <CreditCard className="mr-2 h-4 w-4" />
             <span>Optimization Tools</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleOpenDashboard("recommendations")}>
+          <DropdownMenuItem
+            onClick={() => handleOpenDashboard("recommendations")}
+          >
             <FileText className="mr-2 h-4 w-4" />
             <span>Recommendations</span>
           </DropdownMenuItem>
