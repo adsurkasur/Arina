@@ -4,12 +4,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Default model is Gemini 1.0 Pro
-const defaultModelName = "gemini-1.5-pro";
+// Default model
+const defaultModelName = "gemini-2.0-flash-exp";
 
 // Chat history interface
 export interface ChatMessage {
-  role: "user" | "assistant";
+  role: "user" | "model" | "function" | "system";
   content: string;
 }
 
@@ -42,7 +42,7 @@ export const sendMessage = async (
   chat: any,
   message: string,
   retries = 3,
-  delay = 1000
+  delay = 1000,
 ): Promise<string> => {
   try {
     const result = await chat.sendMessage(message);
@@ -50,20 +50,20 @@ export const sendMessage = async (
     return response.text();
   } catch (error: any) {
     console.error("Error sending message:", error);
-    
+
     // Check if it's a rate limit error (429)
     if (error.status === 429 && retries > 0) {
       // Extract retry delay from error response if available
       let retryDelay = delay;
-      
+
       try {
         // Parse the errorDetails from the response
         if (error.errorDetails && Array.isArray(error.errorDetails)) {
           // Find RetryInfo object in error details
-          const retryInfo = error.errorDetails.find(
-            (detail: any) => detail["@type"]?.includes("RetryInfo")
+          const retryInfo = error.errorDetails.find((detail: any) =>
+            detail["@type"]?.includes("RetryInfo"),
           );
-          
+
           if (retryInfo && retryInfo.retryDelay) {
             // Convert "30s" to milliseconds
             const seconds = retryInfo.retryDelay.replace("s", "");
@@ -73,38 +73,42 @@ export const sendMessage = async (
       } catch (parseError) {
         console.error("Error parsing retry delay:", parseError);
       }
-      
+
       console.log(`Rate limit hit, waiting ${retryDelay}ms before retry...`);
-      
+
       // Wait for the specified delay
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
-      
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+
       // Retry with exponential backoff
       return sendMessage(chat, message, retries - 1, delay * 2);
     }
-    
+
     if (error.status === 429) {
       let waitTime = "a few moments";
       try {
         // Extract retry delay from error response
-        const retryInfo = error.errorDetails?.find(
-          (detail: any) => detail["@type"]?.includes("RetryInfo")
+        const retryInfo = error.errorDetails?.find((detail: any) =>
+          detail["@type"]?.includes("RetryInfo"),
         );
         if (retryInfo?.retryDelay) {
-          waitTime = retryInfo.retryDelay.replace('s', ' seconds');
+          waitTime = retryInfo.retryDelay.replace("s", " seconds");
         }
       } catch (e) {
         console.error("Error parsing retry info:", e);
       }
       return `I'm currently experiencing high demand. Please wait ${waitTime} before trying again. This is due to API rate limits.`;
     }
-    
+
     return "I'm sorry, I couldn't process your message. Please try again.";
   }
 };
 
 // Generate a single response (no chat history)
-export const generateResponse = async (prompt: string, retries = 3, delay = 1000): Promise<string> => {
+export const generateResponse = async (
+  prompt: string,
+  retries = 3,
+  delay = 1000,
+): Promise<string> => {
   try {
     const model = genAI.getGenerativeModel({ model: defaultModelName });
     const result = await model.generateContent(prompt);
@@ -112,20 +116,20 @@ export const generateResponse = async (prompt: string, retries = 3, delay = 1000
     return response.text();
   } catch (error: any) {
     console.error("Error generating response:", error);
-    
+
     // Check if it's a rate limit error (429)
     if (error.status === 429 && retries > 0) {
       // Extract retry delay from error response if available
       let retryDelay = delay;
-      
+
       try {
         // Parse the errorDetails from the response
         if (error.errorDetails && Array.isArray(error.errorDetails)) {
           // Find RetryInfo object in error details
-          const retryInfo = error.errorDetails.find(
-            (detail: any) => detail["@type"]?.includes("RetryInfo")
+          const retryInfo = error.errorDetails.find((detail: any) =>
+            detail["@type"]?.includes("RetryInfo"),
           );
-          
+
           if (retryInfo && retryInfo.retryDelay) {
             // Convert "30s" to milliseconds
             const seconds = retryInfo.retryDelay.replace("s", "");
@@ -135,20 +139,20 @@ export const generateResponse = async (prompt: string, retries = 3, delay = 1000
       } catch (parseError) {
         console.error("Error parsing retry delay:", parseError);
       }
-      
+
       console.log(`Rate limit hit, waiting ${retryDelay}ms before retry...`);
-      
+
       // Wait for the specified delay
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
-      
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+
       // Retry with exponential backoff
       return generateResponse(prompt, retries - 1, delay * 2);
     }
-    
+
     if (error.status === 429) {
       return "I'm currently experiencing high demand. Please try again in a few moments.";
     }
-    
+
     return "I'm sorry, I couldn't generate a response. Please try again.";
   }
 };
