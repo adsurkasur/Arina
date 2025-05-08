@@ -64,7 +64,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(userData: InsertUser): Promise<User> {
-    const result = await db.insert(users).values(userData).returning();
+    // Check if user exists first
+    const existing = await this.getUserByEmail(userData.email);
+    if (existing) {
+      return existing;
+    }
+    
+    // Create new user if doesn't exist
+    const result = await db.insert(users).values({
+      ...userData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }).returning();
+    
     return result[0];
   }
 
