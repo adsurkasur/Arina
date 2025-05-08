@@ -45,20 +45,23 @@ export const sendMessage = async (
   delay = 1000,
 ): Promise<string> => {
   try {
+    console.log('Sending message to Gemini:', message);
     const result = await chat.sendMessage(message);
+    console.log('Raw Gemini response:', result);
+
     if (!result) {
-      console.error('Gemini API returned null result:', { result });
-      throw new Error("Empty response from model - null result");
+      console.error('Gemini API returned null result');
+      return "I apologize, but I couldn't process your message. Please try again.";
     }
-    if (!result.response) {
-      console.error('Gemini API response object is null:', { result });
-      throw new Error("Empty response from model - null response object");
-    }
+
     const response = await result.response.text();
-    if (!response) {
-      console.error('Gemini API returned empty text:', { result, response });
-      throw new Error("Empty text response from model");
+    console.log('Processed response text:', response);
+
+    if (!response || response.trim() === '') {
+      console.error('Empty response text from Gemini');
+      return "I apologize, but I received an empty response. Please try again.";
     }
+
     return response;
   } catch (error: any) {
     console.error("Error sending message:", error);
