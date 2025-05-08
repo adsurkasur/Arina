@@ -223,6 +223,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Save assistant message to database
         await addChatMessage(conversationId, 'assistant', response);
+        
+        return response;
       } catch (error: any) {
         if (error.status === 429) {
           // Rate limit exceeded
