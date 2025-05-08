@@ -46,8 +46,14 @@ export const sendMessage = async (
 ): Promise<string> => {
   try {
     const result = await chat.sendMessage(message);
-    const response = result.response;
-    return response.text();
+    if (!result || !result.response) {
+      throw new Error("Empty response from model");
+    }
+    const response = await result.response.text();
+    if (!response) {
+      throw new Error("Empty text response");
+    }
+    return response;
   } catch (error: any) {
     console.error("Error sending message:", error);
 

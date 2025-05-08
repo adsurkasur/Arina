@@ -203,6 +203,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const response = await sendGeminiMessage(chatSession, content);
         
+        if (!response) {
+          throw new Error("Empty response from model");
+        }
+        
         // Add AI response to UI
         const assistantMessage: ChatMessage = {
           conversation_id: conversationId,
