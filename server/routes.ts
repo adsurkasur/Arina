@@ -21,19 +21,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/users", async (req, res) => {
     try {
       const userData = req.body;
+      console.log('Creating user with data:', userData);
 
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(userData.email);
       if (existingUser) {
+        console.log('User already exists:', existingUser);
         return res.json(existingUser);
       }
 
       // Create new user if doesn't exist
       const user = await storage.createUser(userData);
+      console.log('Created new user:', user);
       res.json(user);
     } catch (error) {
-      console.error('Error creating user:', error);
-      res.status(500).json({ message: 'Failed to create user' });
+      console.error('Error creating user:', {
+        error,
+        stack: error.stack,
+        body: req.body
+      });
+      res.status(500).json({ 
+        message: 'Failed to create user',
+        error: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   });
 
@@ -49,10 +60,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/conversations", async (req, res) => {
     try {
+      console.log('Creating conversation with data:', req.body);
       const conversation = await storage.createConversation(req.body);
+      console.log('Created conversation:', conversation);
       res.status(201).json(conversation);
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      console.error('Error creating conversation:', {
+        error,
+        stack: error.stack,
+        body: req.body
+      });
+      res.status(500).json({ 
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   });
 
@@ -86,10 +107,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/messages", async (req, res) => {
     try {
+      console.log('Creating message with data:', req.body);
       const message = await storage.createMessage(req.body);
+      console.log('Created message:', message);
       res.status(201).json(message);
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      console.error('Error creating message:', {
+        error,
+        stack: error.stack,
+        body: req.body
+      });
+      res.status(500).json({ 
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   });
 
