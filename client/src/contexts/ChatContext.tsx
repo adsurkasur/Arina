@@ -204,6 +204,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const response = await sendGeminiMessage(chatSession, content);
         
         if (!response) {
+          console.error('Chat response is null:', { 
+            chatSession, 
+            content,
+            response 
+          });
           throw new Error("Empty response from model");
         }
         

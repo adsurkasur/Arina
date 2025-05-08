@@ -46,12 +46,18 @@ export const sendMessage = async (
 ): Promise<string> => {
   try {
     const result = await chat.sendMessage(message);
-    if (!result || !result.response) {
-      throw new Error("Empty response from model");
+    if (!result) {
+      console.error('Gemini API returned null result:', { result });
+      throw new Error("Empty response from model - null result");
+    }
+    if (!result.response) {
+      console.error('Gemini API response object is null:', { result });
+      throw new Error("Empty response from model - null response object");
     }
     const response = await result.response.text();
     if (!response) {
-      throw new Error("Empty text response");
+      console.error('Gemini API returned empty text:', { result, response });
+      throw new Error("Empty text response from model");
     }
     return response;
   } catch (error: any) {
