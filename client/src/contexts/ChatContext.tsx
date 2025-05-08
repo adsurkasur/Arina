@@ -199,15 +199,37 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Save user message to database
       await addChatMessage(conversationId, 'user', content);
       
-      // Wait for AI response
-      const response = await sendGeminiMessage(chatSession, content);
-      
-      // Add AI response to UI
-      const assistantMessage: ChatMessage = {
-        conversation_id: conversationId,
-        role: 'assistant',
-        content: response
-      };
+      // Wait for AI response with proper error handling
+      try {
+        const response = await sendGeminiMessage(chatSession, content);
+        
+        // Add AI response to UI
+        const assistantMessage: ChatMessage = {
+          conversation_id: conversationId,
+          role: 'assistant',
+          content: response
+        };
+      } catch (error: any) {
+        if (error.status === 429) {
+          // Rate limit exceeded
+          const errorMessage: ChatMessage = {
+            conversation_id: conversationId,
+            role: 'assistant',
+            content: "I'm receiving too many requests right now. Please wait a moment before trying again."
+          };
+          setMessages(prev => [...prev, errorMessage]);
+          return;
+        }
+        
+        // Handle other errors
+        const errorMessage: ChatMessage = {
+          conversation_id: conversationId,
+          role: 'assistant',
+          content: "Sorry, I encountered an error. Please try again later."
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
       
       setMessages(prev => [...prev, assistantMessage]);
       

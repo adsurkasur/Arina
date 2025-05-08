@@ -53,8 +53,11 @@ export const sendMessage = async (
     
     // Check if it's a rate limit error (429)
     if (error.status === 429 && retries > 0) {
-      // Wait for the specified delay
-      await new Promise(resolve => setTimeout(resolve, delay));
+      const retryDelay = error.errorDetails?.[2]?.retryDelay || delay;
+      console.log(`Rate limit hit, waiting ${retryDelay}ms before retry...`);
+      
+      // Wait for the specified delay from the API or use default
+      await new Promise(resolve => setTimeout(resolve, parseInt(retryDelay) || delay));
       
       // Retry with exponential backoff
       return sendMessage(chat, message, retries - 1, delay * 2);
