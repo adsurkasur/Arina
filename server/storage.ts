@@ -73,8 +73,7 @@ export class DatabaseStorage implements IStorage {
     // Create new user if doesn't exist
     const result = await db.insert(users).values({
       ...userData,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      created_at: new Date()
     }).returning();
     
     return result[0];
