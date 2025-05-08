@@ -67,13 +67,41 @@ export function Sidebar({
   openTool,
 }: SidebarProps) {
   const { user } = useAuth();
-  const { conversations, createNewChat, loadConversation } = useChat();
+  const { conversations, createNewChat, loadConversation, renameConversation, deleteConversation } = useChat();
   const [analysisToolsOpen, setAnalysisToolsOpen] = useState(true);
+  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
+  const [currentConversation, setCurrentConversation] = useState<{id: string, title: string} | null>(null);
+  const [newTitle, setNewTitle] = useState("");
 
   // Handle toggling the sidebar on mobile
   const handleCloseSidebar = () => {
     if (isMobile) {
       setIsOpen(false);
+    }
+  };
+  
+  // Handle opening the rename dialog
+  const handleRenameClick = (conversation: {id: string, title: string}, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent loading the conversation when clicking the menu
+    setCurrentConversation(conversation);
+    setNewTitle(conversation.title);
+    setIsRenameDialogOpen(true);
+  };
+  
+  // Handle submitting the rename dialog
+  const handleRenameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (currentConversation && newTitle.trim()) {
+      await renameConversation(currentConversation.id, newTitle.trim());
+      setIsRenameDialogOpen(false);
+    }
+  };
+  
+  // Handle deleting a conversation
+  const handleDeleteClick = async (conversationId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent loading the conversation when clicking the menu
+    if (confirm("Are you sure you want to delete this conversation?")) {
+      await deleteConversation(conversationId);
     }
   };
 
@@ -230,17 +258,44 @@ export function Sidebar({
             <div className="mt-1 space-y-1">
               {conversations && conversations.length > 0 ? (
                 conversations.map((conversation) => (
-                  <button
-                    key={conversation.id}
-                    onClick={() => {
-                      loadConversation(conversation.id);
-                      if (isMobile) setIsOpen(false);
-                    }}
-                    className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                  >
-                    <MessageSquare className="h-4 w-4 mr-3 text-white/70" />
-                    <span className="truncate">{conversation.title}</span>
-                  </button>
+                  <div key={conversation.id} className="flex items-center relative group">
+                    <button
+                      onClick={() => {
+                        loadConversation(conversation.id);
+                        if (isMobile) setIsOpen(false);
+                      }}
+                      className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                    >
+                      <MessageSquare className="h-4 w-4 mr-3 text-white/70" />
+                      <span className="truncate mr-6">{conversation.title}</span>
+                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button 
+                          className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-white/20"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-48" align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => handleRenameClick(conversation, e)}
+                          className="cursor-pointer"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => handleDeleteClick(conversation.id, e)}
+                          className="cursor-pointer text-red-500 focus:text-red-500"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 ))
               ) : (
                 <p className="text-xs text-white/50 px-3 py-2">
@@ -248,6 +303,40 @@ export function Sidebar({
                 </p>
               )}
             </div>
+            
+            {/* Rename Dialog */}
+            <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Rename Conversation</DialogTitle>
+                  <DialogDescription>
+                    Enter a new name for this conversation
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleRenameSubmit}>
+                  <div className="flex items-center gap-4 py-2">
+                    <Input
+                      className="flex-1 text-black"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      placeholder="Enter new title"
+                    />
+                  </div>
+                  <DialogFooter className="sm:justify-end">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => setIsRenameDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={!newTitle.trim()}>
+                      Save Changes
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </aside>
