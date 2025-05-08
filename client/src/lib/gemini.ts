@@ -53,30 +53,91 @@ export const sendMessage = async (
     
     // Check if it's a rate limit error (429)
     if (error.status === 429 && retries > 0) {
-      const retryDelay = error.errorDetails?.[2]?.retryDelay || delay;
+      // Extract retry delay from error response if available
+      let retryDelay = delay;
+      
+      try {
+        // Parse the errorDetails from the response
+        if (error.errorDetails && Array.isArray(error.errorDetails)) {
+          // Find RetryInfo object in error details
+          const retryInfo = error.errorDetails.find(
+            (detail: any) => detail["@type"]?.includes("RetryInfo")
+          );
+          
+          if (retryInfo && retryInfo.retryDelay) {
+            // Convert "30s" to milliseconds
+            const seconds = retryInfo.retryDelay.replace("s", "");
+            retryDelay = parseInt(seconds) * 1000 || delay;
+          }
+        }
+      } catch (parseError) {
+        console.error("Error parsing retry delay:", parseError);
+      }
+      
       console.log(`Rate limit hit, waiting ${retryDelay}ms before retry...`);
       
-      // Wait for the specified delay from the API or use default
-      await new Promise(resolve => setTimeout(resolve, parseInt(retryDelay) || delay));
+      // Wait for the specified delay
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
       
       // Retry with exponential backoff
       return sendMessage(chat, message, retries - 1, delay * 2);
     }
     
-    throw error;
+    if (error.status === 429) {
+      return "I'm currently experiencing high demand. Please try again in a few moments.";
+    }
+    
+    return "I'm sorry, I couldn't process your message. Please try again.";
   }
 };
 
 // Generate a single response (no chat history)
-export const generateResponse = async (prompt: string): Promise<string> => {
+export const generateResponse = async (prompt: string, retries = 3, delay = 1000): Promise<string> => {
   try {
     const model = genAI.getGenerativeModel({ model: defaultModelName });
     const result = await model.generateContent(prompt);
     const response = result.response;
     return response.text();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating response:", error);
-    throw error;
+    
+    // Check if it's a rate limit error (429)
+    if (error.status === 429 && retries > 0) {
+      // Extract retry delay from error response if available
+      let retryDelay = delay;
+      
+      try {
+        // Parse the errorDetails from the response
+        if (error.errorDetails && Array.isArray(error.errorDetails)) {
+          // Find RetryInfo object in error details
+          const retryInfo = error.errorDetails.find(
+            (detail: any) => detail["@type"]?.includes("RetryInfo")
+          );
+          
+          if (retryInfo && retryInfo.retryDelay) {
+            // Convert "30s" to milliseconds
+            const seconds = retryInfo.retryDelay.replace("s", "");
+            retryDelay = parseInt(seconds) * 1000 || delay;
+          }
+        }
+      } catch (parseError) {
+        console.error("Error parsing retry delay:", parseError);
+      }
+      
+      console.log(`Rate limit hit, waiting ${retryDelay}ms before retry...`);
+      
+      // Wait for the specified delay
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      
+      // Retry with exponential backoff
+      return generateResponse(prompt, retries - 1, delay * 2);
+    }
+    
+    if (error.status === 429) {
+      return "I'm currently experiencing high demand. Please try again in a few moments.";
+    }
+    
+    return "I'm sorry, I couldn't generate a response. Please try again.";
   }
 };
 
