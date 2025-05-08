@@ -85,6 +85,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) throw new Error("User not authenticated");
     
     try {
+      // Ensure user exists in database first
+      await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          photo_url: user.photoURL
+        })
+      });
+
       const { data, error } = await createChat(user.id, "New Conversation");
       
       if (error) throw error;
