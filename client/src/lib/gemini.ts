@@ -41,13 +41,25 @@ export const createChatSession = async (history: ChatMessage[] = []) => {
 export const sendMessage = async (
   chat: any,
   message: string,
+  retries = 3,
+  delay = 1000
 ): Promise<string> => {
   try {
     const result = await chat.sendMessage(message);
     const response = result.response;
     return response.text();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending message:", error);
+    
+    // Check if it's a rate limit error (429)
+    if (error.status === 429 && retries > 0) {
+      // Wait for the specified delay
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+      // Retry with exponential backoff
+      return sendMessage(chat, message, retries - 1, delay * 2);
+    }
+    
     throw error;
   }
 };
