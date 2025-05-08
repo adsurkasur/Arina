@@ -107,17 +107,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/messages", async (req, res) => {
     try {
-      console.log('Creating message with data:', req.body);
+      if (!req.body || !req.body.content) {
+        return res.status(400).json({
+          error: 'INVALID_REQUEST',
+          message: 'Message content is required'
+        });
+      }
+
+      // Validate model response
+      if (req.body.role === 'model' && (!req.body.content || req.body.content.trim() === '')) {
+        return res.status(422).json({
+          error: 'INVALID_MODEL_RESPONSE',
+          message: 'Model response cannot be empty'
+        });
+      }
+
       const message = await storage.createMessage(req.body);
-      console.log('Created message:', message);
+
+      if (!message) {
+        return res.status(500).json({
+          error: 'MESSAGE_CREATION_FAILED',
+          message: 'Failed to create message in database'
+        });
+      }
+
       res.status(201).json(message);
     } catch (error: any) {
-      console.error('Error creating message:', {
-        error,
-        stack: error.stack,
-        body: req.body
-      });
-      res.status(500).json({ 
+      res.status(500).json({
+        error: 'SERVER_ERROR',
         message: error.message,
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
