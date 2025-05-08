@@ -110,16 +110,29 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
   const onSubmit = (data: ForecastInput) => {
     setIsCalculating(true);
     try {
+      // Validate inputs
+      if (!data.productName.trim()) {
+        throw new Error("Product name is required");
+      }
+
+      // Check if historical demand has valid numbers
+      const hasInvalidDemand = data.historicalDemand.some(item => 
+        isNaN(item.demand) || item.demand < 0 || !item.period.trim()
+      );
+
+      if (hasInvalidDemand) {
+        throw new Error("All historical demand values must be valid positive numbers and periods must be filled");
+      }
+
       const result = generateForecast(data);
       setResults(result);
-      // Scroll to results section
       setTimeout(() => {
-        document.getElementById("forecast-results")?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById('forecast-results')?.scrollIntoView({ behavior: "smooth" });
       }, 100);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Forecast Error",
-        description: "There was an error generating the forecast. Please check your inputs.",
+        description: error.message || "There was an error generating the forecast. Please ensure all inputs are valid.",
         variant: "destructive",
       });
       console.error("Forecast error:", error);
@@ -174,9 +187,9 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
   // Prepare chart data
   const prepareChartData = () => {
     if (!results) return [];
-    
+
     const chartData = [];
-    
+
     // Add historical data
     for (const point of results.chart.historical) {
       chartData.push({
@@ -185,7 +198,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
         Forecast: null
       });
     }
-    
+
     // Add forecast data (extending the array)
     for (const point of results.chart.forecast) {
       chartData.push({
@@ -194,7 +207,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
         Forecast: point.value
       });
     }
-    
+
     return chartData;
   };
 
@@ -455,7 +468,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
         {results && (
           <div id="forecast-results" className="mt-6 border-t border-gray-200 pt-4">
             <h3 className="text-lg font-heading font-medium text-primary mb-3">Forecast Results</h3>
-            
+
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               {/* Chart */}
               <div className="p-4">
