@@ -84,7 +84,19 @@ export const sendMessage = async (
     }
     
     if (error.status === 429) {
-      return "I'm currently experiencing high demand. Please try again in a few moments.";
+      let waitTime = "a few moments";
+      try {
+        // Extract retry delay from error response
+        const retryInfo = error.errorDetails?.find(
+          (detail: any) => detail["@type"]?.includes("RetryInfo")
+        );
+        if (retryInfo?.retryDelay) {
+          waitTime = retryInfo.retryDelay.replace('s', ' seconds');
+        }
+      } catch (e) {
+        console.error("Error parsing retry info:", e);
+      }
+      return `I'm currently experiencing high demand. Please wait ${waitTime} before trying again. This is due to API rate limits.`;
     }
     
     return "I'm sorry, I couldn't process your message. Please try again.";
