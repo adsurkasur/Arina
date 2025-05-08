@@ -209,6 +209,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'assistant',
           content: response
         };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        
+        // Save assistant message to database
+        await addChatMessage(conversationId, 'assistant', response);
       } catch (error: any) {
         if (error.status === 429) {
           // Rate limit exceeded
@@ -230,8 +235,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setMessages(prev => [...prev, errorMessage]);
         return;
       }
-      
-      setMessages(prev => [...prev, assistantMessage]);
       
       // Save assistant message to database
       await addChatMessage(conversationId, 'assistant', response);
