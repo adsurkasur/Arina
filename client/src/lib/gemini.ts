@@ -15,11 +15,16 @@ export interface ChatMessage {
 
 // Create a chat session
 export const createChatSession = async (history: ChatMessage[] = []) => {
+  if (!apiKey) {
+    throw new Error("Gemini API key not configured");
+  }
+
+  const model = genAI.getGenerativeModel({ model: defaultModelName });
+  
   try {
-    const model = genAI.getGenerativeModel({ model: defaultModelName });
     const chat = model.startChat({
       history: history.map((msg) => ({
-        role: msg.role,
+        role: msg.role === 'assistant' ? 'model' : msg.role,
         parts: [{ text: msg.content }],
       })),
       generationConfig: {
@@ -30,10 +35,13 @@ export const createChatSession = async (history: ChatMessage[] = []) => {
       },
     });
 
+    // Validate chat session by sending a test message
+    await chat.sendMessage("test");
+    
     return chat;
   } catch (error) {
     console.error("Error creating chat session:", error);
-    throw error;
+    throw new Error("Failed to initialize chat session: " + (error.message || error));
   }
 };
 
@@ -44,9 +52,17 @@ export const sendMessage = async (
   retries = 3,
   delay = 1000,
 ): Promise<string> => {
+  if (!chat) {
+    throw new Error('Chat session is not initialized');
+  }
+
+  if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    throw new Error('Invalid message');
+  }
+
   try {
     console.log('Sending message to Gemini:', message);
-    const result = await chat.sendMessage(message);
+    const result = await chat.sendMessage(message.trim());
     console.log('Raw Gemini response:', result);
 
     if (!result) {
