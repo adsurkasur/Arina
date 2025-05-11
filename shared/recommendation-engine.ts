@@ -372,19 +372,23 @@ function extractChatInsights(messages: ChatMessage[]): RecommendationItem[] {
     'expand': 'growth',
     'grow': 'growth',
     'profit': 'profit',
+    'revenue': 'profit',
     'cost': 'cost',
     'expense': 'cost',
     'save': 'cost',
     'risk': 'risk',
     'market': 'market',
     'demand': 'market',
+    'customer': 'market',
     'season': 'seasonal',
     'weather': 'seasonal',
+    'climate': 'seasonal',
     'resource': 'resource',
     'water': 'resource',
     'soil': 'resource',
     'fertilizer': 'resource',
-    'pest': 'resource'
+    'pest': 'resource',
+    'equipment': 'resource'
   };
   
   const categories = {
@@ -397,11 +401,21 @@ function extractChatInsights(messages: ChatMessage[]): RecommendationItem[] {
     resource: [] as string[]
   };
   
-  // Analyze assistant messages
-  messages
+  // Sort messages by recency (most recent first)
+  const sortedMessages = [...messages]
     .filter(m => m.role === 'assistant')
-    .forEach(message => {
-      const content = message.content.toLowerCase();
+    .sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateB - dateA; // Most recent first
+    });
+  
+  // Limit to the most recent 10 messages to keep recommendations fresh
+  const recentMessages = sortedMessages.slice(0, 10);
+  
+  // Analyze assistant messages
+  recentMessages.forEach(message => {
+    const content = message.content.toLowerCase();
       
       // Check for keywords and categorize
       Object.entries(keywordMap).forEach(([keyword, category]) => {
@@ -536,10 +550,13 @@ function addSeasonalRecommendations(
 export function generateRecommendations(input: RecommendationInput): RecommendationSet {
   let allRecommendations: RecommendationItem[] = [];
   
+  // Get the most recent analysis results (limited to last 10 for performance)
+  const sortedResults = sortByRecency(input.analysisResults).slice(0, 10);
+  
   // Extract insights from different data sources
-  const businessRecs = extractBusinessRecommendations(input.analysisResults);
-  const forecastRecs = extractForecastRecommendations(input.analysisResults);
-  const optimizationRecs = extractOptimizationRecommendations(input.analysisResults);
+  const businessRecs = extractBusinessRecommendations(sortedResults);
+  const forecastRecs = extractForecastRecommendations(sortedResults);
+  const optimizationRecs = extractOptimizationRecommendations(sortedResults);
   const chatRecs = extractChatInsights(input.chatHistory);
   const seasonalRecs = addSeasonalRecommendations(input.currentSeason);
   
@@ -552,11 +569,31 @@ export function generateRecommendations(input: RecommendationInput): Recommendat
     ...seasonalRecs
   ];
   
-  // Sort by confidence (highest first)
-  allRecommendations.sort((a, b) => b.confidence - a.confidence);
+  // First sort by recency
+  allRecommendations.sort((a, b) => {
+    const dateA = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+    const dateB = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+    return dateB - dateA; // Most recent first
+  });
+  
+  // Then sort by confidence (highest first) within the same day
+  allRecommendations.sort((a, b) => {
+    const dateA = a.createdAt instanceof Date ? a.createdAt.toDateString() : '';
+    const dateB = b.createdAt instanceof Date ? b.createdAt.toDateString() : '';
+    
+    // If from the same day, sort by confidence
+    if (dateA === dateB) {
+      return b.confidence - a.confidence;
+    }
+    // Otherwise keep the previous sort (by date)
+    return 0;
+  });
+  
+  // Limit to top 10 recommendations to avoid overwhelming the user
+  const finalRecommendations = allRecommendations.slice(0, 10);
   
   // Generate a summary based on top recommendations
-  const topRecs = allRecommendations.slice(0, 5);
+  const topRecs = finalRecommendations.slice(0, 5);
   let summary = "";
   
   if (topRecs.length > 0) {
@@ -565,7 +602,19 @@ export function generateRecommendations(input: RecommendationInput): Recommendat
     const resourceRec = topRecs.find(r => r.type === 'resource');
     const cropRec = topRecs.find(r => r.type === 'crop');
     
-    summary = "Based on your historical data, we recommend: ";
+    // Count the different analysis types to provide context
+    const analysisCounts = {
+      business: input.analysisResults.filter(r => r.type === 'business_feasibility').length,
+      forecast: input.analysisResults.filter(r => r.type === 'demand_forecast').length,
+      optimization: input.analysisResults.filter(r => r.type === 'optimization').length
+    };
+    
+    // Create a more tailored summary based on what analyses were performed
+    if (analysisCounts.business > 0 || analysisCounts.forecast > 0 || analysisCounts.optimization > 0) {
+      summary = `Based on your ${analysisCounts.business > 0 ? 'business feasibility analysis, ' : ''}${analysisCounts.forecast > 0 ? 'demand forecasting, ' : ''}${analysisCounts.optimization > 0 ? 'optimization analysis, ' : ''}we recommend: `;
+    } else {
+      summary = "Based on your historical data, we recommend: ";
+    }
     
     if (businessRec) summary += businessRec.title + ". ";
     if (marketRec) summary += marketRec.title + ". ";
@@ -578,6 +627,9 @@ export function generateRecommendations(input: RecommendationInput): Recommendat
   } else {
     summary = "Insufficient data for personalized recommendations. Continue using Arina to analyze your agricultural business for tailored insights.";
   }
+  
+  // Update the allRecommendations to be the limited set
+  allRecommendations = finalRecommendations;
   
   return {
     id: `rec-set-${Date.now()}`,
