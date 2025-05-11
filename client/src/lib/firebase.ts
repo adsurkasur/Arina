@@ -24,8 +24,9 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 // Google login
-export const signInWithGoogle = () => {
-  return signInWithRedirect(auth, googleProvider);
+export const signInWithGoogle = async () => {
+  const result = await signInWithRedirect(auth, googleProvider);
+  return result;
 };
 
 // Email/password login

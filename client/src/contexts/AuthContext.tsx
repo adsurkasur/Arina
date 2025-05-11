@@ -68,13 +68,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     try {
-      await signInWithGoogle();
-      setShowAuthModal(false);
-      toast({
-        title: "Success",
-        description: "Signed in with Google successfully",
-      });
-      navigate("/");
+      const result = await signInWithGoogle();
+      if (result.user) {
+        setShowAuthModal(false);
+        toast({
+          title: "Success",
+          description: "Signed in with Google successfully",
+        });
+        navigate("/");
+      }
     } catch (error: any) {
       toast({
         title: "Error signing in with Google",
