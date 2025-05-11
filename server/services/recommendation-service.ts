@@ -49,21 +49,22 @@ export class RecommendationService {
       const setId = uuid();
 
       const insertSetData: InsertRecommendationSet = {
+        id: setId, // Explicitly set the ID
         user_id: userId,
         summary: recommendations.summary,
         created_at: new Date()
       };
 
-      // Create the recommendation set
+      // Create the recommendation set first
       const recommendationSet = await storage.createRecommendationSet(insertSetData);
 
-      // Create all recommendation items
+      // Create all recommendation items using the correct set ID
       const items: RecommendationItem[] = [];
 
       for (const rec of recommendations.recommendations) {
         const insertItemData: InsertRecommendationItem = {
           id: uuid(),
-          set_id: setId,
+          set_id: recommendationSet.id, // Use the ID from the created set
           type: rec.type,
           title: rec.title,
           description: rec.description,
