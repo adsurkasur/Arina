@@ -142,10 +142,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // API routes for analysis results
-  app.get("/api/analysis/:userId", async (req, res) => {
+  app.get("/api/analysis", async (req, res) => {
     try {
+      const userId = req.query.userId as string;
       const type = req.query.type as string | undefined;
-      const results = await storage.getAnalysisResults(req.params.userId, type);
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      const results = await storage.getAnalysisResults(userId, type);
       res.json(results);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
