@@ -752,6 +752,8 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                   <AccordionContent className="pt-0 px-5 pb-4">
                     <CardContent className="p-0 pt-4">
                       <div>
+                        {/* Log the data to debug what's available */}
+                        {console.log('Analysis data:', result.id, result.type, result.data)}
                         {renderAnalysisData(result.data, result.type)}
                       </div>
                     </CardContent>
