@@ -69,7 +69,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async () => {
     try {
       const result = await signInWithGoogle();
-      if (result.user) {
+      if (result && result.user) {
+        // Create profile in Supabase if it doesn't exist
+        await createUserProfile(
+          result.user.uid,
+          result.user.email || '',
+          result.user.displayName || result.user.email?.split('@')[0] || 'User',
+          result.user.photoURL
+        );
+        
         setShowAuthModal(false);
         toast({
           title: "Success",
