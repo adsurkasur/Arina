@@ -185,8 +185,11 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   
   // Render business feasibility analysis data with visualizations
   const renderBusinessFeasibility = (data: Record<string, any>) => {
-    // Extract key metrics
-    const profitMargin = data.profitMargin || data.profit_margin;
+    if (!data) return null;
+    
+    // Extract key metrics from data or data.data
+    const metrics = data.data || data;
+    const profitMargin = metrics.profitMargin || metrics.profit_margin;
     const roi = data.roi || data.ROI;
     const paybackPeriod = data.paybackPeriod || data.payback_period;
     const breakEvenUnits = data.breakEvenUnits || data.break_even_units;
@@ -308,8 +311,13 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   
   // Render demand forecast analysis with line charts
   const renderDemandForecast = (data: Record<string, any>) => {
-    // Extract forecast data
-    const forecasted = data.forecasted || data.forecasts || [];
+    if (!data) return null;
+    
+    // Ensure data is properly structured
+    const forecasted = Array.isArray(data.forecasted) ? data.forecasted :
+                      Array.isArray(data.forecasts) ? data.forecasts :
+                      Array.isArray(data.data?.forecasted) ? data.data.forecasted :
+                      Array.isArray(data.data?.forecasts) ? data.data.forecasts : [];
     const hasForecasts = Array.isArray(forecasted) && forecasted.length > 0;
     
     // Prepare chart data
@@ -433,8 +441,11 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   
   // Render optimization analysis with bar charts
   const renderOptimization = (data: Record<string, any>) => {
-    // Extract optimization results
-    const solution = data.solution || data.results || {};
+    if (!data) return null;
+    
+    // Extract optimization results from data or data.data
+    const results = data.data || data;
+    const solution = results.solution || results.results || {};
     const hasSolution = solution && Object.keys(solution).length > 0;
     
     // Prepare chart data if we have a solution
