@@ -49,6 +49,7 @@ export const createChatSession = async (history: ChatMessage[] = []) => {
 export const sendMessage = async (
   chat: any,
   message: string,
+  analysisHistory: any[] = [],
   retries = 3,
   delay = 1000,
 ): Promise<string> => {
@@ -61,8 +62,35 @@ export const sendMessage = async (
   }
 
   try {
-    console.log('Sending message to Gemini:', message);
-    const result = await chat.sendMessage(message.trim());
+    // Add analysis history context if available
+    let finalMessage = message;
+    
+    if (analysisHistory && analysisHistory.length > 0) {
+      // Check length of history to decide how many items to include to stay within token limits
+      const historyCount = Math.min(analysisHistory.length, 2); // Limit to 2 most recent analyses
+      
+      // Add a system-level context prefix about analysis history
+      const contextPrefix = `I have access to your previous analysis results and will reference them when relevant. `;
+      
+      // Prepare detailed context about analyses (only for the first message in a conversation)
+      if (message.length < 500) { // Only add detailed context for shorter messages to avoid token limits
+        const analysisContext = analysisHistory
+          .slice(0, historyCount)
+          .map((analysis, i) => {
+            const date = analysis.created_at ? new Date(analysis.created_at).toLocaleDateString() : 'recent';
+            return `[Analysis ${i+1}] Type: ${analysis.type} (${date})`;
+          })
+          .join('\n');
+          
+        finalMessage = `${contextPrefix}\n\nUser analysis history summary:\n${analysisContext}\n\nUser message: ${message}`;
+      } else {
+        // For longer messages, just add a brief context note
+        finalMessage = `${contextPrefix}\n\nUser message: ${message}`;
+      }
+    }
+    
+    console.log('Sending message to Gemini:', finalMessage);
+    const result = await chat.sendMessage(finalMessage.trim());
     console.log('Raw Gemini response:', result);
 
     if (!result) {
@@ -111,7 +139,7 @@ export const sendMessage = async (
       await new Promise((resolve) => setTimeout(resolve, retryDelay));
 
       // Retry with exponential backoff
-      return sendMessage(chat, message, retries - 1, delay * 2);
+      return sendMessage(chat, message, analysisHistory, retries - 1, delay * 2);
     }
 
     if (error.status === 429) {

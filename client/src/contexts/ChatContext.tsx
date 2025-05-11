@@ -235,15 +235,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const assistantMessage: ChatMessage = {
           conversation_id: conversationId,
           role: 'assistant',
-          content: response
+          content: aiResponse
         };
 
         setMessages(prev => [...prev, assistantMessage]);
 
         // Save assistant message to database
-        await addChatMessage(conversationId, 'assistant', response);
+        await addChatMessage(conversationId, 'assistant', aiResponse);
 
-        return response;
+        return aiResponse;
       } catch (error: any) {
         if (error.status === 429) {
           // Rate limit exceeded
@@ -267,7 +267,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Save assistant message to database
-      await addChatMessage(conversationId, 'assistant', response);
+      await addChatMessage(conversationId, 'assistant', aiResponse);
 
       // Update conversation title if it's the first message
       if (messages.length === 0 && activeConversation?.title === "New Conversation") {
