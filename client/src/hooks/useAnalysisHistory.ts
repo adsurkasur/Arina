@@ -3,15 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useToast } from './use-toast';
 import { useAuth } from './useAuth';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-
-export interface AnalysisResult {
-  id: string;
-  user_id: string;
-  type: string;
-  data: any;
-  created_at: string;
-  updated_at: string;
-}
+import { AnalysisResult } from '@shared/schema';
 
 export function useAnalysisHistory() {
   const { user } = useAuth();
@@ -25,17 +17,18 @@ export function useAnalysisHistory() {
     refetch
   } = useQuery<AnalysisResult[]>({
     queryKey: ['/api/analysis', user?.id],
-    queryFn: () => {
+    queryFn: async ({ queryKey }) => {
       if (!user?.id) {
         throw new Error('User ID is required');
       }
-      return getQueryFn({ on401: 'throw' })({ 
-        queryKey: ['/api/analysis'], 
-        signal: undefined,
-        meta: undefined 
-      }, { 
-        userId: user.id 
-      });
+      
+      const response = await fetch(`/api/analysis?userId=${user.id}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch analysis history');
+      }
+      
+      return response.json();
     },
     enabled: !!user?.id,
   });

@@ -192,12 +192,32 @@ export const generateResponse = async (
 export const createAnalysisPrompt = (
   analysisType: string,
   data: any,
+  analysisHistory: any[] = [],
 ): string => {
   let prompt = `You are an agricultural business advisor. Please provide a detailed analysis for the following ${analysisType} data:\n\n`;
 
   prompt += JSON.stringify(data, null, 2);
 
+  // Add analysis history for context if available
+  if (analysisHistory && analysisHistory.length > 0) {
+    prompt += `\n\nFor context, here are previous analysis results that may be relevant:\n\n`;
+    
+    // Add up to 3 most recent analysis results for context
+    const recentHistory = analysisHistory.slice(0, 3);
+    
+    recentHistory.forEach((analysis, index) => {
+      prompt += `Analysis ${index + 1} (${analysis.type}):\n`;
+      prompt += JSON.stringify(analysis.data, null, 2);
+      prompt += '\n\n';
+    });
+  }
+
   prompt += `\n\nPlease provide a professional analysis including key insights, recommendations, and potential risks. Format the response in clear sections.`;
+  
+  // If there's history, ask to incorporate it
+  if (analysisHistory && analysisHistory.length > 0) {
+    prompt += `\nIncorporate insights from previous analyses where relevant, showing how the current analysis relates to past findings.`;
+  }
 
   return prompt;
 };
