@@ -3,8 +3,8 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Sprout, Mail, Lock, User, Loader2 } from "lucide-react";
@@ -87,276 +87,242 @@ export default function Login() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cream">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-cream flex">
-      {/* Left panel - Form */}
-      <div className="flex-1 flex flex-col justify-center items-center p-8">
-        <div className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <div className="bg-primary text-white p-3 rounded-full">
-              <Sprout className="h-8 w-8" />
-            </div>
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-6">
+          <div className="inline-flex justify-center items-center bg-primary text-white p-3 rounded-full mb-4">
+            <Sprout className="h-8 w-8" />
           </div>
           
-          <h1 className="text-3xl font-bold text-center text-primary mb-2">
-            Welcome to Arina
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">
+            Welcome back
           </h1>
-          <p className="text-gray-600 text-center mb-8">
-            Your AI-powered platform for agricultural business analysis
+          <p className="text-gray-600 mb-6">
+            Sign in to continue to Arina
           </p>
+        </div>
+        
+        <Card className="border shadow-sm">
+          <CardHeader className="pb-4">
+            <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="register">Register</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </CardHeader>
           
-          <Card>
-            <CardHeader className="pb-4">
-              <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="register">Register</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </CardHeader>
+          <CardContent>
+            {error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
+                {error}
+              </div>
+            )}
             
-            <CardContent>
-              {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
-                  {error}
+            {activeTab === "login" ? (
+              <form onSubmit={handleLogin}>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your.email@example.com"
+                        className="pl-10"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        className="pl-10"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
+                    {formLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Logging in...
+                      </>
+                    ) : (
+                      "Log in"
+                    )}
+                  </Button>
+                  
+                  <div className="relative my-3">
+                    <div className="absolute inset-0 flex items-center">
+                      <Separator className="w-full" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-background px-2 text-xs text-gray-500">
+                        OR
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full border-gray-300 flex gap-2 items-center justify-center"
+                    onClick={handleGoogleSignIn}
+                    disabled={googleLoading}>
+                    {googleLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Connecting to Google...
+                      </>
+                    ) : (
+                      <>
+                        <FcGoogle className="h-5 w-5" />
+                        <span>Sign in with Google</span>
+                      </>
+                    )}
+                  </Button>
                 </div>
-              )}
-              
-              {activeTab === "login" ? (
-                <form onSubmit={handleLogin}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="your.email@example.com"
-                          className="pl-10"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
+              </form>
+            ) : (
+              <form onSubmit={handleRegister}>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Your Name"
+                        className="pl-10"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="••••••••"
-                          className="pl-10"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
-                      {formLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Logging in...
-                        </>
-                      ) : (
-                        "Log in"
-                      )}
-                    </Button>
-                    
-                    <div className="relative my-3">
-                      <div className="absolute inset-0 flex items-center">
-                        <Separator className="w-full" />
-                      </div>
-                      <div className="relative flex justify-center">
-                        <span className="bg-background px-2 text-xs text-gray-500">
-                          OR
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="w-full border-gray-300 flex gap-2 items-center justify-center"
-                      onClick={handleGoogleSignIn}
-                      disabled={googleLoading}>
-                      {googleLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Connecting to Google...
-                        </>
-                      ) : (
-                        <>
-                          <FcGoogle className="h-5 w-5" />
-                          <span>Sign in with Google</span>
-                        </>
-                      )}
-                    </Button>
                   </div>
-                </form>
-              ) : (
-                <form onSubmit={handleRegister}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        <Input
-                          id="name"
-                          type="text"
-                          placeholder="Your Name"
-                          className="pl-10"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          required
-                        />
-                      </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                      <Input
+                        id="register-email"
+                        type="email"
+                        placeholder="your.email@example.com"
+                        className="pl-10"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="register-email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        <Input
-                          id="register-email"
-                          type="email"
-                          placeholder="your.email@example.com"
-                          className="pl-10"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="register-password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        <Input
-                          id="register-password"
-                          type="password"
-                          placeholder="••••••••"
-                          className="pl-10"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
-                      {formLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Creating account...
-                        </>
-                      ) : (
-                        "Create Account"
-                      )}
-                    </Button>
-                    
-                    <div className="relative my-3">
-                      <div className="absolute inset-0 flex items-center">
-                        <Separator className="w-full" />
-                      </div>
-                      <div className="relative flex justify-center">
-                        <span className="bg-background px-2 text-xs text-gray-500">
-                          OR
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="w-full border-gray-300 flex gap-2 items-center justify-center"
-                      onClick={handleGoogleSignIn}
-                      disabled={googleLoading}>
-                      {googleLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Connecting to Google...
-                        </>
-                      ) : (
-                        <>
-                          <FcGoogle className="h-5 w-5" />
-                          <span>Sign up with Google</span>
-                        </>
-                      )}
-                    </Button>
                   </div>
-                </form>
-              )}
-            </CardContent>
-            
-            <CardFooter className="flex justify-center pb-4 pt-2">
-              <p className="text-sm text-gray-500">
-                {activeTab === "login" ? (
-                  <>
-                    Don't have an account?{" "}
-                    <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("register")}>
-                      Sign up
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    Already have an account?{" "}
-                    <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("login")}>
-                      Log in
-                    </Button>
-                  </>
-                )}
-              </p>
-            </CardFooter>
-          </Card>
-        </div>
-      </div>
-      
-      {/* Right panel - Hero image */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary">
-        <div className="w-full p-12 flex flex-col justify-center items-center">
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Smart Agriculture with AI</h2>
-            <p className="text-white/80 max-w-md">
-              Use Arina to analyze your agricultural business, 
-              forecast demand, optimize resources, and get AI-powered recommendations.
-            </p>
-          </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                      <Input
+                        id="register-password"
+                        type="password"
+                        placeholder="••••••••"
+                        className="pl-10"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
+                    {formLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      "Create Account"
+                    )}
+                  </Button>
+                  
+                  <div className="relative my-3">
+                    <div className="absolute inset-0 flex items-center">
+                      <Separator className="w-full" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-background px-2 text-xs text-gray-500">
+                        OR
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full border-gray-300 flex gap-2 items-center justify-center"
+                    onClick={handleGoogleSignIn}
+                    disabled={googleLoading}>
+                    {googleLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Connecting to Google...
+                      </>
+                    ) : (
+                      <>
+                        <FcGoogle className="h-5 w-5" />
+                        <span>Sign up with Google</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </CardContent>
           
-          <div className="grid grid-cols-2 gap-4 max-w-lg">
-            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-              <h3 className="text-white font-semibold mb-2">Business Feasibility</h3>
-              <p className="text-white/80 text-sm">Analyze profitability and determine ROI for your agricultural ventures</p>
-            </div>
-            
-            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-              <h3 className="text-white font-semibold mb-2">Demand Forecasting</h3>
-              <p className="text-white/80 text-sm">Predict future sales trends with advanced AI-powered forecasting</p>
-            </div>
-            
-            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-              <h3 className="text-white font-semibold mb-2">Optimization</h3>
-              <p className="text-white/80 text-sm">Maximize profits and optimize your agricultural resources</p>
-            </div>
-            
-            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-              <h3 className="text-white font-semibold mb-2">Smart Recommendations</h3>
-              <p className="text-white/80 text-sm">Get personalized insights based on your data and current season</p>
-            </div>
-          </div>
-        </div>
+          <CardFooter className="flex justify-center pb-4 pt-2">
+            <p className="text-sm text-gray-500">
+              {activeTab === "login" ? (
+                <>
+                  Don't have an account?{" "}
+                  <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("register")}>
+                    Sign up
+                  </Button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("login")}>
+                    Log in
+                  </Button>
+                </>
+              )}
+            </p>
+          </CardFooter>
+        </Card>
+        
+        <p className="text-center text-gray-500 text-xs mt-6">
+          &copy; {new Date().getFullYear()} Arina. All rights reserved.
+        </p>
       </div>
     </div>
   );
