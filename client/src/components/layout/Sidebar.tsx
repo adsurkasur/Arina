@@ -23,6 +23,8 @@ import {
   Share,
   Trash2,
   Archive,
+  History,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -231,6 +233,26 @@ export function Sidebar({
                             className="bg-cream text-primary"
                           >
                             <p>Personalized insights based on your data</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </li>
+                      
+                      <li>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => openTool("analysisHistory")}
+                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                            >
+                              <ClipboardList className="h-5 w-5 mr-3" />
+                              <span>Analysis History</span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="right"
+                            className="bg-cream text-primary"
+                          >
+                            <p>View your past analysis results</p>
                           </TooltipContent>
                         </Tooltip>
                       </li>

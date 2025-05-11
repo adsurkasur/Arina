@@ -7,6 +7,7 @@ import BusinessFeasibility from "@/components/tools/BusinessFeasibility";
 import DemandForecasting from "@/components/tools/DemandForecasting";
 import OptimizationAnalysis from "@/components/tools/OptimizationAnalysis";
 import RecommendationDashboard from "@/components/recommendations/RecommendationDashboard";
+import AnalysisHistory from "@/components/history/AnalysisHistory";
 import UserProfile from "@/components/profile/UserProfile";
 
 export default function Dashboard() {
@@ -38,6 +39,8 @@ export default function Dashboard() {
         return <OptimizationAnalysis onClose={handleCloseToolPanel} />;
       case "recommendations":
         return <RecommendationDashboard onClose={handleCloseToolPanel} />;
+      case "analysisHistory":
+        return <AnalysisHistory onClose={handleCloseToolPanel} />;
       case "settings":
         return <UserProfile onClose={handleCloseToolPanel} />;
       case "help":

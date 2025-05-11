@@ -24,9 +24,20 @@ export function useAnalysisHistory() {
     error,
     refetch
   } = useQuery<AnalysisResult[]>({
-    queryKey: ['/api/analysis'],
-    queryFn: getQueryFn({ on401: 'throw' }),
-    enabled: !!user,
+    queryKey: ['/api/analysis', user?.id],
+    queryFn: () => {
+      if (!user?.id) {
+        throw new Error('User ID is required');
+      }
+      return getQueryFn({ on401: 'throw' })({ 
+        queryKey: ['/api/analysis'], 
+        signal: undefined,
+        meta: undefined 
+      }, { 
+        userId: user.id 
+      });
+    },
+    enabled: !!user?.id,
   });
 
   // Fetch analysis results by type
