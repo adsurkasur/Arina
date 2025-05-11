@@ -11,6 +11,7 @@ import {
 } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
 
 interface ChatContextProps {
   conversations: ChatConversation[];
@@ -50,6 +51,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const { analysisResults } = useAnalysisHistory();
 
   // Load chat history when user is authenticated
   useEffect(() => {
@@ -213,13 +215,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Wait for AI response with proper error handling
       try {
-        const response = await sendGeminiMessage(chatSession, content);
+        // Include analysis history for context if available
+        const aiResponse = await sendGeminiMessage(
+          chatSession, 
+          content,
+          analysisResults // Pass analysis history for context
+        );
 
-        if (!response) {
+        if (!aiResponse) {
           console.error('Chat response is null:', { 
             chatSession, 
             content,
-            response 
+            analysisResults: analysisResults?.length 
           });
           throw new Error("Empty response from model");
         }
