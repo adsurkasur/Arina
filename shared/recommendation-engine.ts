@@ -30,16 +30,30 @@ export interface RecommendationSet {
 // Helper functions for recommendation generation
 
 /**
+ * Sort analysis results by recency, most recent first
+ */
+function sortByRecency(results: AnalysisResult[]): AnalysisResult[] {
+  return [...results].sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateB - dateA; // Descending order (newest first)
+  });
+}
+
+/**
  * Extract key insights from business feasibility analysis
  */
 function extractBusinessRecommendations(results: AnalysisResult[]): RecommendationItem[] {
   const recommendations: RecommendationItem[] = [];
   
-  // Filter for business feasibility analyses
-  const businessResults = results.filter(r => r.type === 'business_feasibility');
+  // Filter for business feasibility analyses and sort by recency
+  const businessResults = sortByRecency(results.filter(r => r.type === 'business_feasibility'));
   
-  businessResults.forEach(result => {
-    const data = result.data;
+  // Limit to most recent analyses to avoid overwhelming with recommendations
+  const recentBusinessResults = businessResults.slice(0, 3);
+  
+  recentBusinessResults.forEach(result => {
+    const data = result.data as any;
     
     // Check profitability indicators
     if (data.profitMargin && data.profitMargin > 0.25) {
@@ -134,11 +148,14 @@ function extractBusinessRecommendations(results: AnalysisResult[]): Recommendati
 function extractForecastRecommendations(results: AnalysisResult[]): RecommendationItem[] {
   const recommendations: RecommendationItem[] = [];
   
-  // Filter for forecast analyses
-  const forecastResults = results.filter(r => r.type === 'demand_forecast');
+  // Filter for forecast analyses and sort by recency
+  const forecastResults = sortByRecency(results.filter(r => r.type === 'demand_forecast'));
   
-  forecastResults.forEach(result => {
-    const data = result.data;
+  // Limit to most recent analyses to avoid overwhelming with recommendations
+  const recentForecasts = forecastResults.slice(0, 3);
+  
+  recentForecasts.forEach(result => {
+    const data = result.data as any;
     
     // Check for growth trend
     if (data.forecasted && Array.isArray(data.forecasted) && data.forecasted.length > 1) {
@@ -248,11 +265,14 @@ function extractForecastRecommendations(results: AnalysisResult[]): Recommendati
 function extractOptimizationRecommendations(results: AnalysisResult[]): RecommendationItem[] {
   const recommendations: RecommendationItem[] = [];
   
-  // Filter for optimization analyses
-  const optimizationResults = results.filter(r => r.type === 'optimization');
+  // Filter for optimization analyses and sort by recency
+  const optimizationResults = sortByRecency(results.filter(r => r.type === 'optimization'));
   
-  optimizationResults.forEach(result => {
-    const data = result.data;
+  // Limit to most recent analyses to avoid overwhelming with recommendations
+  const recentOptimizations = optimizationResults.slice(0, 3);
+  
+  recentOptimizations.forEach(result => {
+    const data = result.data as any;
     
     // Check solution feasibility
     if (data.feasible === true) {
