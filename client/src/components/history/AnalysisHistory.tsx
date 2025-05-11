@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { useAnalysisHistory, AnalysisResult } from '@/hooks/useAnalysisHistory';
+import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
+import { AnalysisResult } from '@shared/schema';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,7 +61,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   } = useAnalysisHistory();
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
 
   // Apply filters to results
   const filteredResults = analysisResults.filter(result => {
@@ -68,7 +69,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     
-    const matchesType = typeFilter ? result.type === typeFilter : true;
+    const matchesType = typeFilter === 'all' ? true : result.type === typeFilter;
     
     return matchesSearch && matchesType;
   });
@@ -81,30 +82,34 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
     return TYPE_ICONS[type as keyof typeof TYPE_ICONS] || <ClipboardList className="h-5 w-5" />;
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date | null) => {
+    if (!dateString) return 'Unknown date';
     return format(new Date(dateString), 'MMM d, yyyy h:mm a');
   };
 
   // Function to render JSON data in a more readable format
-  const renderAnalysisData = (data: any) => {
+  const renderAnalysisData = (data: unknown) => {
     if (!data) return <p>No data available</p>;
     
-    if (typeof data === 'object') {
+    // Type guard to check if data is an object
+    if (data && typeof data === 'object') {
+      const dataObj = data as Record<string, any>;
+      
       // If the data has a simple structure, extract key info
-      if (data.title || data.description || data.summary) {
+      if (dataObj.title || dataObj.description || dataObj.summary) {
         return (
           <div className="space-y-2">
-            {data.title && <h4 className="font-medium">{data.title}</h4>}
-            {data.description && <p>{data.description}</p>}
-            {data.summary && <p>{data.summary}</p>}
+            {dataObj.title && <h4 className="font-medium">{dataObj.title}</h4>}
+            {dataObj.description && <p>{dataObj.description}</p>}
+            {dataObj.summary && <p>{dataObj.summary}</p>}
             
             {/* If there's numerical data, show it in a more structured way */}
-            {data.metrics && (
+            {dataObj.metrics && (
               <div className="grid grid-cols-2 gap-2 mt-2">
-                {Object.entries(data.metrics).map(([key, value]) => (
+                {Object.entries(dataObj.metrics).map(([key, value]) => (
                   <div key={key} className="bg-secondary/20 p-2 rounded">
                     <div className="text-xs text-muted-foreground">{key}</div>
-                    <div className="font-medium">{value as React.ReactNode}</div>
+                    <div className="font-medium">{String(value)}</div>
                   </div>
                 ))}
               </div>
@@ -116,7 +121,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
       // For more complex objects, render as a list of key-value pairs
       return (
         <div className="space-y-2">
-          {Object.entries(data).map(([key, value]) => (
+          {Object.entries(dataObj).map(([key, value]) => (
             <div key={key} className="mb-1">
               <span className="font-medium">{key}: </span>
               <span>
@@ -131,7 +136,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
       );
     }
     
-    // If data is a string, just display it
+    // If data is a string or other primitive, just display it
     return <p>{String(data)}</p>;
   };
 
@@ -185,7 +190,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
             <SelectValue placeholder="All types" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All types</SelectItem>
+            <SelectItem value="all">All types</SelectItem>
             <SelectItem value="business_feasibility">Business Feasibility</SelectItem>
             <SelectItem value="demand_forecast">Demand Forecasting</SelectItem>
             <SelectItem value="optimization">Optimization Analysis</SelectItem>
@@ -221,7 +226,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                       </div>
                       <div>
                         <CardTitle className="text-base">
-                          {result.data.title || getTypeLabel(result.type)}
+                          {(result.data as any)?.title || getTypeLabel(result.type)}
                         </CardTitle>
                         <CardDescription className="flex items-center mt-1">
                           <Clock className="h-3 w-3 mr-1" />
