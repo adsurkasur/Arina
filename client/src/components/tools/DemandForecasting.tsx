@@ -460,19 +460,63 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
               {/* Chart */}
               <div className="p-4">
                 <h4 className="font-medium text-gray-700 mb-3">Forecast Chart</h4>
+                <div className="space-y-4">
+                <div className="bg-cream p-4 rounded-lg">
+                  <h5 className="font-medium text-primary mb-2">Understanding the Chart</h5>
+                  <ul className="text-sm space-y-2">
+                    <li>• Solid line: Your actual historical demand data</li>
+                    <li>• Dashed line: Predicted future demand</li>
+                    <li>• Each point represents demand for one period</li>
+                    <li>• Hover over points to see exact values</li>
+                  </ul>
+                </div>
+                
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={prepareChartData()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="Historical" stroke="#1F3A13" strokeWidth={2} dot />
-                      <Line type="monotone" dataKey="Forecast" stroke="#4B7B3F" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 5 }} />
+                    <LineChart 
+                      data={prepareChartData()} 
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis 
+                        dataKey="name" 
+                        label={{ value: 'Time Periods', position: 'bottom', offset: 0 }}
+                      />
+                      <YAxis 
+                        label={{ value: 'Demand Quantity', angle: -90, position: 'left', offset: 0 }}
+                      />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                        formatter={(value) => [`Quantity: ${value}`, '']}
+                      />
+                      <Legend 
+                        verticalAlign="top" 
+                        height={36}
+                        formatter={(value) => {
+                          return value === "Historical" ? "Past Data" : "Future Prediction";
+                        }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="Historical" 
+                        stroke="#1F3A13" 
+                        strokeWidth={2} 
+                        dot={{ strokeWidth: 2 }}
+                        name="Historical"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="Forecast" 
+                        stroke="#4B7B3F" 
+                        strokeWidth={2} 
+                        strokeDasharray="5 5" 
+                        dot={{ r: 5, strokeWidth: 2 }}
+                        name="Forecast"
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
+              </div>
               </div>
 
               {/* Forecast Table */}
