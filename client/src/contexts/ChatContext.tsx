@@ -260,10 +260,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const errorMessage: ChatMessage = {
           conversation_id: conversationId,
           role: 'assistant',
-          content: "Sorry, I encountered an error. Please try again later."
+          content: "I apologize, but I encountered an error processing your request. Please try again."
         };
         setMessages(prev => [...prev, errorMessage]);
-        return;
+        return errorMessage.content;
       }
 
       // Save assistant message to database

@@ -169,7 +169,7 @@ export const sendMessage = async (
       return `I'm currently experiencing high demand. Please wait ${waitTime} before trying again. This is due to API rate limits.`;
     }
 
-    return "I'm sorry, I couldn't process your message. Please try again.";
+    return "I apologize, but I couldn't process your message at this time. Please try again.";
   }
 };
 
