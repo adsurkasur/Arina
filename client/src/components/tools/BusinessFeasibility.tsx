@@ -387,24 +387,7 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="projectLifespan"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estimated Project Lifespan (years)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="5" 
-                        type="number" 
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              
             </div>
 
             {/* Analysis Buttons */}

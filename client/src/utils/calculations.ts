@@ -112,7 +112,7 @@ export const generateFeasibilitySummary = (
     summary += `The monthly profit of Rp ${monthlyNetProfit.toLocaleString()} represents a healthy ${profitMargin.toFixed(1)}% profit margin.`;
   } else {
     summary += `<span class="text-red-600 font-medium">not feasible</span> with the current parameters. `;
-    summary += `The payback period of ${paybackPeriod.toFixed(1)} years exceeds the project lifespan of ${projectLifespan} years.`;
+    summary += `The project has a low ROI of ${roi.toFixed(1)}% and/or a long payback period of ${paybackPeriod.toFixed(1)} years.`;
   }
 
   summary += `\n\nThe break-even point of ${Math.ceil(breakEvenUnits).toLocaleString()} units is `;
@@ -162,7 +162,8 @@ export const analyzeBusiness = (input: BusinessFeasibilityInput): BusinessFeasib
   const paybackPeriod = calculatePaybackPeriod(totalInvestment, annualNetProfit);
   const roi = calculateROI(annualNetProfit, totalInvestment);
   
-  const feasible = isFeasible(roi, paybackPeriod, input.projectLifespan);
+  // Business is considered feasible if ROI > 15% and payback period < 5 years
+  const feasible = roi > 15 && paybackPeriod < 5;
   
   const partialResult = {
     unitCost,
