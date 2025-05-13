@@ -106,17 +106,24 @@ export const sendMessage = async (
       return "I apologize, but I received an empty response. Please try again.";
     }
 
+    if (!response || typeof response !== 'string') {
+      console.error('Invalid response:', response);
+      return "I apologize, but I couldn't process your message. Please try again.";
+    }
+
     // Clean up response text
     let cleanResponse = response
-      // Remove undefined
       .replace(/undefined/g, '')
-      // Fix typos in greetings
+      .replace(/\b(undefined)\b/g, '')
       .replace(/Hllo!/g, 'Hello!')
-      // Remove duplicate greetings
       .replace(/(Hello!|Hi!) How can I h?(?:H|h)elp you(?: today)?\??(?:\s*(?:Hello!|Hi!) How can I help you(?: today)?\??)*/, '$1 How can I help you?')
-      // Clean extra whitespace
       .replace(/\s+/g, ' ')
       .trim();
+
+    // If response is empty after cleaning
+    if (!cleanResponse) {
+      return "I apologize, but I received an empty response. Please try again.";
+    }
 
     return cleanResponse;
   } catch (error: any) {
