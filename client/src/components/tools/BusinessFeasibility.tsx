@@ -75,12 +75,12 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
     resolver: zodResolver(formSchema),
     defaultValues: {
       businessName: "",
-      investmentCosts: [],
-      operationalCosts: [],
-      productionCostPerUnit: undefined,
-      monthlySalesVolume: undefined,
-      markup: undefined,
-      projectLifespan: undefined,
+      investmentCosts: [{ id: uuidv4(), name: "", amount: 0 }],
+      operationalCosts: [{ id: uuidv4(), name: "", amount: 0 }],
+      productionCostPerUnit: 0,
+      monthlySalesVolume: 0,
+      markup: 0,
+      projectLifespan: 1,
     },
   });
 
@@ -99,22 +99,33 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
   const onSubmit = (data: BusinessFeasibilityInput) => {
     setIsCalculating(true);
     try {
-      // Ensure all numeric fields are properly converted to numbers
+      if (!data.businessName || data.monthlySalesVolume <= 0 || data.markup < 0) {
+        throw new Error("Please fill in all required fields with valid values");
+      }
+
       const processedData = {
         ...data,
-        investmentCosts: data.investmentCosts.map(cost => ({
+        investmentCosts: data.investmentCosts.filter(cost => cost.name && cost.amount > 0).map(cost => ({
           ...cost,
-          amount: Number(cost.amount) || 0
+          amount: Number(cost.amount)
         })),
-        operationalCosts: data.operationalCosts.map(cost => ({
+        operationalCosts: data.operationalCosts.filter(cost => cost.name && cost.amount > 0).map(cost => ({
           ...cost,
-          amount: Number(cost.amount) || 0
+          amount: Number(cost.amount)
         })),
-        productionCostPerUnit: Number(data.productionCostPerUnit) || 0,
-        monthlySalesVolume: Number(data.monthlySalesVolume) || 0,
-        markup: Number(data.markup) || 0,
+        productionCostPerUnit: Number(data.productionCostPerUnit),
+        monthlySalesVolume: Number(data.monthlySalesVolume),
+        markup: Number(data.markup),
         projectLifespan: Number(data.projectLifespan) || 1
       };
+
+      if (processedData.investmentCosts.length === 0) {
+        throw new Error("Please add at least one investment cost");
+      }
+
+      if (processedData.operationalCosts.length === 0) {
+        throw new Error("Please add at least one operational cost");
+      }
 
       const result = analyzeBusiness(processedData);
       setResults(result);
