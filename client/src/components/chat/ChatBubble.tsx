@@ -47,17 +47,17 @@ interface ChatBubbleProps {
 export default function ChatBubble({ message, userName, userImage, animate = false }: ChatBubbleProps) {
   const isUser = message.role === "user";
   const [showAnimation, setShowAnimation] = useState(animate && !isUser);
-  
+
   // Only animate assistant messages that don't have an ID yet (new messages)
   const shouldAnimate = !isUser && animate && !message.id;
-  
+
   // Disable animation after component mounts if it's an existing message
   useEffect(() => {
     if (message.id) {
       setShowAnimation(false);
     }
   }, [message.id]);
-  
+
   return (
     <div className={cn("flex mb-4", isUser && "justify-end")}>
       {!isUser && (
@@ -65,7 +65,7 @@ export default function ChatBubble({ message, userName, userImage, animate = fal
           <Sprout className="h-4 w-4" />
         </div>
       )}
-      
+
       <div
         className={cn(
           "p-3 shadow-sm max-w-[80%]",
@@ -83,10 +83,12 @@ export default function ChatBubble({ message, userName, userImage, animate = fal
             onComplete={() => setShowAnimation(false)}
           />
         ) : (
-          <MarkdownContent content={message.content} />
+          <div className="whitespace-pre-wrap">
+            <MarkdownContent content={message.content} />
+          </div>
         )}
       </div>
-      
+
       {isUser && (
         <Avatar className="w-8 h-8 ml-3 flex-shrink-0">
           <AvatarImage src={userImage} alt={userName} />
