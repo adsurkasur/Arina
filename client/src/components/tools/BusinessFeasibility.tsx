@@ -231,7 +231,10 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                             step="any"
                             min="0"
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                              const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                              field.onChange(value);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -293,7 +296,10 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                             step="any"
                             min="0"
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                              const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                              field.onChange(value);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
