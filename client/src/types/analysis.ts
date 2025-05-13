@@ -47,7 +47,6 @@ export interface ForecastInput {
   forecastPeriods: number;
   method: 'sma' | 'exponential';
   smoothingFactor?: number; // Alpha for exponential smoothing
-  periodLength?: number; // For SMA
 }
 
 export interface ForecastResult {

@@ -369,30 +369,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
             />
 
             {/* Method-specific parameters */}
-            {method === "sma" && (
-              <FormField
-                control={form.control}
-                name="periodLength"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Period Length for Moving Average</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min={1} 
-                        max={12} 
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 3)}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Number of past periods to include in the moving average calculation.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            
 
             {method === "exponential" && (
               <FormField
