@@ -75,20 +75,12 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
     resolver: zodResolver(formSchema),
     defaultValues: {
       businessName: "",
-      investmentCosts: [
-        { id: uuidv4(), name: "Land purchase", amount: 0 },
-        { id: uuidv4(), name: "Building/construction", amount: 0 },
-        { id: uuidv4(), name: "Equipment", amount: 0 },
-      ],
-      operationalCosts: [
-        { id: uuidv4(), name: "Labor", amount: 0 },
-        { id: uuidv4(), name: "Utilities", amount: 0 },
-        { id: uuidv4(), name: "Raw materials", amount: 0 },
-      ],
-      productionCostPerUnit: 0,
-      monthlySalesVolume: 0,
-      markup: 0,
-      projectLifespan: 5,
+      investmentCosts: [],
+      operationalCosts: [],
+      productionCostPerUnit: undefined,
+      monthlySalesVolume: undefined,
+      markup: undefined,
+      projectLifespan: undefined,
     },
   });
 
