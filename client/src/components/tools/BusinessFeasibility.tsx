@@ -99,7 +99,24 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
   const onSubmit = (data: BusinessFeasibilityInput) => {
     setIsCalculating(true);
     try {
-      const result = analyzeBusiness(data);
+      // Ensure all numeric fields are properly converted to numbers
+      const processedData = {
+        ...data,
+        investmentCosts: data.investmentCosts.map(cost => ({
+          ...cost,
+          amount: Number(cost.amount) || 0
+        })),
+        operationalCosts: data.operationalCosts.map(cost => ({
+          ...cost,
+          amount: Number(cost.amount) || 0
+        })),
+        productionCostPerUnit: Number(data.productionCostPerUnit) || 0,
+        monthlySalesVolume: Number(data.monthlySalesVolume) || 0,
+        markup: Number(data.markup) || 0,
+        projectLifespan: Number(data.projectLifespan) || 1
+      };
+
+      const result = analyzeBusiness(processedData);
       setResults(result);
       // Scroll to results section
       setTimeout(() => {
