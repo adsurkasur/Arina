@@ -230,9 +230,14 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                             type="number"
                             step="1"
                             min="0"
+                            onKeyDown={(e) => {
+                              if (e.key === '.' || e.key === ',') {
+                                e.preventDefault();
+                              }
+                            }}
                             {...field}
                             onChange={(e) => {
-                              const value = e.target.value === '' ? '' : parseInt(e.target.value);
+                              const value = e.target.value === '' ? '' : Math.floor(parseFloat(e.target.value));
                               field.onChange(value);
                             }}
                           />
@@ -295,9 +300,14 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                             type="number"
                             step="1"
                             min="0"
+                            onKeyDown={(e) => {
+                              if (e.key === '.' || e.key === ',') {
+                                e.preventDefault();
+                              }
+                            }}
                             {...field}
                             onChange={(e) => {
-                              const value = e.target.value === '' ? '' : parseInt(e.target.value);
+                              const value = e.target.value === '' ? '' : Math.floor(parseFloat(e.target.value));
                               field.onChange(value);
                             }}
                           />
@@ -344,6 +354,11 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                         type="number"
                         step="1"
                         min="0"
+                        onKeyDown={(e) => {
+                          if (e.key === '.' || e.key === ',') {
+                            e.preventDefault();
+                          }
+                        }}
                         {...field}
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                       />
