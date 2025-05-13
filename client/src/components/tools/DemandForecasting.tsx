@@ -291,9 +291,19 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
                           <FormControl>
                             <Input 
                               placeholder="0" 
-                              type="number" 
+                              type="number"
+                              step="1"
+                              min="0"
+                              onKeyDown={(e) => {
+                                if (e.key === '.' || e.key === ',') {
+                                  e.preventDefault();
+                                }
+                              }}
                               {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={(e) => {
+                                const value = e.target.value === '' ? '' : Math.floor(parseFloat(e.target.value));
+                                field.onChange(value);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
