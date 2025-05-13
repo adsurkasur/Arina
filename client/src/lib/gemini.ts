@@ -113,12 +113,22 @@ export const sendMessage = async (
 
     // Clean up response text
     let cleanResponse = response
+      // Remove undefined and clean up greetings
       .replace(/undefined/g, '')
       .replace(/\b(undefined)\b/g, '')
       .replace(/Hllo!/g, 'Hello!')
       .replace(/(Hello!|Hi!) How can I h?(?:H|h)elp you(?: today)?\??(?:\s*(?:Hello!|Hi!) How can I help you(?: today)?\??)*/, '$1 How can I help you?')
+      // Format markdown syntax
+      .replace(/\*\*(.*?)\*\*/g, '**$1**') // Bold
+      .replace(/\*(.*?)\*/g, '*$1*')       // Italic
+      .replace(/`(.*?)`/g, '`$1`')         // Code
       .replace(/\s+/g, ' ')
       .trim();
+
+    // Handle empty or invalid responses
+    if (!cleanResponse || cleanResponse === 'undefined') {
+      return "I apologize, but I couldn't generate a proper response. Please try again.";
+    }
 
     // If response is empty after cleaning
     if (!cleanResponse) {

@@ -9,25 +9,29 @@ import TextStreamingEffect from "./TextStreamingEffect";
 const MarkdownContent = ({ content }: { content: string }) => {
   return (
     <div className="prose prose-sm max-w-none">
-      {/* Using the same wrapper pattern as in TextStreamingEffect */}
-      <div className="markdown-content">
-        {content.split('\n').map((line, i) => {
-          // Simple handling of markdown-like content
-          if (line.startsWith('# ')) {
-            return <h1 key={i} className="text-xl font-bold mb-2">{line.substring(2)}</h1>;
-          } else if (line.startsWith('## ')) {
-            return <h2 key={i} className="text-lg font-bold mb-2">{line.substring(3)}</h2>;
-          } else if (line.startsWith('### ')) {
-            return <h3 key={i} className="text-md font-bold mb-2">{line.substring(4)}</h3>;
-          } else if (line.startsWith('- ')) {
-            return <li key={i} className="ml-4 list-disc">{line.substring(2)}</li>;
-          } else if (line.trim() === '') {
-            return <br key={i} />;
-          } else {
-            return <p key={i} className="mb-2">{line}</p>;
-          }
-        })}
-      </div>
+      <ReactMarkdown
+        components={{
+          strong: ({ node, ...props }) => <span className="font-bold" {...props} />,
+          em: ({ node, ...props }) => <span className="italic" {...props} />,
+          code: ({ node, inline, ...props }) => 
+            inline ? (
+              <code className="bg-gray-100 px-1 rounded" {...props} />
+            ) : (
+              <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">
+                <code {...props} />
+              </pre>
+            ),
+          ul: ({ ...props }) => <ul className="list-disc pl-4 space-y-1" {...props} />,
+          ol: ({ ...props }) => <ol className="list-decimal pl-4 space-y-1" {...props} />,
+          h1: ({ ...props }) => <h1 className="text-xl font-bold my-2" {...props} />,
+          h2: ({ ...props }) => <h2 className="text-lg font-bold my-2" {...props} />,
+          h3: ({ ...props }) => <h3 className="text-base font-bold my-2" {...props} />,
+          p: ({ ...props }) => <p className="my-2" {...props} />,
+          blockquote: ({ ...props }) => <blockquote className="border-l-4 border-gray-200 pl-4 italic" {...props} />,
+        }}
+      >
+        {content || ""}
+      </ReactMarkdown>
     </div>
   );
 };
