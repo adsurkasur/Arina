@@ -227,7 +227,9 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                         <FormControl>
                           <Input 
                             placeholder="Amount" 
-                            type="number" 
+                            type="number"
+                            step="any"
+                            min="0"
                             {...field}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                           />
@@ -287,7 +289,9 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                         <FormControl>
                           <Input 
                             placeholder="Amount" 
-                            type="number" 
+                            type="number"
+                            step="any"
+                            min="0"
                             {...field}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                           />
@@ -331,7 +335,9 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                     <FormControl>
                       <Input 
                         placeholder="0" 
-                        type="number" 
+                        type="number"
+                        step="any"
+                        min="0"
                         {...field}
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
@@ -379,7 +385,7 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                 )}
               />
 
-              
+
             </div>
 
             {/* Analysis Buttons */}
@@ -416,7 +422,7 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
         {results && (
           <div id="results" className="mt-6 border-t border-gray-200 pt-4">
             <h3 className="text-lg font-heading font-medium text-primary mb-3">Analysis Results</h3>
-            
+
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               {/* Key Metrics */}
               <div className="grid grid-cols-2 gap-4 p-4">
