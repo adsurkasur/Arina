@@ -232,7 +232,7 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                             min="0"
                             {...field}
                             onChange={(e) => {
-                              const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                              const value = e.target.value === '' ? '' : parseFloat(e.target.value);
                               field.onChange(value);
                             }}
                           />
@@ -297,7 +297,7 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                             min="0"
                             {...field}
                             onChange={(e) => {
-                              const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                              const value = e.target.value === '' ? '' : parseFloat(e.target.value);
                               field.onChange(value);
                             }}
                           />
