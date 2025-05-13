@@ -106,7 +106,18 @@ export const sendMessage = async (
       return "I apologize, but I received an empty response. Please try again.";
     }
 
-    return response;
+    // Clean up response - remove undefined and duplicate greetings
+    let cleanResponse = response
+      .replace(/undefined/g, '')
+      .replace(/(Hllo!|Hello!) How can I help you today\?\s*(?:Hllo!|Hello!) How can I help you today\?/g, 'Hello! How can I help you today?')
+      .trim();
+
+    // Ensure response is properly terminated
+    if (!cleanResponse.endsWith('.') && !cleanResponse.endsWith('?') && !cleanResponse.endsWith('!')) {
+      cleanResponse += '.';
+    }
+
+    return cleanResponse;
   } catch (error: any) {
     console.error("Error sending message:", error);
 
