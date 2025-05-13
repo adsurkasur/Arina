@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sprout } from "lucide-react";
 import { cn } from "@/lib/theme";
 import TextStreamingEffect from "./TextStreamingEffect";
+import ReactMarkdown from "react-markdown";
 
 // Custom wrapper for markdown content
 const MarkdownContent = ({ content }: { content: string }) => {
