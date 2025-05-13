@@ -541,7 +541,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
                             {forecast.period}
                           </td>
                           <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
-                            {forecast.forecast.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                            {forecast.forecast?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || '0'}
                           </td>
                         </tr>
                       ))}
