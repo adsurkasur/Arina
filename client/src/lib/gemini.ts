@@ -99,43 +99,19 @@ export const sendMessage = async (
     }
 
     const response = await result.response.text();
-    console.log('Processed response text:', response);
-
-    if (!response || response.trim() === '') {
-      console.error('Empty response text from Gemini');
-      return "I apologize, but I received an empty response. Please try again.";
+    
+    if (!response) {
+      return "Sorry, I couldn't process your message. Please try again.";
     }
 
-    if (!response || typeof response !== 'string') {
-      console.error('Invalid response:', response);
-      return "I apologize, but I couldn't process your message. Please try again.";
-    }
-
-    // Clean up response text
-    let cleanResponse = response
-      // Remove undefined and clean up greetings
-      .replace(/undefined/g, '')
-      .replace(/\b(undefined)\b/g, '')
-      .replace(/Hllo!/g, 'Hello!')
-      .replace(/(Hello!|Hi!) How can I h?(?:H|h)elp you(?: today)?\??(?:\s*(?:Hello!|Hi!) How can I help you(?: today)?\??)*/, '$1 How can I help you?')
-      // Format markdown syntax
-      .replace(/\*\*(.*?)\*\*/g, '**$1**') // Bold
-      .replace(/\*(.*?)\*/g, '*$1*')       // Italic
-      .replace(/`(.*?)`/g, '`$1`')         // Code
+    // Clean and format response
+    const cleanResponse = response
+      .replace(/undefined|Hllo!/g, '')
+      .replace(/(Hello!|Hi!) How can I help you.*?(\?|$)/, 'Hi!')
       .replace(/\s+/g, ' ')
       .trim();
 
-    // Handle empty or invalid responses
-    if (!cleanResponse || cleanResponse === 'undefined') {
-      return "I apologize, but I couldn't generate a proper response. Please try again.";
-    }
-
-    // If response is empty after cleaning
-    if (!cleanResponse) {
-      return "I apologize, but I received an empty response. Please try again.";
-    }
-
-    return cleanResponse;
+    return cleanResponse || "Sorry, I couldn't generate a response. Please try again.";
   } catch (error: any) {
     console.error("Error sending message:", error);
 
