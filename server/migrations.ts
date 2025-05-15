@@ -5,9 +5,16 @@ import { sql } from 'drizzle-orm';
 
 export async function migrate() {
   console.log('Running migrations...');
-  try {
-    // Create tables
-    await db.execute(sql`
+  
+  // Add delay and retry logic for database connection
+  const maxRetries = 3;
+  let currentTry = 0;
+  
+  while (currentTry < maxRetries) {
+    try {
+      console.log(`Migration attempt ${currentTry + 1}/${maxRetries}`);
+      // Create tables
+      await db.execute(sql`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
@@ -61,8 +68,15 @@ export async function migrate() {
       );
     `);
     console.log('Migrations completed successfully');
-  } catch (error) {
-    console.error('Migration failed:', error);
-    throw error;
+      return;
+    } catch (error) {
+      console.error(`Migration attempt ${currentTry + 1} failed:`, error);
+      if (currentTry === maxRetries - 1) {
+        throw error;
+      }
+      // Wait 2 seconds before retrying
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      currentTry++;
+    }
   }
 }
