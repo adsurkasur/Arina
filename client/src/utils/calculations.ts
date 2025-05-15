@@ -1,20 +1,9 @@
-
 import { 
   BusinessFeasibilityInput, 
   BusinessFeasibilityResult,
   InvestmentCost,
   OperationalCost
 } from '@/types/analysis';
-
-// Format currency in Indonesian Rupiah
-const formatRupiah = (value: number): string => {
-  return new Intl.NumberFormat('id-ID', { 
-    style: 'currency', 
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(value);
-};
 
 // Calculate total investment costs
 export const calculateTotalInvestment = (costs: InvestmentCost[]): number => {
@@ -32,7 +21,6 @@ export const calculateUnitCost = (
   monthlyOperationalCosts: number,
   monthlySalesVolume: number
 ): number => {
-  if (monthlySalesVolume <= 0) return 0;
   const allocatedOperationalCost = monthlyOperationalCosts / monthlySalesVolume;
   return productionCostPerUnit + allocatedOperationalCost;
 };
@@ -44,16 +32,11 @@ export const calculateSellingPrice = (unitCost: number, markup: number): number 
 
 // Calculate Break Even Point in units
 export const calculateBEPUnits = (
-  totalInvestment: number,
+  fixedCosts: number,
   sellingPrice: number,
-  unitCost: number,
-  monthlyOperationalCosts: number
+  variableCost: number
 ): number => {
-  const contribution = sellingPrice - unitCost;
-  if (contribution <= 0) return 0;
-  return monthlyOperationalCosts > 0 ? 
-    monthlyOperationalCosts / contribution : 
-    totalInvestment / contribution;
+  return fixedCosts / (sellingPrice - variableCost);
 };
 
 // Calculate Break Even Point in Rupiah
@@ -78,35 +61,23 @@ export const calculateProfitMargin = (
   netProfit: number,
   revenue: number
 ): number => {
-  return revenue > 0 ? (netProfit / revenue) * 100 : 0;
+  return (netProfit / revenue) * 100;
 };
 
-// Calculate Payback Period (in months)
+// Calculate Payback Period (in years)
 export const calculatePaybackPeriod = (
   totalInvestment: number,
-  monthlyNetProfit: number
+  annualNetProfit: number
 ): number => {
-  return monthlyNetProfit > 0 ? totalInvestment / monthlyNetProfit : 0;
-};
-
-// Format Payback Period as text
-export const formatPaybackPeriod = (months: number): string => {
-  if (months <= 0) return 'Tidak valid';
-  
-  const years = Math.floor(months / 12);
-  const remainingMonths = Math.floor(months % 12);
-  const weeks = Math.floor((months * 30 / 7) % 4);
-  const days = Math.floor(months * 30 % 7);
-
-  return `${years} tahun ${remainingMonths} bulan ${weeks} minggu ${days} hari`;
+  return totalInvestment / annualNetProfit;
 };
 
 // Calculate Return on Investment (ROI)
 export const calculateROI = (
-  monthlyNetProfit: number,
+  annualNetProfit: number,
   totalInvestment: number
 ): number => {
-  return totalInvestment > 0 ? (monthlyNetProfit * 12 / totalInvestment) * 100 : 0;
+  return (annualNetProfit / totalInvestment) * 100;
 };
 
 // Determine if the business is feasible
@@ -115,7 +86,7 @@ export const isFeasible = (
   paybackPeriod: number, 
   projectLifespan: number
 ): boolean => {
-  return roi > 15 && (paybackPeriod / 12) < projectLifespan;
+  return roi > 0 && paybackPeriod < projectLifespan;
 };
 
 // Generate a summary of the analysis
@@ -123,28 +94,34 @@ export const generateFeasibilitySummary = (
   input: BusinessFeasibilityInput,
   result: Omit<BusinessFeasibilityResult, 'summary'>
 ): string => {
-  const { businessName } = input;
+  const { businessName, projectLifespan } = input;
   const { 
     roi, 
     paybackPeriod, 
     monthlyNetProfit, 
     profitMargin, 
     breakEvenUnits, 
-    sellingPrice,
+    monthlySalesVolume,
     feasible 
-  } = result;
+  } = { ...result, monthlySalesVolume: input.monthlySalesVolume };
 
-  let summary = `Berdasarkan analisis, usaha ${businessName} `;
+  let summary = `Based on the analysis, this ${businessName} venture appears to be `;
   
   if (feasible) {
-    summary += `<span class="text-green-600 font-medium">layak</span> dengan ROI sebesar ${roi.toFixed(1)}% dan periode BEP ${formatPaybackPeriod(paybackPeriod)}. `;
-    summary += `Profit bulanan sebesar ${formatRupiah(monthlyNetProfit)} menunjukkan margin profit yang sehat sebesar ${profitMargin.toFixed(1)}%.`;
+    summary += `<span class="text-green-600 font-medium">feasible</span> with a positive ROI of ${roi.toFixed(1)}% and a payback period of ${paybackPeriod.toFixed(1)} years. `;
+    summary += `The monthly profit of Rp ${monthlyNetProfit.toLocaleString()} represents a healthy ${profitMargin.toFixed(1)}% profit margin.`;
   } else {
-    summary += `<span class="text-red-600 font-medium">tidak layak</span> dengan parameter saat ini. `;
-    summary += `Proyek memiliki ROI rendah sebesar ${roi.toFixed(1)}% dan/atau periode BEP yang terlalu lama yaitu ${formatPaybackPeriod(paybackPeriod)}.`;
+    summary += `<span class="text-red-600 font-medium">not feasible</span> with the current parameters. `;
+    summary += `The project has a low ROI of ${roi.toFixed(1)}% and/or a long payback period of ${paybackPeriod.toFixed(1)} years.`;
   }
 
-  summary += `\n\nTitik impas (BEP) sebesar ${Math.ceil(breakEvenUnits).toLocaleString()} unit dengan harga jual ${formatRupiah(sellingPrice)} per unit.`;
+  summary += `\n\nThe break-even point of ${Math.ceil(breakEvenUnits).toLocaleString()} units is `;
+  
+  if (breakEvenUnits > monthlySalesVolume) {
+    summary += `above your projected monthly sales volume of ${monthlySalesVolume.toLocaleString()} units, indicating that you may not reach profitability with your current business plan.`;
+  } else {
+    summary += `below your projected monthly sales volume of ${monthlySalesVolume.toLocaleString()} units, indicating that you should reach profitability with your current business plan.`;
+  }
 
   return summary;
 };
@@ -163,10 +140,9 @@ export const analyzeBusiness = (input: BusinessFeasibilityInput): BusinessFeasib
   const sellingPrice = calculateSellingPrice(unitCost, input.markup);
   
   const breakEvenUnits = calculateBEPUnits(
-    totalInvestment,
+    monthlyOperationalCosts,
     sellingPrice,
-    unitCost,
-    monthlyOperationalCosts
+    input.productionCostPerUnit
   );
   
   const breakEvenAmount = calculateBEPAmount(breakEvenUnits, sellingPrice);
@@ -174,17 +150,20 @@ export const analyzeBusiness = (input: BusinessFeasibilityInput): BusinessFeasib
   const monthlyNetProfit = calculateMonthlyNetProfit(
     input.monthlySalesVolume,
     sellingPrice,
-    unitCost,
+    input.productionCostPerUnit,
     monthlyOperationalCosts
   );
+  
+  const annualNetProfit = monthlyNetProfit * 12;
   
   const revenue = input.monthlySalesVolume * sellingPrice;
   const profitMargin = calculateProfitMargin(monthlyNetProfit, revenue);
   
-  const paybackPeriod = calculatePaybackPeriod(totalInvestment, monthlyNetProfit);
-  const roi = calculateROI(monthlyNetProfit, totalInvestment);
+  const paybackPeriod = calculatePaybackPeriod(totalInvestment, annualNetProfit);
+  const roi = calculateROI(annualNetProfit, totalInvestment);
   
-  const feasible = isFeasible(roi, paybackPeriod, input.projectLifespan);
+  // Business is considered feasible if ROI > 15% and payback period < 5 years
+  const feasible = roi > 15 && paybackPeriod < 5;
   
   const partialResult = {
     unitCost,
