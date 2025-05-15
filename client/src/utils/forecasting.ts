@@ -34,15 +34,29 @@ export const generateSMAForecast = (
  */
 export const calculateExponentialSmoothing = (
   historicalData: number[],
-  alpha: number
+  alpha: number,
+  periodLength: number
 ): number[] => {
   if (alpha < 0 || alpha > 1) {
     throw new Error('Alpha must be between 0 and 1');
   }
 
-  const results: number[] = [historicalData[0]];
+  if (periodLength > historicalData.length) {
+    throw new Error('Period length exceeds available historical data');
+  }
 
-  for (let i = 1; i < historicalData.length; i++) {
+  // Initialize with SMA for the first periodLength points
+  const results: number[] = [];
+  for (let i = 0; i < periodLength - 1; i++) {
+    results.push(historicalData[i]);
+  }
+
+  // Calculate first EMA using SMA
+  const firstSMA = calculateSMA(historicalData.slice(0, periodLength), periodLength);
+  results.push(firstSMA);
+
+  // Calculate subsequent EMAs
+  for (let i = periodLength; i < historicalData.length; i++) {
     const forecast = alpha * historicalData[i-1] + (1 - alpha) * results[i-1];
     results.push(forecast);
   }
@@ -56,25 +70,15 @@ export const calculateExponentialSmoothing = (
 export const generateExponentialForecast = (
   historicalData: number[],
   alpha: number,
-  forecastPeriods: number
+  periodLength: number
 ): number[] => {
-  const smoothedValues = calculateExponentialSmoothing(historicalData, alpha);
-  const results: number[] = [];
-
-  let lastForecast = smoothedValues[smoothedValues.length - 1];
+  const smoothedValues = calculateExponentialSmoothing(historicalData, alpha, periodLength);
   const lastActual = historicalData[historicalData.length - 1];
+  const lastSmoothed = smoothedValues[smoothedValues.length - 1];
 
-  // First forecast is based on the last actual value and the last smoothed value
-  let nextForecast = alpha * lastActual + (1 - alpha) * lastForecast;
-  results.push(nextForecast);
-
-  // Subsequent forecasts use previous forecasts since we don't have actual values
-  for (let i = 1; i < forecastPeriods; i++) {
-    nextForecast = alpha * results[i-1] + (1 - alpha) * results[i-1];
-    results.push(nextForecast);
-  }
-
-  return results;
+  // Generate next forecast
+  const nextForecast = alpha * lastActual + (1 - alpha) * lastSmoothed;
+  return [nextForecast];
 };
 
 /**
@@ -166,7 +170,7 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
     forecastedValues = generateExponentialForecast(
       historicalData,
       smoothingFactor,
-      1 // Only forecast one period for consistency
+      periodLength
     );
   }
 
