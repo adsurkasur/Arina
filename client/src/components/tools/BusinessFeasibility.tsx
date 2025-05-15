@@ -75,8 +75,8 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
     resolver: zodResolver(formSchema),
     defaultValues: {
       businessName: "",
-      investmentCosts: [{ id: uuidv4(), name: "", amount: 0 }],
-      operationalCosts: [{ id: uuidv4(), name: "", amount: 0 }],
+      investmentCosts: [{ id: uuidv4(), name: "", quantity: 1, price: 0, amount: 0 }],
+      operationalCosts: [{ id: uuidv4(), name: "", quantity: 1, price: 0, amount: 0 }],
       productionCostPerUnit: 0,
       monthlySalesVolume: 0,
       markup: 0,
@@ -249,25 +249,61 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                   />
                   <FormField
                     control={form.control}
+                    name={`investmentCosts.${index}.quantity`}
+                    render={({ field }) => (
+                      <FormItem className="w-24">
+                        <FormControl>
+                          <Input 
+                            placeholder="Qty" 
+                            type="number"
+                            min="1"
+                            {...field}
+                            onChange={(e) => {
+                              const qty = parseInt(e.target.value) || 1;
+                              field.onChange(qty);
+                              const price = form.getValues(`investmentCosts.${index}.price`) || 0;
+                              form.setValue(`investmentCosts.${index}.amount`, qty * price);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`investmentCosts.${index}.price`}
+                    render={({ field }) => (
+                      <FormItem className="w-32">
+                        <FormControl>
+                          <Input 
+                            placeholder="Price" 
+                            type="number"
+                            min="0"
+                            {...field}
+                            onChange={(e) => {
+                              const price = parseInt(e.target.value) || 0;
+                              field.onChange(price);
+                              const qty = form.getValues(`investmentCosts.${index}.quantity`) || 1;
+                              form.setValue(`investmentCosts.${index}.amount`, qty * price);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name={`investmentCosts.${index}.amount`}
                     render={({ field }) => (
                       <FormItem className="w-32">
                         <FormControl>
                           <Input 
-                            placeholder="Amount" 
+                            placeholder="Total" 
                             type="number"
-                            step="1"
-                            min="0"
-                            onKeyDown={(e) => {
-                              if (e.key === '.' || e.key === ',') {
-                                e.preventDefault();
-                              }
-                            }}
+                            disabled
                             {...field}
-                            onChange={(e) => {
-                              const value = e.target.value === '' ? '' : Math.floor(parseFloat(e.target.value));
-                              field.onChange(value);
-                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -319,25 +355,61 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                   />
                   <FormField
                     control={form.control}
+                    name={`operationalCosts.${index}.quantity`}
+                    render={({ field }) => (
+                      <FormItem className="w-24">
+                        <FormControl>
+                          <Input 
+                            placeholder="Qty" 
+                            type="number"
+                            min="1"
+                            {...field}
+                            onChange={(e) => {
+                              const qty = parseInt(e.target.value) || 1;
+                              field.onChange(qty);
+                              const price = form.getValues(`operationalCosts.${index}.price`) || 0;
+                              form.setValue(`operationalCosts.${index}.amount`, qty * price);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`operationalCosts.${index}.price`}
+                    render={({ field }) => (
+                      <FormItem className="w-32">
+                        <FormControl>
+                          <Input 
+                            placeholder="Price" 
+                            type="number"
+                            min="0"
+                            {...field}
+                            onChange={(e) => {
+                              const price = parseInt(e.target.value) || 0;
+                              field.onChange(price);
+                              const qty = form.getValues(`operationalCosts.${index}.quantity`) || 1;
+                              form.setValue(`operationalCosts.${index}.amount`, qty * price);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name={`operationalCosts.${index}.amount`}
                     render={({ field }) => (
                       <FormItem className="w-32">
                         <FormControl>
                           <Input 
-                            placeholder="Amount" 
+                            placeholder="Total" 
                             type="number"
-                            step="1"
-                            min="0"
-                            onKeyDown={(e) => {
-                              if (e.key === '.' || e.key === ',') {
-                                e.preventDefault();
-                              }
-                            }}
+                            disabled
                             {...field}
-                            onChange={(e) => {
-                              const value = e.target.value === '' ? '' : Math.floor(parseFloat(e.target.value));
-                              field.onChange(value);
-                            }}
                           />
                         </FormControl>
                         <FormMessage />
