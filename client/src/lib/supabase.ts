@@ -84,16 +84,40 @@ export const createChat = async (userId: string, title: string) => {
       body: JSON.stringify({ user_id: userId, title }),
     });
     
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      errorData = { message: 'Unable to parse error response' };
+    }
+
     if (!response.ok) {
-      const errorData = await response.json();
-      return { data: null, error: new Error(errorData.message || 'Failed to create conversation') };
+      // Handle specific database connection errors
+      if (errorData.message?.includes('endpoint is disabled') || 
+          errorData.message?.includes('Control plane request failed')) {
+        return { 
+          data: null, 
+          error: new Error('Database connection is currently unavailable. Please try again later.'),
+          retryable: true
+        };
+      }
+      
+      return { 
+        data: null, 
+        error: new Error(errorData.message || 'Failed to create conversation'),
+        retryable: false
+      };
     }
     
-    const data = await response.json();
-    return { data, error: null };
+    return { data: errorData, error: null, retryable: false };
   } catch (error) {
     console.error('Error creating chat:', error);
-    return { data: null, error };
+    const isNetworkError = error instanceof TypeError && error.message.includes('Network');
+    return { 
+      data: null, 
+      error: new Error(isNetworkError ? 'Network connection error. Please check your connection.' : 'An unexpected error occurred.'),
+      retryable: isNetworkError
+    };
   }
 };
 
