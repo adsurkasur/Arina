@@ -44,9 +44,9 @@ export interface HistoricalDemand {
 export interface ForecastInput {
   productName: string;
   historicalDemand: HistoricalDemand[];
-  forecastPeriods: number;
   method: 'sma' | 'exponential';
   smoothingFactor?: number; // Alpha for exponential smoothing
+  periodLength: number; // Number of periods for SMA calculation (e.g., 3 for SMA3)
 }
 
 export interface ForecastResult {

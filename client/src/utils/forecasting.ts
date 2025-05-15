@@ -1,3 +1,4 @@
+
 import { ForecastInput, ForecastResult } from '@/types/analysis';
 
 /**
@@ -18,14 +19,14 @@ export const calculateSMA = (
 };
 
 /**
- * Generate SMA forecast for multiple future periods
+ * Generate SMA forecast for next period
  */
 export const generateSMAForecast = (
   historicalData: number[],
-  forecastPeriods: number
+  periods: number
 ): number[] => {
-  const average = calculateSMA(historicalData, historicalData.length);
-  return Array(forecastPeriods).fill(average);
+  const forecast = calculateSMA(historicalData, periods);
+  return [forecast];
 };
 
 /**
@@ -40,7 +41,7 @@ export const calculateExponentialSmoothing = (
     throw new Error('Alpha must be between 0 and 1');
   }
   
-  const results: number[] = [historicalData[0]]; // Initialize with first historical value
+  const results: number[] = [historicalData[0]];
   
   for (let i = 1; i < historicalData.length; i++) {
     const forecast = alpha * historicalData[i-1] + (1 - alpha) * results[i-1];
@@ -92,7 +93,7 @@ export const calculateMAPE = (
   let count = 0;
   
   for (let i = 0; i < actual.length; i++) {
-    if (actual[i] !== 0) { // Avoid division by zero
+    if (actual[i] !== 0) {
       sum += Math.abs((actual[i] - forecast[i]) / actual[i]);
       count++;
     }
@@ -122,7 +123,7 @@ export const calculateMAE = (
 };
 
 /**
- * Generate period labels (e.g., Month 1, Month 2)
+ * Generate period labels
  */
 export const generatePeriodLabels = (
   count: number,
@@ -145,7 +146,6 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
   const { 
     productName,
     historicalDemand,
-    forecastPeriods,
     method,
     smoothingFactor = 0.3,
     periodLength = 3
@@ -161,13 +161,13 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
   if (method === 'sma') {
     forecastedValues = generateSMAForecast(
       historicalData,
-      forecastPeriods
+      periodLength
     );
   } else if (method === 'exponential') {
     forecastedValues = generateExponentialForecast(
       historicalData,
       smoothingFactor,
-      forecastPeriods
+      1 // Only forecast one period for consistency
     );
   }
   
@@ -177,7 +177,7 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
   );
   
   const forecastPeriodLabels = generatePeriodLabels(
-    forecastPeriods,
+    1, // Only one period
     'Period',
     lastHistoricalPeriodNumber + 1
   );
@@ -189,7 +189,6 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
   }));
   
   // Calculate accuracy metrics for historical data
-  // For this, we need to calculate what our model would have predicted for historical periods
   let historicalForecasts: number[] = [];
   
   if (method === 'sma' && historicalData.length >= periodLength) {
@@ -223,19 +222,6 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
   // Calculate accuracy metrics
   const mape = calculateMAPE(actualFiltered, forecastFiltered);
   const mae = calculateMAE(actualFiltered, forecastFiltered);
-  
-  // Generate chart data
-  const chart = {
-    historical: historicalDemand.map((item, index) => ({
-      period: item.period,
-      value: item.demand,
-      forecast: index >= periodLength - 1 ? historicalForecasts[index] : null
-    })),
-    forecast: forecasted.map(item => ({
-      period: item.period,
-      value: item.forecast
-    }))
-  };
   
   return {
     productName,
