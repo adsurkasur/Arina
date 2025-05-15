@@ -1,4 +1,3 @@
-
 import { ForecastInput, ForecastResult } from '@/types/analysis';
 
 /**
@@ -23,9 +22,9 @@ export const calculateSMA = (
  */
 export const generateSMAForecast = (
   historicalData: number[],
-  periods: number
+  periodLength: number
 ): number[] => {
-  const forecast = calculateSMA(historicalData, periods);
+  const forecast = calculateSMA(historicalData, periodLength);
   return [forecast];
 };
 
@@ -40,14 +39,14 @@ export const calculateExponentialSmoothing = (
   if (alpha < 0 || alpha > 1) {
     throw new Error('Alpha must be between 0 and 1');
   }
-  
+
   const results: number[] = [historicalData[0]];
-  
+
   for (let i = 1; i < historicalData.length; i++) {
     const forecast = alpha * historicalData[i-1] + (1 - alpha) * results[i-1];
     results.push(forecast);
   }
-  
+
   return results;
 };
 
@@ -61,20 +60,20 @@ export const generateExponentialForecast = (
 ): number[] => {
   const smoothedValues = calculateExponentialSmoothing(historicalData, alpha);
   const results: number[] = [];
-  
+
   let lastForecast = smoothedValues[smoothedValues.length - 1];
   const lastActual = historicalData[historicalData.length - 1];
-  
+
   // First forecast is based on the last actual value and the last smoothed value
   let nextForecast = alpha * lastActual + (1 - alpha) * lastForecast;
   results.push(nextForecast);
-  
+
   // Subsequent forecasts use previous forecasts since we don't have actual values
   for (let i = 1; i < forecastPeriods; i++) {
     nextForecast = alpha * results[i-1] + (1 - alpha) * results[i-1];
     results.push(nextForecast);
   }
-  
+
   return results;
 };
 
@@ -88,17 +87,17 @@ export const calculateMAPE = (
   if (actual.length !== forecast.length) {
     throw new Error('Actual and forecast arrays must have the same length');
   }
-  
+
   let sum = 0;
   let count = 0;
-  
+
   for (let i = 0; i < actual.length; i++) {
     if (actual[i] !== 0) {
       sum += Math.abs((actual[i] - forecast[i]) / actual[i]);
       count++;
     }
   }
-  
+
   return (sum / count) * 100;
 };
 
@@ -112,13 +111,13 @@ export const calculateMAE = (
   if (actual.length !== forecast.length) {
     throw new Error('Actual and forecast arrays must have the same length');
   }
-  
+
   let sum = 0;
-  
+
   for (let i = 0; i < actual.length; i++) {
     sum += Math.abs(actual[i] - forecast[i]);
   }
-  
+
   return sum / actual.length;
 };
 
@@ -131,11 +130,11 @@ export const generatePeriodLabels = (
   startAt: number = 1
 ): string[] => {
   const labels: string[] = [];
-  
+
   for (let i = 0; i < count; i++) {
     labels.push(`${prefix} ${i + startAt}`);
   }
-  
+
   return labels;
 };
 
@@ -150,14 +149,14 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
     smoothingFactor = 0.3,
     periodLength = 3
   } = input;
-  
+
   // Extract historical data
   const historicalData = historicalDemand.map(item => item.demand);
   const historicalPeriods = historicalDemand.map(item => item.period);
-  
+
   // Generate forecasts
   let forecastedValues: number[] = [];
-  
+
   if (method === 'sma') {
     forecastedValues = generateSMAForecast(
       historicalData,
@@ -170,34 +169,34 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
       1 // Only forecast one period for consistency
     );
   }
-  
+
   // Generate period labels for forecasts
   const lastHistoricalPeriodNumber = parseInt(
     historicalPeriods[historicalPeriods.length - 1].replace(/\D/g, '')
   );
-  
+
   const forecastPeriodLabels = generatePeriodLabels(
     1, // Only one period
     'Period',
     lastHistoricalPeriodNumber + 1
   );
-  
+
   // Create the forecasted periods array
   const forecasted = forecastPeriodLabels.map((period, index) => ({
     period,
     forecast: forecastedValues[index]
   }));
-  
+
   // Calculate accuracy metrics for historical data
   let historicalForecasts: number[] = [];
-  
+
   if (method === 'sma' && historicalData.length >= periodLength) {
     historicalForecasts = [];
     // First periodLength-1 values can't be calculated with SMA
     for (let i = 0; i < periodLength - 1; i++) {
       historicalForecasts.push(NaN);
     }
-    
+
     // Calculate the rest
     for (let i = periodLength - 1; i < historicalData.length; i++) {
       const slice = historicalData.slice(i - periodLength + 1, i + 1);
@@ -207,22 +206,22 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
   } else if (method === 'exponential') {
     historicalForecasts = calculateExponentialSmoothing(historicalData, smoothingFactor);
   }
-  
+
   // Filter out NaN values for MAPE calculation
   const actualFiltered: number[] = [];
   const forecastFiltered: number[] = [];
-  
+
   for (let i = 0; i < historicalData.length; i++) {
     if (!isNaN(historicalForecasts[i])) {
       actualFiltered.push(historicalData[i]);
       forecastFiltered.push(historicalForecasts[i]);
     }
   }
-  
+
   // Calculate accuracy metrics
   const mape = calculateMAPE(actualFiltered, forecastFiltered);
   const mae = calculateMAE(actualFiltered, forecastFiltered);
-  
+
   return {
     productName,
     forecasted,

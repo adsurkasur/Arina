@@ -397,29 +397,30 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
               />
             )}
 
-            {/* Number of Periods to Forecast */}
-            <FormField
-              control={form.control}
-              name="forecastPeriods"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Number of Periods to Forecast</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      min={1} 
-                      max={12} 
-                      {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 3)}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    How many future periods to predict (1-12).
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {method === 'sma' && (
+              <FormField
+                control={form.control}
+                name="periodLength"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Historical Periods for SMA</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min={2} 
+                        max={12} 
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 3)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Number of historical periods to use for SMA calculation (e.g., SMA3 uses 3 periods).
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {/* Forecast Buttons */}
             <div className="flex justify-end space-x-3 pt-2">
