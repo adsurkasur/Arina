@@ -7,9 +7,37 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 // User management
+// Local storage fallback keys
+const STORAGE_KEYS = {
+  USERS: 'local_users',
+  CHATS: 'local_chats',
+  MESSAGES: 'local_messages',
+};
+
+// Local storage helper functions
+const getLocalData = (key: string) => {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+  } catch (e) {
+    console.error('Error reading from local storage:', e);
+    return null;
+  }
+};
+
+const setLocalData = (key: string, data: any) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+    return true;
+  } catch (e) {
+    console.error('Error writing to local storage:', e);
+    return false;
+  }
+};
+
 export const createUserProfile = async (userId: string, email: string, name: string, photoURL?: string) => {
   try {
-    // Use the Express API instead of Supabase directly
+    // Try API first
     const response = await fetch('/api/users', {
       method: 'POST',
       headers: {
@@ -24,15 +52,40 @@ export const createUserProfile = async (userId: string, email: string, name: str
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
-      return { data: null, error: new Error(errorData.message || 'Failed to create user profile') };
+      // Fallback to local storage
+      const userData = {
+        id: userId,
+        email,
+        name,
+        photo_url: photoURL,
+        created_at: new Date().toISOString()
+      };
+      
+      const users = getLocalData(STORAGE_KEYS.USERS) || {};
+      users[userId] = userData;
+      setLocalData(STORAGE_KEYS.USERS, users);
+      
+      return { data: userData, error: null, isLocal: true };
     }
     
     const data = await response.json();
-    return { data, error: null };
+    return { data, error: null, isLocal: false };
   } catch (error) {
     console.error('Error creating user profile:', error);
-    return { data: null, error };
+    // Final fallback
+    const userData = {
+      id: userId,
+      email,
+      name,
+      photo_url: photoURL,
+      created_at: new Date().toISOString()
+    };
+    
+    const users = getLocalData(STORAGE_KEYS.USERS) || {};
+    users[userId] = userData;
+    setLocalData(STORAGE_KEYS.USERS, users);
+    
+    return { data: userData, error: null, isLocal: true };
   }
 };
 
@@ -75,7 +128,7 @@ export const getChatHistory = async (userId: string) => {
 
 export const createChat = async (userId: string, title: string) => {
   try {
-    // Use the Express API instead of Supabase directly
+    // Try API first
     const response = await fetch('/api/conversations', {
       method: 'POST',
       headers: {
@@ -84,40 +137,45 @@ export const createChat = async (userId: string, title: string) => {
       body: JSON.stringify({ user_id: userId, title }),
     });
     
-    let errorData;
-    try {
-      errorData = await response.json();
-    } catch (e) {
-      errorData = { message: 'Unable to parse error response' };
-    }
-
     if (!response.ok) {
-      // Handle specific database connection errors
-      if (errorData.message?.includes('endpoint is disabled') || 
-          errorData.message?.includes('Control plane request failed')) {
-        return { 
-          data: null, 
-          error: new Error('Database connection is currently unavailable. Please try again later.'),
-          retryable: true
-        };
-      }
-      
-      return { 
-        data: null, 
-        error: new Error(errorData.message || 'Failed to create conversation'),
-        retryable: false
+      // Fallback to local storage
+      const chatId = crypto.randomUUID();
+      const chatData = {
+        id: chatId,
+        user_id: userId,
+        title,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
+      
+      const chats = getLocalData(STORAGE_KEYS.CHATS) || {};
+      if (!chats[userId]) chats[userId] = [];
+      chats[userId].unshift(chatData);
+      setLocalData(STORAGE_KEYS.CHATS, chats);
+      
+      return { data: chatData, error: null, isLocal: true };
     }
     
-    return { data: errorData, error: null, retryable: false };
+    const data = await response.json();
+    return { data, error: null, isLocal: false };
   } catch (error) {
     console.error('Error creating chat:', error);
-    const isNetworkError = error instanceof TypeError && error.message.includes('Network');
-    return { 
-      data: null, 
-      error: new Error(isNetworkError ? 'Network connection error. Please check your connection.' : 'An unexpected error occurred.'),
-      retryable: isNetworkError
+    // Final fallback
+    const chatId = crypto.randomUUID();
+    const chatData = {
+      id: chatId,
+      user_id: userId,
+      title,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
+    
+    const chats = getLocalData(STORAGE_KEYS.CHATS) || {};
+    if (!chats[userId]) chats[userId] = [];
+    chats[userId].unshift(chatData);
+    setLocalData(STORAGE_KEYS.CHATS, chats);
+    
+    return { data: chatData, error: null, isLocal: true };
   }
 };
 
