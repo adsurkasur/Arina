@@ -1,0 +1,138 @@
+// Variabel global untuk menyimpan format BEP (default: unit)
+let isBepRupiah: boolean = false;
+
+// Fungsi toggle format BEP (unit <-> rupiah)
+function toggleFormatBep(): void {
+    isBepRupiah = !isBepRupiah;
+    hitungAnalisis();
+}
+
+// Fungsi untuk memvalidasi angka
+function isValidInput(value: number): boolean {
+    return !isNaN(value) && value >= 0;
+}
+
+function hitungAnalisis(): void {
+    const investment: number = getValue<number>("investment"); // Biaya investasi awal
+    const operational: number = getValue<number>("operational"); // Biaya operasional bulanan
+    const cost: number = getValue<number>("biayaProduksi"); // Biaya produksi per unit
+    const volume: number = getValue<number>("volume"); // Volume produksi / penjualan
+    const markupElement = document.getElementById("markup") as HTMLInputElement;
+    const markup: number = parseFloat(markupElement.value); // Markup % dari HPP
+
+    // Validasi input
+    if (![investment, operational, cost, volume, markup].every(isValidInput)) {
+        alert("Harap masukkan angka yang valid! Nilai tidak boleh negatif.");
+        return;
+    }
+
+    if (volume <= 0) {
+        alert("Harap masukkan volume penjualan yang valid dan lebih besar dari 0.");
+        return;
+    }
+
+    if (cost > 0 && volume === 0) {
+        alert("Jika menggunakan biaya produksi, volume tidak boleh 0!");
+        return;
+    }
+
+    // **Perhitungan HPP**
+    const hpp: number = cost + (operational / Math.max(volume, 1));
+    const metode: string = "Menggunakan perhitungan berdasarkan biaya produksi dan operasional per unit.";
+
+    // **Perhitungan Harga Jual**
+    const hargaJual: number = hpp * (1 + (markup / 100));
+
+    if (hargaJual <= hpp) {
+        alert("Harga jual harus lebih tinggi dari HPP untuk menghitung BEP!");
+        return;
+    }
+
+    // **Perhitungan Profit**
+    const profit: number = volume * (hargaJual - hpp);
+    let roi: string = "Tidak valid";
+    let pp: string = "Tidak valid";
+
+    if (investment > 0 && profit > 0) {
+        roi = (profit / investment * 100).toFixed(2) + "%";
+    }
+
+    // **Perhitungan Payback Period (PP)**
+    if (investment > 0 && profit > 0) {
+        let totalHari: number = Math.round((investment / profit) * 30);
+        const ppTahun: number = Math.floor(totalHari / 365);
+        totalHari %= 365;
+        const ppBulan: number = Math.floor(totalHari / 30);
+        totalHari %= 30;
+        const ppMinggu: number = Math.floor(totalHari / 7);
+        const ppHari: number = totalHari % 7;
+
+        pp = `${ppTahun} tahun ${ppBulan} bulan ${ppMinggu} minggu ${ppHari} hari`;
+    }
+
+    // **Perhitungan BEP**
+    let bepUnit: string | number = "Tidak valid";
+    let bepRupiah: string = "Tidak valid";
+
+    if (hargaJual > hpp && investment > 0) {
+        bepUnit = (investment / (hargaJual - hpp)).toFixed(2);
+        bepRupiah = formatRupiah(investment / (hargaJual - hpp) * hargaJual);
+    } else if (investment <= 0 && operational > 0) {
+        bepUnit = (operational / (hargaJual - hpp)).toFixed(2);
+        bepRupiah = formatRupiah(operational / (hargaJual - hpp) * hargaJual);
+    }
+
+    // **Perhitungan Revenue & Profit Margin**
+    const revenue: number = hargaJual * volume;
+    const profitMargin: string = revenue > 0 ? ((profit / revenue) * 100).toFixed(2) + "%" : "Tidak valid";
+
+    // **Tampilkan hasil perhitungan**
+    setText("hargaJual", formatRupiah(hargaJual));
+    setText("revenue", formatRupiah(revenue));
+    setText("profit", formatRupiah(profit));
+    setText("bep", isBepRupiah ? bepRupiah : `${bepUnit} unit`);
+    setText("hpp", formatRupiah(hpp));
+    setText("roi", roi);
+    setText("pp", pp);
+    setText("profit-margin", profitMargin);
+    setText("metode", metode);
+}
+
+// Fungsi untuk format Rupiah
+function formatRupiah(number: number): string {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2 }).format(number);
+}
+
+// Fungsi mendapatkan nilai input dengan ID tertentu
+function getValue<T>(id: string): T extends number ? number : string {
+    const el = document.getElementById(id) as HTMLInputElement;
+    return (el ? parseFloat(el.value) || 0 : 0) as T extends number ? number : string;
+}
+
+// Fungsi mengubah teks dalam elemen dengan ID tertentu
+function setText(id: string, text: string | number): void {
+    const el = document.getElementById(id);
+    if (el) el.textContent = String(text);
+}
+
+// Fungsi untuk update perhitungan berdasarkan data tabel
+function updateCalculations(): void {
+    const totalUnit: number = getValue<number>("totalUnit");
+    const biayaProduksi: number = getValue<number>("biayaProduksi");
+    const hppValue: number = totalUnit > 0 ? biayaProduksi / totalUnit : 0;
+
+    setText("hpp", totalUnit > 0 ? formatRupiah(hppValue) : "Tidak valid");
+    setText("bep", hppValue > 0 ? (getValue<number>("investment") / hppValue).toFixed(2) : "Tidak valid");
+}
+
+// Helper function to get the value of an input field by its ID
+function getValueHelper<T>(id: string): T extends number ? number : string {
+    const el = document.getElementById(id) as HTMLInputElement;
+    return (el ? parseFloat(el.value) || 0 : 0) as T extends number ? number : string;
+}
+
+// Helper function to set the text content of an element by its ID
+function setTextHelper(id: string, text: string | number): void {
+    const el = document.getElementById(id);
+    if (el) el.textContent = String(text);
+}
