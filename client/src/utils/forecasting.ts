@@ -4,9 +4,17 @@ import { ForecastInput, ForecastResult } from '@/types/analysis';
  * Simple Moving Average (SMA) forecasting
  * Formula: SMA = (D1 + D2 + ... + Dn) / n
  */
-export const calculateSMA = (historicalData: number[]): number => {
-  const sum = historicalData.reduce((acc, value) => acc + value, 0);
-  return sum / historicalData.length;
+export const calculateSMA = (
+  historicalData: number[],
+  periods: number
+): number => {
+  if (periods > historicalData.length) {
+    throw new Error('Period length exceeds available historical data');
+  }
+
+  const lastNPeriods = historicalData.slice(-periods);
+  const sum = lastNPeriods.reduce((acc, value) => acc + value, 0);
+  return sum / periods;
 };
 
 /**
@@ -16,7 +24,7 @@ export const generateSMAForecast = (
   historicalData: number[],
   forecastPeriods: number
 ): number[] => {
-  const average = calculateSMA(historicalData);
+  const average = calculateSMA(historicalData, historicalData.length);
   return Array(forecastPeriods).fill(average);
 };
 
@@ -153,7 +161,6 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
   if (method === 'sma') {
     forecastedValues = generateSMAForecast(
       historicalData,
-      periodLength,
       forecastPeriods
     );
   } else if (method === 'exponential') {

@@ -65,6 +65,15 @@ export const createUserProfile = async (userId: string, email: string, name: str
       users[userId] = userData;
       setLocalData(STORAGE_KEYS.USERS, users);
       
+      // Show notification for local storage use
+      import('../hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Using Local Storage",
+          description: "Database is unavailable. Your data is being stored locally.",
+          duration: 5000,
+        });
+      });
+      
       return { data: userData, error: null, isLocal: true };
     }
     

@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
 @layer base {
   :root {
     /* Main colors - Using exact values from requirement: Dark Green #1F3A13 and Light Cream #F9F9EF */

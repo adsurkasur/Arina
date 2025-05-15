@@ -92,5 +92,30 @@ export default function TextStreamingEffect({
     };
   }, [fullText, speed, onComplete]);
   
-  return <MarkdownRenderer>{displayedText}</MarkdownRenderer>;
+  const [showCursor, setShowCursor] = useState(true);
+
+  useEffect(() => {
+    const cursorTimeout = setTimeout(() => {
+      if (isComplete) {
+        setShowCursor(false);
+      }
+    }, 1000);
+
+    return () => clearTimeout(cursorTimeout);
+  }, [isComplete]);
+
+  return (
+    <div className="relative inline-block w-full">
+      <MarkdownRenderer>{displayedText}</MarkdownRenderer>
+      {showCursor && (
+        <span 
+          className="absolute -ml-[1px] w-[2px] h-[1.2em] bg-primary animate-blink"
+          style={{ 
+            left: `${displayedText.length * 0.6}ch`,
+            bottom: '0.1em'
+          }}
+        />
+      )}
+    </div>
+  );
 }
