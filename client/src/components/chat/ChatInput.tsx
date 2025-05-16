@@ -28,14 +28,20 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
     <div className="border-t border-gray-200 bg-white p-4">
       <div className="max-w-2xl mx-auto">
         <form onSubmit={handleSubmit} className="relative">
-          <input
+          <textarea
             ref={inputRef}
-            type="text"
             placeholder="Ask Arina about your agricultural business..."
-            className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             disabled={disabled}
+            rows={3}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
           />
           <Button
             type="submit"

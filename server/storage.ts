@@ -52,10 +52,33 @@ import { eq, and, desc } from "drizzle-orm";
 
 // Database storage implementation
 export class DatabaseStorage implements IStorage {
+  private sessionData: Map<string, any> = new Map();
+  private dbAvailable: boolean = true;
+
+  private async tryDb<T>(operation: () => Promise<T>, fallback: () => T): Promise<T> {
+    if (!this.dbAvailable) return fallback();
+    
+    try {
+      return await operation();
+    } catch (error) {
+      console.warn('Database operation failed, using session storage:', error);
+      this.dbAvailable = false;
+      return fallback();
+    }
+  }
+
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.id, id));
-    return result[0];
+    return this.tryDb(
+      async () => {
+        const result = await db.select().from(users).where(eq(users.id, id));
+        return result[0];
+      },
+      () => {
+        const users = this.sessionData.get('users') || {};
+        return users[id];
+      }
+    );
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {

@@ -80,7 +80,7 @@ export default function ChatInterface() {
             </div>
           </div>
         ) : (
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full px-4">
             {messages.map((message: ChatMessage, index: number) => (
               <ChatBubble 
                 key={message.id || index} 
