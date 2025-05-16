@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,28 +7,25 @@ import ChatBubble from "./ChatBubble";
 import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
 import ThinkingAnimation from "./ThinkingAnimation";
+import { Button } from "../ui/button";
+import { MessageSquarePlus } from "lucide-react";
 
 export default function ChatInterface() {
-  const { messages, isLoading, sendMessage, isSending } = useChat();
+  const { messages, isLoading, sendMessage, isSending, activeConversation, createNewChat } = useChat();
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showThinking, setShowThinking] = useState(false);
   const [lastMessageAnimated, setLastMessageAnimated] = useState<string | null>(null);
   
-  // Scroll to bottom when new messages arrive or when typing indicator appears
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isSending]);
   
-  // Show the more advanced thinking animation after a delay
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
     if (isSending) {
-      // Initially show the typing indicator
       setShowThinking(false);
-      
-      // After 2 seconds, switch to the thinking animation for longer responses
       timer = setTimeout(() => {
         setShowThinking(true);
       }, 2000);
@@ -40,7 +38,6 @@ export default function ChatInterface() {
     };
   }, [isSending]);
   
-  // Keep track of which message was last animated to prevent re-animating
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length-1].role === 'assistant') {
       const lastMsg = messages[messages.length-1];
@@ -53,21 +50,37 @@ export default function ChatInterface() {
   const handleSendMessage = (content: string) => {
     if (content.trim()) {
       sendMessage(content);
-      // Reset animation tracking when sending a new message
       setLastMessageAnimated(null);
     }
   };
   
-  // Check if a message should be animated
   const shouldAnimateMessage = (message: ChatMessage, index: number) => {
     return message.role === 'assistant' && 
            index === messages.length - 1 && 
            message.content === lastMessageAnimated;
   };
+
+  if (!activeConversation) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-background">
+        <h1 className="text-4xl font-bold text-primary mb-4">Welcome to Arina</h1>
+        <p className="text-lg text-gray-600 mb-8 text-center max-w-md">
+          Your AI-powered agricultural business assistant. Start a new conversation to get insights and recommendations.
+        </p>
+        <Button 
+          onClick={createNewChat}
+          size="lg"
+          className="gap-2"
+        >
+          <MessageSquarePlus className="w-5 h-5" />
+          Start New Chat
+        </Button>
+      </div>
+    );
+  }
   
   return (
     <>
-      {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" id="chatMessages">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
@@ -98,7 +111,6 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
       
-      {/* Chat Input */}
       <ChatInput onSendMessage={handleSendMessage} disabled={isSending} />
     </>
   );
