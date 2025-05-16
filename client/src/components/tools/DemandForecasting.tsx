@@ -384,7 +384,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
             />
 
             {/* Method-specific parameters */}
-            
+
 
             {method === "exponential" && (
               <FormField
@@ -486,7 +486,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
                     <li>• Hover over points to see exact values</li>
                   </ul>
                 </div>
-                
+
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart 
@@ -501,7 +501,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
                       <YAxis 
                         label={{ value: 'Demand Quantity', angle: -90, position: 'left', offset: 0 }}
                       />
-                      <Tooltip 
+                      <RechartsTooltip 
                         contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e5e7eb' }}
                         formatter={(value) => [`Quantity: ${value}`, '']}
                       />

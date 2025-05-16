@@ -51,7 +51,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   Legend,
   ResponsiveContainer
 } from "recharts";
@@ -931,7 +931,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
-                        <Tooltip />
+                        <RechartsTooltip />
                         <Legend />
                         <Bar dataKey="value" fill="#1F3A13" name="Optimal Value" />
                       </BarChart>
