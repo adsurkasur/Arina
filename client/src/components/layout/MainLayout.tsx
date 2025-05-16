@@ -6,6 +6,7 @@ import { Sidebar } from "./Sidebar";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { Menu, Bell, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 
 interface MainLayoutProps {
@@ -91,21 +92,28 @@ export function MainLayout({
 
         {/* Main Chat + Tools Area */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Main Content */}
-          <div
-            className={cn(
-              "flex-1 flex flex-col h-full",
-              // When right panel is shown in desktop mode, adjust width
-              showRightPanel && !isMobile ? "w-3/5" : "w-full",
-            )}
-          >
-            {children}
-          </div>
+          {showRightPanel && !isMobile ? (
+            <ResizablePanelGroup direction="horizontal">
+              {/* Main Content */}
+              <ResizablePanel defaultSize={60} minSize={40}>
+                <div className="flex-1 flex flex-col h-full">
+                  {children}
+                </div>
+              </ResizablePanel>
 
-          {/* Tool Panel (shown when a tool is selected) */}
-          {showRightPanel && !isMobile && (
-            <div className="w-2/5 bg-white border-l border-gray-200 overflow-y-auto custom-scrollbar">
-              {rightPanel}
+              {/* Tool Panel */}
+              <ResizableHandle withHandle />
+              
+              <ResizablePanel defaultSize={40} minSize={30}>
+                <div className="h-full bg-white border-l border-gray-200 overflow-y-auto custom-scrollbar">
+                  {rightPanel}
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          ) : (
+            /* When no tool panel or on mobile */
+            <div className="flex-1 flex flex-col h-full">
+              {children}
             </div>
           )}
 
