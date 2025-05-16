@@ -106,7 +106,7 @@ export default function ChatBubble({ message, userName, userImage, animate = fal
             className="leading-relaxed text-base"
           />
         ) : (
-          <div className="whitespace-pre-wrap break-words leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-pre:my-2">
+          <div className="markdown-content whitespace-pre-wrap break-words leading-relaxed">
             <MarkdownContent content={message.content} />
           </div>
         )}
