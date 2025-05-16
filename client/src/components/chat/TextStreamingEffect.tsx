@@ -1,3 +1,5 @@
+
+import { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 interface TextStreamingEffectProps {
@@ -58,10 +60,11 @@ export default function TextStreamingEffect({
   fullText, 
   onComplete 
 }: TextStreamingEffectProps) {
-  // Call onComplete immediately since we're not animating anymore
-  if (onComplete) {
-    setTimeout(onComplete, 100);
-  }
+  useEffect(() => {
+    if (onComplete) {
+      onComplete();
+    }
+  }, [fullText, onComplete]);
 
   return (
     <div className="relative inline-block w-full">

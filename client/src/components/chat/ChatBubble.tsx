@@ -68,17 +68,28 @@ interface ChatBubbleProps {
 
 export default function ChatBubble({ message, userName, userImage, animate = false }: ChatBubbleProps) {
   const isUser = message.role === "user";
-  const [showAnimation, setShowAnimation] = useState(animate && !isUser);
+  const [isStreaming, setIsStreaming] = useState(animate && !isUser);
+  const [hasCompleted, setHasCompleted] = useState(false);
 
-  // Only animate assistant messages that don't have an ID yet (new messages)
-  const shouldAnimate = !isUser && animate && !message.id;
+  // Only stream assistant messages that don't have an ID yet (new messages)
+  const shouldStream = !isUser && animate && !message.id && !hasCompleted;
 
-  // Disable animation after component mounts if it's an existing message
+  // Handle completion of streaming
+  const handleStreamComplete = () => {
+    setIsStreaming(false);
+    setHasCompleted(true);
+  };
+
+  // Reset streaming state when message changes
   useEffect(() => {
     if (message.id) {
-      setShowAnimation(false);
+      setIsStreaming(false);
+      setHasCompleted(true);
+    } else if (!isUser && animate) {
+      setIsStreaming(true);
+      setHasCompleted(false);
     }
-  }, [message.id]);
+  }, [message.id, isUser, animate]);
 
   return (
     <div className={cn("flex mb-4", isUser && "justify-end")}>
@@ -98,11 +109,10 @@ export default function ChatBubble({ message, userName, userImage, animate = fal
       >
         {isUser ? (
           <p className="whitespace-pre-wrap break-words leading-relaxed text-base">{message.content}</p>
-        ) : shouldAnimate ? (
+        ) : shouldStream ? (
           <TextStreamingEffect 
             fullText={message.content} 
-            speed={20} 
-            onComplete={() => setShowAnimation(false)}
+            onComplete={handleStreamComplete}
             className="leading-relaxed text-base"
           />
         ) : (
