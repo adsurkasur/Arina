@@ -151,7 +151,7 @@ export function Sidebar({
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-500 ease-linear flex flex-col shadow-2xl",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-500 ease-in-out flex flex-col shadow-2xl",
         isOpen
           ? "translate-x-0 animate-sidebar-in"
           : "-translate-x-full animate-sidebar-out",
