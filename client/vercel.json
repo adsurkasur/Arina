@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://arina-gemini-production.up.railway.app/api/$1"
+    }
+  ]
+}
