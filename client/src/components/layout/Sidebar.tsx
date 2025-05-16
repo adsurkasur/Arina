@@ -193,9 +193,11 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary"
+                            className="bg-cream text-primary max-w-[300px] p-3"
                           >
-                            <p>Forecast demand using historical data</p>
+                            <p className="text-sm">
+                              Predict future market demand patterns for your agricultural products using your historical sales data, market trends, and seasonal variations to optimize production planning.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </li>
@@ -213,9 +215,11 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary"
+                            className="bg-cream text-primary max-w-[300px] p-3"
                           >
-                            <p>Optimize profit, cost & resources</p>
+                            <p className="text-sm">
+                              Find the optimal balance of resources, crop selection, and production methods to maximize profits while minimizing costs. Uses advanced algorithms to help you make the most efficient decisions for your farm.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </li>
@@ -233,9 +237,11 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary"
+                            className="bg-cream text-primary max-w-[300px] p-3"
                           >
-                            <p>Personalized insights based on your data</p>
+                            <p className="text-sm">
+                              Receive personalized crop selection, business opportunity, and market entry recommendations based on your analysis history, local seasonal conditions, and current agricultural trends.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </li>
@@ -253,9 +259,11 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary"
+                            className="bg-cream text-primary max-w-[300px] p-3"
                           >
-                            <p>View your past analysis results</p>
+                            <p className="text-sm">
+                              Access and review all your previous business feasibility studies, demand forecasts, and optimization analyses with detailed visualizations and the ability to compare results over time.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </li>
@@ -266,22 +274,51 @@ export function Sidebar({
             </Collapsible>
 
             <div className="mt-4 px-3">
-              <Tooltip>
-                <TooltipTrigger asChild>
+              <Dialog>
+                <DialogTrigger asChild>
                   <button
-                    onClick={() => {
-                      alert("Arina - AI-Powered Agricultural Business Analytics\n\nA comprehensive platform designed to help agricultural businesses make data-driven decisions through advanced analytics, feasibility studies, and AI-powered recommendations.");
-                    }}
                     className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                   >
-                    {Info ? <Info className="h-5 w-5 mr-3" /> : null}
+                    <Info className="h-5 w-5 mr-3" />
                     <span>About Arina</span>
                   </button>
-                </TooltipTrigger>
-                <TooltipContent side="right" className="bg-cream text-primary">
-                  <p>Learn more about this project</p>
-                </TooltipContent>
-              </Tooltip>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl">Arina - AI-Powered Agricultural Analytics</DialogTitle>
+                    <DialogDescription>
+                      A comprehensive platform for data-driven agricultural business decisions
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Core Features</h3>
+                      <ul className="list-disc pl-5 space-y-1 text-sm">
+                        <li>Business feasibility analysis with ROI, payback period, break-even calculations</li>
+                        <li>Demand forecasting to predict market trends using historical data</li>
+                        <li>Optimization analysis for profit maximization and cost reduction</li>
+                        <li>AI-powered recommendations based on analysis history and chat interactions</li>
+                        <li>Interactive visualizations with crop seasonality awareness</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Technical Stack</h3>
+                      <ul className="list-disc pl-5 space-y-1 text-sm">
+                        <li>React frontend with Tailwind CSS</li>
+                        <li>Firebase Authentication for secure access</li>
+                        <li>Google Gemini AI for intelligent assistant capabilities</li>
+                        <li>PostgreSQL database for data persistence</li>
+                        <li>Express API for backend services</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <DialogFooter className="sm:justify-start">
+                    <Button type="button" variant="default">
+                      Learn More
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
