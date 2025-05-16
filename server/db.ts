@@ -51,16 +51,18 @@ router.use((req, res, next) => {
 // Example API endpoint to fetch chat history
 router.get("/api/chat-history", async (req, res) => {
   const { userId } = req.query;
-  if (!userId) {
+  if (!userId || typeof userId !== "string") {
     return res.status(400).json({ error: "User ID is required" });
   }
 
   try {
-    const chats = await getDb()
-      .collection("chats")
+    // Use chat_conversations collection for chat history
+    const conversations = await getDb()
+      .collection("chat_conversations")
       .find({ user_id: userId })
+      .sort({ updated_at: -1 })
       .toArray();
-    res.json(chats);
+    res.json(conversations);
   } catch (error) {
     console.error("Error fetching chat history:", error);
     res.status(500).json({ error: "Failed to fetch chat history" });
