@@ -146,11 +146,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.query.userId as string;
       const type = req.query.type as string | undefined;
-      
+
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
       }
-      
+
       const results = await storage.getAnalysisResults(userId, type);
       res.json(results);
     } catch (error: any) {
@@ -221,7 +221,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const recommendations = await recommendationService.generateRecommendations(validationResult.data);
       res.status(201).json(recommendations);
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      console.error('Error generating recommendations:', error);
+      const message = error.code === 'XX000' ? 
+        'Database connection error - please try again later' : 
+        error.message || 'Failed to generate recommendations';
+      res.status(500).json({ message });
     }
   });
 

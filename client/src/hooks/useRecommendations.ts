@@ -57,7 +57,8 @@ export function useRecommendations() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to generate recommendations');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to generate recommendations');
       }
       
       return await response.json() as (RecommendationSet & { items: RecommendationItem[] });
