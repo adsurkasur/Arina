@@ -25,6 +25,7 @@ import {
   Archive,
   History,
   ClipboardList,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,7 +82,7 @@ export function Sidebar({
       setIsOpen(false);
     }
   };
-  
+
   // Handle opening the rename dialog
   const handleRenameClick = (conversation: {id: string, title: string}, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent loading the conversation when clicking the menu
@@ -89,7 +90,7 @@ export function Sidebar({
     setNewTitle(conversation.title);
     setIsRenameDialogOpen(true);
   };
-  
+
   // Handle submitting the rename dialog
   const handleRenameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +99,7 @@ export function Sidebar({
       setIsRenameDialogOpen(false);
     }
   };
-  
+
   // Handle deleting a conversation
   const handleDeleteClick = async (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent loading the conversation when clicking the menu
@@ -238,7 +239,7 @@ export function Sidebar({
                           </TooltipContent>
                         </Tooltip>
                       </li>
-                      
+
                       <li>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -263,7 +264,7 @@ export function Sidebar({
                 </div>
               </CollapsibleContent>
             </Collapsible>
-            
+
             <div className="mt-4 px-3">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -273,7 +274,7 @@ export function Sidebar({
                     }}
                     className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                   >
-                    <Info className="h-5 w-5 mr-3" />
+                    {Info ? <Info className="h-5 w-5 mr-3" /> : null}
                     <span>About Arina</span>
                   </button>
                 </TooltipTrigger>
@@ -346,7 +347,7 @@ export function Sidebar({
                 </p>
               )}
             </div>
-            
+
             {/* Rename Dialog */}
             <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
               <DialogContent className="sm:max-w-md">
