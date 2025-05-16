@@ -3,7 +3,10 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 export interface NumberInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {
+  extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement>, 
+    "onChange" | "value" | "type" | "pattern" | "inputMode" | "onWheel"
+  > {
   onChange?: (value: number | null) => void
   min?: number
   max?: number
@@ -92,22 +95,40 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
     // Prevent the scroll wheel from changing the value
     const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
-      e.currentTarget.blur() // Remove focus to prevent browser's default scroll behavior
-      e.stopPropagation()
+      // Prevent the default browser behavior
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Remove focus to ensure the browser doesn't apply any scroll behavior
+      if (document.activeElement === e.currentTarget) {
+        e.currentTarget.blur();
+      }
     }
+    
+    // Stop propagation for mousedown events that happen with the scroll wheel (middle button)
+    const handleMouseDown = (e: React.MouseEvent<HTMLInputElement>) => {
+      if (e.button === 1) { // Middle mouse button (scroll wheel)
+        e.preventDefault();
+      }
+      props.onMouseDown?.(e);
+    };
 
     return (
       <Input
+        {...props}
         type="text"
         pattern={allowDecimals ? "[0-9]*\\.?[0-9]*" : "[0-9]*"}
         inputMode={allowDecimals ? "decimal" : "numeric"}
         value={inputValue}
         onChange={handleChange}
         onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
         className={cn("text-right", className)}
         placeholder={placeholder}
         ref={ref}
-        {...props}
+        min={undefined}
+        max={undefined}
+        step={undefined}
       />
     )
   }
