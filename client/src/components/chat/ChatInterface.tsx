@@ -99,9 +99,7 @@ export default function ChatInterface() {
       </div>
       
       {/* Chat Input */}
-      <div className={`${messages.length === 0 ? 'absolute bottom-0 left-0 right-0' : ''}`}>
-        <ChatInput onSendMessage={handleSendMessage} disabled={isSending} />
-      </div>
+      <ChatInput onSendMessage={handleSendMessage} disabled={isSending} />
     </>
   );
 }
