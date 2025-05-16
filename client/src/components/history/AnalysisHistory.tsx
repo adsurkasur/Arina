@@ -785,7 +785,11 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                         variant="destructive"
                         size="sm"
                         className="text-xs"
-                        onClick={() => deleteAnalysis(result.id)}
+                        onClick={() => {
+                          deleteAnalysis(result.id).catch((error) => {
+                            console.error("Failed to delete analysis:", error);
+                          });
+                        }}
                         disabled={isDeletingAnalysis}
                       >
                         {isDeletingAnalysis && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}

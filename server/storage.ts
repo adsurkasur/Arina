@@ -318,6 +318,18 @@ export class DatabaseStorage {
     await getDb().collection("recommendation_sets").deleteOne({ id });
     await getDb().collection("recommendation_items").deleteMany({ set_id: id });
   }
+
+  async deleteAnalysisResult(id: string): Promise<void> {
+    try {
+      const result = await getDb().collection("analysis_results").deleteOne({ id });
+      if (result.deletedCount === 0) {
+        throw new Error(`Analysis result with ID ${id} not found`);
+      }
+    } catch (error) {
+      console.error("Error deleting analysis result:", error);
+      throw new Error("Failed to delete analysis result");
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();

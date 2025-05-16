@@ -172,7 +172,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.deleteAnalysisResult(req.params.id);
       res.status(204).send();
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      console.error("Error in DELETE /api/analysis/:id:", error);
+      res.status(500).json({ message: error.message || "Failed to delete analysis result" });
     }
   });
 

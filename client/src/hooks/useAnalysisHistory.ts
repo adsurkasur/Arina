@@ -41,7 +41,12 @@ export function useAnalysisHistory() {
   // Delete analysis result
   const deleteAnalysisMutation = useMutation({
     mutationFn: async (analysisId: string) => {
-      await apiRequest('DELETE', `/api/analysis/${analysisId}`);
+      try {
+        await apiRequest('DELETE', `/api/analysis/${analysisId}`);
+      } catch (error) {
+        console.error("Error deleting analysis:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/analysis'] });
