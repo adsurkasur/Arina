@@ -1,7 +1,7 @@
-import { db, initializeDb } from "./db";
+import { getDb, initializeDb } from "./db";
 
 async function collectionExists(collectionName: string): Promise<boolean> {
-  const collections = await db
+  const collections = await getDb()
     .listCollections({ name: collectionName })
     .toArray();
   return collections.length > 0;
@@ -16,7 +16,7 @@ export async function migrate() {
 
     // Check and create collections with validators
     if (!(await collectionExists("users"))) {
-      await db.createCollection("users", {
+      await getDb().createCollection("users", {
         validator: {
           $jsonSchema: {
             bsonType: "object",
@@ -34,7 +34,7 @@ export async function migrate() {
     }
 
     if (!(await collectionExists("chat_conversations"))) {
-      await db.createCollection("chat_conversations", {
+      await getDb().createCollection("chat_conversations", {
         validator: {
           $jsonSchema: {
             bsonType: "object",
@@ -52,7 +52,7 @@ export async function migrate() {
     }
 
     if (!(await collectionExists("chat_messages"))) {
-      await db.createCollection("chat_messages", {
+      await getDb().createCollection("chat_messages", {
         validator: {
           $jsonSchema: {
             bsonType: "object",
@@ -70,7 +70,7 @@ export async function migrate() {
     }
 
     if (!(await collectionExists("analysis_results"))) {
-      await db.createCollection("analysis_results", {
+      await getDb().createCollection("analysis_results", {
         validator: {
           $jsonSchema: {
             bsonType: "object",
@@ -89,16 +89,16 @@ export async function migrate() {
     }
 
     // Create indexes
-    await db.collection("users").createIndex({ email: 1 }, { unique: true });
-    await db.collection("users").createIndex({ id: 1 }, { unique: true });
-    await db.collection("chat_conversations").createIndex({ user_id: 1 });
-    await db.collection("chat_messages").createIndex({ conversation_id: 1 });
-    await db.collection("chat_messages").createIndex({ created_at: 1 });
-    await db.collection("analysis_results").createIndex({ user_id: 1 });
+    await getDb().collection("users").createIndex({ email: 1 }, { unique: true });
+    await getDb().collection("users").createIndex({ id: 1 }, { unique: true });
+    await getDb().collection("chat_conversations").createIndex({ user_id: 1 });
+    await getDb().collection("chat_messages").createIndex({ conversation_id: 1 });
+    await getDb().collection("chat_messages").createIndex({ created_at: 1 });
+    await getDb().collection("analysis_results").createIndex({ user_id: 1 });
 
     console.log("MongoDB migrations completed successfully");
   } catch (error) {
-    console.error("Migration failed:", error);
+    console.error("Migration error:", error);
     throw error;
   }
 }
