@@ -32,6 +32,11 @@ export function MainLayout({
     setShowRightPanel(true);
   };
 
+  // Add: handle closing right panel
+  const handleCloseRightPanel = () => {
+    setShowRightPanel(false);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-cream">
       {/* Sidebar Toggle for Mobile */}
@@ -57,7 +62,7 @@ export function MainLayout({
       {/* Main Content Area */}
       <div
         className={cn(
-          "flex-1 flex flex-col transition-all duration-500 ease-in-out bg-white/90 backdrop-blur-sm",
+          "flex-1 flex flex-col transition-all duration-500 ease-linear bg-white/90 backdrop-blur-sm",
           isMobile ? "ml-0" : sidebarOpen ? "ml-64" : "ml-0",
           "w-full",
         )}
@@ -91,41 +96,79 @@ export function MainLayout({
 
         {/* Main Chat + Tools Area */}
         <div className="flex-1 flex overflow-hidden">
-          {showRightPanel && !isMobile ? (
-            <ResizablePanelGroup direction="horizontal">
-              {/* Main Content */}
-              <ResizablePanel defaultSize={60} minSize={40}>
-                <div className="flex-1 flex flex-col h-full">
-                  {children}
-                </div>
-              </ResizablePanel>
-
-              {/* Tool Panel */}
-              <ResizableHandle withHandle />
-              
-              <ResizablePanel defaultSize={40} minSize={30}>
-                <div className={
-                  cn(
-                    "h-full bg-white border-l border-gray-200 overflow-y-auto custom-scrollbar transition-transform duration-500 ease-in-out",
-                    showRightPanel ? "translate-x-0 animate-featurepanel-in" : "-translate-x-full animate-featurepanel-out"
-                  )
-                }>
+          {/* Desktop right panel with animation */}
+          {!isMobile ? (
+            <div className="flex-1 flex h-full relative">
+              <div className={cn(
+                "flex-1 flex flex-col h-full transition-all duration-500 ease-linear",
+                showRightPanel ? "mr-96" : "mr-0"
+              )}>
+                {children}
+              </div>
+              {/* Right Sidebar */}
+              <div
+                className={cn(
+                  "fixed top-0 right-0 h-full w-96 z-40 bg-white border-l border-gray-200 shadow-2xl transition-transform duration-500 ease-linear flex flex-col",
+                  showRightPanel
+                    ? "translate-x-0 animate-featurepanel-in"
+                    : "translate-x-full pointer-events-none animate-featurepanel-out"
+                )}
+                style={{ willChange: "transform" }}
+              >
+                {/* Close button */}
+                <button
+                  className="absolute top-4 left-4 z-50 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 shadow"
+                  onClick={handleCloseRightPanel}
+                  aria-label="Close panel"
+                  tabIndex={showRightPanel ? 0 : -1}
+                >
+                  <span className="text-xl font-bold">×</span>
+                </button>
+                <div className="flex-1 overflow-y-auto custom-scrollbar pt-14">
                   {rightPanel}
                 </div>
-              </ResizablePanel>
-            </ResizablePanelGroup>
+              </div>
+            </div>
           ) : (
-            /* When no tool panel or on mobile */
-            <div className="flex-1 flex flex-col h-full">
-              {children}
-            </div>
-          )}
-
-          {/* Mobile Tool Panel (as overlay when shown) */}
-          {showRightPanel && isMobile && (
-            <div className="fixed inset-0 bg-white z-50 overflow-y-auto custom-scrollbar">
-              {rightPanel}
-            </div>
+            // Mobile right panel as overlay
+            <>
+              <div className="flex-1 flex flex-col h-full">
+                {children}
+              </div>
+              {showRightPanel && (
+                <>
+                  <div
+                    className={cn(
+                      "fixed inset-0 z-50 bg-black/40 transition-opacity duration-300",
+                      showRightPanel ? "opacity-100" : "opacity-0 pointer-events-none"
+                    )}
+                    onClick={handleCloseRightPanel}
+                  />
+                  <div
+                    className={cn(
+                      "fixed top-0 right-0 h-full w-full max-w-[90vw] bg-white z-50 shadow-2xl transition-transform duration-500 ease-linear flex flex-col",
+                      showRightPanel
+                        ? "translate-x-0 animate-featurepanel-in"
+                        : "translate-x-full pointer-events-none animate-featurepanel-out"
+                    )}
+                    style={{ willChange: "transform" }}
+                  >
+                    {/* Close button */}
+                    <button
+                      className="absolute top-4 left-4 z-50 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 shadow"
+                      onClick={handleCloseRightPanel}
+                      aria-label="Close panel"
+                      tabIndex={showRightPanel ? 0 : -1}
+                    >
+                      <span className="text-xl font-bold">×</span>
+                    </button>
+                    <div className="flex-1 overflow-y-auto custom-scrollbar pt-14">
+                      {rightPanel}
+                    </div>
+                  </div>
+                </>
+              )}
+            </>
           )}
         </div>
       </div>
