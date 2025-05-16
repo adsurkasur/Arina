@@ -785,10 +785,12 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                         variant="destructive"
                         size="sm"
                         className="text-xs"
-                        onClick={() => {
-                          deleteAnalysis(result.id).catch((error) => {
+                        onClick={async () => {
+                          try {
+                            await deleteAnalysis(result.id);
+                          } catch (error) {
                             console.error("Failed to delete analysis:", error);
-                          });
+                          }
                         }}
                         disabled={isDeletingAnalysis}
                       >
