@@ -147,6 +147,28 @@
 .streaming-text::after {
   content: '';
   display: inline-block;
+
+/* Chat bubble text formatting */
+.chat-bubble-bot pre,
+.chat-bubble-user pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0.5em 0;
+}
+
+.chat-bubble-bot p,
+.chat-bubble-user p {
+  margin: 0.5em 0;
+  line-height: 1.5;
+}
+
+.chat-bubble-bot code,
+.chat-bubble-user code {
+  word-wrap: break-word;
+  max-width: 100%;
+  display: inline-block;
+}
+
   width: 0.5em;
   height: 1em;
   margin-left: 0.2em;
