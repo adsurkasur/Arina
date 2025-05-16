@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { X, Save, FileDown, CalculatorIcon } from "lucide-react";
+import { X, Save, FileDown, CalculatorIcon, Info } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { saveAnalysisResult } from "@/lib/supabase";
 import { analyzeBusiness } from "@/utils/calculations";
