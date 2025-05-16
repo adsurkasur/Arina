@@ -170,9 +170,11 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary"
+                            className="bg-cream text-primary max-w-[300px] p-3"
                           >
-                            <p>Analyze business profitability & ROI</p>
+                            <p className="text-sm">
+                              Analyze your business's financial feasibility including investment costs, operational costs, break-even point, ROI, and payback period. Make informed decisions about your agricultural venture's viability.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </li>
