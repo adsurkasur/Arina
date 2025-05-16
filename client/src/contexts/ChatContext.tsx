@@ -1,14 +1,17 @@
 import React, { createContext, useState, useCallback, useEffect } from "react";
 import { ChatConversation, ChatMessage } from "@/types";
-import { createChatSession, sendMessage as sendGeminiMessage } from "@/lib/gemini";
-import { 
-  getChatHistory, 
-  createChat, 
-  updateChatTitle, 
-  deleteChat, 
-  getChatMessages, 
-  addChatMessage 
-} from "@/lib/supabase";
+import {
+  createChatSession,
+  sendMessage as sendGeminiMessage,
+} from "@/lib/gemini";
+import {
+  getChatHistory,
+  createChat,
+  updateChatTitle,
+  deleteChat,
+  getChatMessages,
+  addChatMessage,
+} from "@/lib/mongodb";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
@@ -33,7 +36,7 @@ export const ChatContext = createContext<ChatContextProps>({
   messages: [],
   isLoading: false,
   isSending: false,
-  createNewChat: async () => ({} as ChatConversation),
+  createNewChat: async () => ({}) as ChatConversation,
   loadConversation: async () => {},
   sendMessage: async () => {},
   renameConversation: async () => {},
@@ -41,9 +44,12 @@ export const ChatContext = createContext<ChatContextProps>({
   loadChatHistory: async () => {},
 });
 
-export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
-  const [activeConversation, setActiveConversation] = useState<ChatConversation | null>(null);
+  const [activeConversation, setActiveConversation] =
+    useState<ChatConversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatSession, setChatSession] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -88,15 +94,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       // Ensure user exists in database first
-      await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: user.id,
           email: user.email,
           name: user.name,
-          photo_url: user.photoURL
-        })
+          photo_url: user.photoURL,
+        }),
       });
 
       const { data, error } = await createChat(user.id, "New Conversation");
@@ -105,7 +111,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (data) {
         const newConversation = data;
-        setConversations(prev => [newConversation, ...prev]);
+        setConversations((prev) => [newConversation, ...prev]);
         setActiveConversation(newConversation);
         setMessages([]);
 
@@ -127,74 +133,80 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user, toast]);
 
-  const loadConversation = useCallback(async (conversationId: string) => {
-    try {
-      setIsLoading(true);
+  const loadConversation = useCallback(
+    async (conversationId: string) => {
+      try {
+        setIsLoading(true);
 
-      // Find the conversation in the state
-      const conversation = conversations.find(c => c.id === conversationId);
-      if (!conversation) throw new Error("Conversation not found");
+        // Find the conversation in the state
+        const conversation = conversations.find((c) => c.id === conversationId);
+        if (!conversation) throw new Error("Conversation not found");
 
-      setActiveConversation(conversation);
+        setActiveConversation(conversation);
 
-      // Load messages for this conversation
-      const { data, error } = await getChatMessages(conversationId);
+        // Load messages for this conversation
+        const { data, error } = await getChatMessages(conversationId);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (data) {
-        setMessages(data);
+        if (data) {
+          setMessages(data);
 
-        // Initialize Gemini chat session with history
-        try {
-          const chatMessages = data.map(msg => ({
-            role: msg.role === 'assistant' ? 'model' : msg.role,
-            content: msg.content
-          }));
+          // Initialize Gemini chat session with history
+          try {
+            const chatMessages = data.map((msg) => ({
+              role: msg.role === "assistant" ? "model" : msg.role,
+              content: msg.content,
+            }));
 
-          const session = await createChatSession(chatMessages);
-          if (!session) {
-            throw new Error('Failed to create chat session');
+            const session = await createChatSession(chatMessages);
+            if (!session) {
+              throw new Error("Failed to create chat session");
+            }
+            setChatSession(session);
+          } catch (error) {
+            console.error("Error initializing chat session:", error);
+            toast({
+              title: "Chat Error",
+              description: "Failed to initialize chat. Please try again.",
+              variant: "destructive",
+            });
           }
-          setChatSession(session);
+        }
+      } catch (error: any) {
+        toast({
+          title: "Error loading conversation",
+          description: error.message,
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [conversations, toast],
+  );
+
+  const sendMessage = useCallback(
+    async (content: string) => {
+      if (!activeConversation || !chatSession) {
+        // Create a new conversation if none is active
+        try {
+          const newConversation = await createNewChat();
+          await _sendMessage(newConversation.id, content);
         } catch (error) {
-          console.error('Error initializing chat session:', error);
           toast({
-            title: "Chat Error",
-            description: "Failed to initialize chat. Please try again.",
+            title: "Error sending message",
+            description: "Failed to create a new conversation",
             variant: "destructive",
           });
         }
+        return;
       }
-    } catch (error: any) {
-      toast({
-        title: "Error loading conversation",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [conversations, toast]);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!activeConversation || !chatSession) {
-      // Create a new conversation if none is active
-      try {
-        const newConversation = await createNewChat();
-        await _sendMessage(newConversation.id, content);
-      } catch (error) {
-        toast({
-          title: "Error sending message",
-          description: "Failed to create a new conversation",
-          variant: "destructive",
-        });
-      }
-      return;
-    }
-
-    await _sendMessage(activeConversation.id, content);
-  }, [activeConversation, chatSession, createNewChat, toast]);
+      await _sendMessage(activeConversation.id, content);
+    },
+    [activeConversation, chatSession, createNewChat, toast],
+  );
 
   // Internal function to handle message sending
   const _sendMessage = async (conversationId: string, content: string) => {
@@ -204,29 +216,29 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Add user message to UI immediately
       const userMessage: ChatMessage = {
         conversation_id: conversationId,
-        role: 'user',
-        content
+        role: "user",
+        content,
       };
 
-      setMessages(prev => [...prev, userMessage]);
+      setMessages((prev) => [...prev, userMessage]);
 
       // Save user message to database
-      await addChatMessage(conversationId, 'user', content);
+      await addChatMessage(conversationId, "user", content);
 
       // Wait for AI response with proper error handling
       try {
         // Include analysis history for context if available
         const aiResponse = await sendGeminiMessage(
-          chatSession, 
+          chatSession,
           content,
-          analysisResults // Pass analysis history for context
+          analysisResults, // Pass analysis history for context
         );
 
         if (!aiResponse) {
-          console.error('Chat response is null:', { 
-            chatSession, 
+          console.error("Chat response is null:", {
+            chatSession,
             content,
-            analysisResults: analysisResults?.length 
+            analysisResults: analysisResults?.length,
           });
           throw new Error("Empty response from model");
         }
@@ -234,14 +246,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Add AI response to UI
         const assistantMessage: ChatMessage = {
           conversation_id: conversationId,
-          role: 'assistant',
-          content: aiResponse
+          role: "assistant",
+          content: aiResponse,
         };
 
-        setMessages(prev => [...prev, assistantMessage]);
+        setMessages((prev) => [...prev, assistantMessage]);
 
         // Save assistant message to database
-        await addChatMessage(conversationId, 'assistant', aiResponse);
+        await addChatMessage(conversationId, "assistant", aiResponse);
 
         return aiResponse;
       } catch (error: any) {
@@ -249,29 +261,35 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Rate limit exceeded
           const errorMessage: ChatMessage = {
             conversation_id: conversationId,
-            role: 'assistant',
-            content: "I'm receiving too many requests right now. Please wait a moment before trying again."
+            role: "assistant",
+            content:
+              "I'm receiving too many requests right now. Please wait a moment before trying again.",
           };
-          setMessages(prev => [...prev, errorMessage]);
+          setMessages((prev) => [...prev, errorMessage]);
           return;
         }
 
         // Handle other errors
         const errorMessage: ChatMessage = {
           conversation_id: conversationId,
-          role: 'assistant',
-          content: "I apologize, but I encountered an error processing your request. Please try again."
+          role: "assistant",
+          content:
+            "I apologize, but I encountered an error processing your request. Please try again.",
         };
-        setMessages(prev => [...prev, errorMessage]);
+        setMessages((prev) => [...prev, errorMessage]);
         return errorMessage.content;
       }
 
       // Save assistant message to database
-      await addChatMessage(conversationId, 'assistant', aiResponse);
+      await addChatMessage(conversationId, "assistant", aiResponse);
 
       // Update conversation title if it's the first message
-      if (messages.length === 0 && activeConversation?.title === "New Conversation") {
-        const newTitle = content.length > 30 ? content.substring(0, 30) + "..." : content;
+      if (
+        messages.length === 0 &&
+        activeConversation?.title === "New Conversation"
+      ) {
+        const newTitle =
+          content.length > 30 ? content.substring(0, 30) + "..." : content;
         await renameConversation(conversationId, newTitle);
       }
     } catch (error: any) {
@@ -285,65 +303,73 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const renameConversation = useCallback(async (conversationId: string, title: string) => {
-    try {
-      const { error } = await updateChatTitle(conversationId, title);
+  const renameConversation = useCallback(
+    async (conversationId: string, title: string) => {
+      try {
+        const { error } = await updateChatTitle(conversationId, title);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Update conversations list
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.id === conversationId ? { ...conv, title } : conv
-        )
-      );
+        // Update conversations list
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.id === conversationId ? { ...conv, title } : conv,
+          ),
+        );
 
-      // Update active conversation if needed
-      if (activeConversation?.id === conversationId) {
-        setActiveConversation(prev => prev ? { ...prev, title } : null);
+        // Update active conversation if needed
+        if (activeConversation?.id === conversationId) {
+          setActiveConversation((prev) => (prev ? { ...prev, title } : null));
+        }
+
+        toast({
+          title: "Conversation renamed",
+          description: "The conversation has been renamed successfully",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error renaming conversation",
+          description: error.message,
+          variant: "destructive",
+        });
       }
+    },
+    [activeConversation, toast],
+  );
 
-      toast({
-        title: "Conversation renamed",
-        description: "The conversation has been renamed successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error renaming conversation",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  }, [activeConversation, toast]);
+  const deleteConversation = useCallback(
+    async (conversationId: string) => {
+      try {
+        const { error } = await deleteChat(conversationId);
 
-  const deleteConversation = useCallback(async (conversationId: string) => {
-    try {
-      const { error } = await deleteChat(conversationId);
+        if (error) throw error;
 
-      if (error) throw error;
+        // Remove from state
+        setConversations((prev) =>
+          prev.filter((conv) => conv.id !== conversationId),
+        );
 
-      // Remove from state
-      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+        // Clear active conversation if it was deleted
+        if (activeConversation?.id === conversationId) {
+          setActiveConversation(null);
+          setMessages([]);
+          setChatSession(null);
+        }
 
-      // Clear active conversation if it was deleted
-      if (activeConversation?.id === conversationId) {
-        setActiveConversation(null);
-        setMessages([]);
-        setChatSession(null);
+        toast({
+          title: "Conversation deleted",
+          description: "The conversation has been deleted successfully",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error deleting conversation",
+          description: error.message,
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Conversation deleted",
-        description: "The conversation has been deleted successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error deleting conversation",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  }, [activeConversation, toast]);
+    },
+    [activeConversation, toast],
+  );
 
   return (
     <ChatContext.Provider

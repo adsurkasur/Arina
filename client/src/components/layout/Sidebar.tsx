@@ -70,11 +70,24 @@ export function Sidebar({
   openTool,
 }: SidebarProps) {
   const { user } = useAuth();
-  const { conversations, createNewChat, loadConversation, renameConversation, deleteConversation } = useChat();
+  const {
+    conversations,
+    createNewChat,
+    loadConversation,
+    renameConversation,
+    deleteConversation,
+  } = useChat();
   const [analysisToolsOpen, setAnalysisToolsOpen] = useState(true);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
-  const [currentConversation, setCurrentConversation] = useState<{id: string, title: string} | null>(null);
+  const [currentConversation, setCurrentConversation] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
   const [newTitle, setNewTitle] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState<
+    string | null
+  >(null);
 
   // Handle toggling the sidebar on mobile
   const handleCloseSidebar = () => {
@@ -84,7 +97,10 @@ export function Sidebar({
   };
 
   // Handle opening the rename dialog
-  const handleRenameClick = (conversation: {id: string, title: string}, e: React.MouseEvent) => {
+  const handleRenameClick = (
+    conversation: { id: string; title: string },
+    e: React.MouseEvent,
+  ) => {
     e.stopPropagation(); // Prevent loading the conversation when clicking the menu
     setCurrentConversation(conversation);
     setNewTitle(conversation.title);
@@ -100,12 +116,26 @@ export function Sidebar({
     }
   };
 
-  // Handle deleting a conversation
-  const handleDeleteClick = async (conversationId: string, e: React.MouseEvent) => {
+  // Open delete dialog
+  const handleDeleteClick = (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent loading the conversation when clicking the menu
-    if (confirm("Are you sure you want to delete this conversation?")) {
-      await deleteConversation(conversationId);
+    setConversationToDelete(conversationId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // Confirm delete
+  const confirmDelete = async () => {
+    if (conversationToDelete) {
+      await deleteConversation(conversationToDelete);
+      setConversationToDelete(null);
+      setIsDeleteDialogOpen(false);
     }
+  };
+
+  // Cancel delete
+  const cancelDelete = () => {
+    setConversationToDelete(null);
+    setIsDeleteDialogOpen(false);
   };
 
   return (
@@ -121,12 +151,14 @@ export function Sidebar({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-200 ease-in-out flex flex-col",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-300 ease-in-out flex flex-col",
+          isOpen
+            ? "translate-x-0 sidebar-enter"
+            : "-translate-x-full sidebar-exit",
         )}
       >
         {/* Sidebar Header */}
-        <div className="p-4">
+        <div className="p-4 font-heading">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold flex items-center">
               <span className="mr-2"></span> ArinaAI
@@ -171,10 +203,14 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3"
+                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
                           >
                             <p className="text-sm">
-                              Analyze your business's financial feasibility including investment costs, operational costs, break-even point, ROI, and payback period. Make informed decisions about your agricultural venture's viability.
+                              Analyze your business's financial feasibility
+                              including investment costs, operational costs,
+                              break-even point, ROI, and payback period. Make
+                              informed decisions about your agricultural
+                              venture's viability.
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -193,10 +229,13 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3"
+                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
                           >
                             <p className="text-sm">
-                              Predict future market demand patterns for your agricultural products using your historical sales data, market trends, and seasonal variations to optimize production planning.
+                              Predict future market demand patterns for your
+                              agricultural products using your historical sales
+                              data, market trends, and seasonal variations to
+                              optimize production planning.
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -215,10 +254,14 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3"
+                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
                           >
                             <p className="text-sm">
-                              Find the optimal balance of resources, crop selection, and production methods to maximize profits while minimizing costs. Uses advanced algorithms to help you make the most efficient decisions for your farm.
+                              Find the optimal balance of resources, crop
+                              selection, and production methods to maximize
+                              profits while minimizing costs. Uses advanced
+                              algorithms to help you make the most efficient
+                              decisions for your farm.
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -237,10 +280,13 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3"
+                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
                           >
                             <p className="text-sm">
-                              Receive personalized crop selection, business opportunity, and market entry recommendations based on your analysis history, local seasonal conditions, and current agricultural trends.
+                              Receive personalized crop selection, business
+                              opportunity, and market entry recommendations
+                              based on your analysis history, local seasonal
+                              conditions, and current agricultural trends.
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -259,10 +305,13 @@ export function Sidebar({
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3"
+                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
                           >
                             <p className="text-sm">
-                              Access and review all your previous business feasibility studies, demand forecasts, and optimization analyses with detailed visualizations and the ability to compare results over time.
+                              Access and review all your previous business
+                              feasibility studies, demand forecasts, and
+                              optimization analyses with detailed visualizations
+                              and the ability to compare results over time.
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -272,8 +321,6 @@ export function Sidebar({
                 </div>
               </CollapsibleContent>
             </Collapsible>
-
-            
           </div>
 
           {/* Chat History Section */}
@@ -293,7 +340,10 @@ export function Sidebar({
             <div className="mt-1 space-y-1">
               {conversations && conversations.length > 0 ? (
                 conversations.map((conversation) => (
-                  <div key={conversation.id} className="flex items-center relative group">
+                  <div
+                    key={conversation.id}
+                    className="flex items-center relative group"
+                  >
                     <button
                       onClick={() => {
                         loadConversation(conversation.id);
@@ -302,11 +352,13 @@ export function Sidebar({
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                     >
                       <MessageSquare className="h-4 w-4 mr-3 text-white/70" />
-                      <span className="truncate mr-6">{conversation.title}</span>
+                      <span className="truncate mr-6">
+                        {conversation.title}
+                      </span>
                     </button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button 
+                        <button
                           className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-white/20"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -340,7 +392,10 @@ export function Sidebar({
             </div>
 
             {/* Rename Dialog */}
-            <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
+            <Dialog
+              open={isRenameDialogOpen}
+              onOpenChange={setIsRenameDialogOpen}
+            >
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Rename Conversation</DialogTitle>
@@ -358,8 +413,8 @@ export function Sidebar({
                     />
                   </div>
                   <DialogFooter className="sm:justify-end">
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       variant="outline"
                       onClick={() => setIsRenameDialogOpen(false)}
                     >
@@ -372,6 +427,38 @@ export function Sidebar({
                 </form>
               </DialogContent>
             </Dialog>
+
+            {/* Delete Dialog */}
+            <Dialog
+              open={isDeleteDialogOpen}
+              onOpenChange={setIsDeleteDialogOpen}
+            >
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Delete Conversation</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to delete this conversation? This
+                    action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="sm:justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={cancelDelete}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={confirmDelete}
+                  >
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
@@ -379,29 +466,44 @@ export function Sidebar({
         <div className="mt-auto px-3 pb-4">
           <Dialog>
             <DialogTrigger asChild>
-              <button
-                className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-              >
+              <button className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
                 <Info className="h-5 w-5 mr-3" />
                 <span>About Arina</span>
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle className="text-xl">Arina - AI-Powered Agricultural Analytics</DialogTitle>
+                <DialogTitle className="text-xl">
+                  Arina - AI-Powered Agricultural Analytics
+                </DialogTitle>
                 <DialogDescription>
-                  A comprehensive platform for data-driven agricultural business decisions
+                  A comprehensive platform for data-driven agricultural business
+                  decisions
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <h3 className="font-medium">Core Features</h3>
                   <ul className="list-disc pl-5 space-y-1 text-sm">
-                    <li>Business feasibility analysis with ROI, payback period, break-even calculations</li>
-                    <li>Demand forecasting to predict market trends using historical data</li>
-                    <li>Optimization analysis for profit maximization and cost reduction</li>
-                    <li>AI-powered recommendations based on analysis history and chat interactions</li>
-                    <li>Interactive visualizations with crop seasonality awareness</li>
+                    <li>
+                      Business feasibility analysis with ROI, payback period,
+                      break-even calculations
+                    </li>
+                    <li>
+                      Demand forecasting to predict market trends using
+                      historical data
+                    </li>
+                    <li>
+                      Optimization analysis for profit maximization and cost
+                      reduction
+                    </li>
+                    <li>
+                      AI-powered recommendations based on analysis history and
+                      chat interactions
+                    </li>
+                    <li>
+                      Interactive visualizations with crop seasonality awareness
+                    </li>
                   </ul>
                 </div>
                 <div className="space-y-2">
@@ -409,7 +511,9 @@ export function Sidebar({
                   <ul className="list-disc pl-5 space-y-1 text-sm">
                     <li>React frontend with Tailwind CSS</li>
                     <li>Firebase Authentication for secure access</li>
-                    <li>Google Gemini AI for intelligent assistant capabilities</li>
+                    <li>
+                      Google Gemini AI for intelligent assistant capabilities
+                    </li>
                     <li>PostgreSQL database for data persistence</li>
                     <li>Express API for backend services</li>
                   </ul>

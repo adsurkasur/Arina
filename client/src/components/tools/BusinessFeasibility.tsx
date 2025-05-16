@@ -5,7 +5,7 @@ import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { X, Save, FileDown, CalculatorIcon, Info } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { saveAnalysisResult } from "@/lib/supabase";
+import { saveAnalysisResult } from "@/lib/mongodb";
 import { analyzeBusiness } from "@/utils/calculations";
 import {
   BusinessFeasibilityInput,
@@ -629,14 +629,14 @@ export default function BusinessFeasibility({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
-                      <FormLabel>Sales Volume per Month</FormLabel>
+                      <FormLabel>Sales Volume per Period</FormLabel>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-gray-500" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
-                            <p>Expected number of units sold per month</p>
+                            <p>Expected number of units sold per period</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -730,6 +730,7 @@ export default function BusinessFeasibility({
               {/* Key Metrics */}
               <div className="grid grid-cols-2 gap-4 p-4">
                 <TooltipProvider>
+                  {/* Unit Cost (HPP) */}
                   <div className="bg-cream rounded-lg p-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -749,16 +750,20 @@ export default function BusinessFeasibility({
                         </p>
                         <p className="mt-2 text-xs">
                           Formula: (Total Operational Costs + Production Cost) ÷
-                          Monthly Volume
+                          Sales Volume
                         </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
+
+                  {/* Selling Price */}
                   <div className="bg-cream rounded-lg p-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
-                          <div className="text-xs text-gray-500">Selling Price</div>
+                          <div className="text-xs text-gray-500">
+                            Selling Price
+                          </div>
                           <div className="font-medium text-primary">
                             Rp {results.sellingPrice.toLocaleString()}
                           </div>
@@ -766,8 +771,9 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The price at which each unit is sold to customers, calculated
-                          by adding the markup percentage to the unit cost.
+                          The price at which each unit is sold to customers,
+                          calculated by adding the markup percentage to the unit
+                          cost.
                         </p>
                         <p className="mt-2 text-xs">
                           Formula: Unit Cost × (1 + Markup%)
@@ -775,6 +781,8 @@ export default function BusinessFeasibility({
                       </TooltipContent>
                     </Tooltip>
                   </div>
+
+                  {/* Break Even Point (Units) */}
                   <div className="bg-cream rounded-lg p-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -783,27 +791,31 @@ export default function BusinessFeasibility({
                             Break Even Point (Units)
                           </div>
                           <div className="font-medium text-primary">
-                            {Math.ceil(results.breakEvenUnits).toLocaleString()} units
+                            {Math.ceil(results.breakEvenUnits).toLocaleString()}{" "}
+                            units
                           </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The number of units that need to be sold to cover all costs,
-                          where total revenue equals total costs.
+                          The number of units that need to be sold to cover all
+                          costs, where total revenue equals total costs.
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: Fixed Costs ÷ (Selling Price - Variable Cost per Unit)
+                          Formula: Fixed Costs ÷ (Selling Price - Variable Cost
+                          per Unit)
                         </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
+
+                  {/* Break Even Point (Revenue) */}
                   <div className="bg-cream rounded-lg p-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
                           <div className="text-xs text-gray-500">
-                            Break Even Point (Rp)
+                            Break Even Point (Revenue)
                           </div>
                           <div className="font-medium text-primary">
                             Rp {results.breakEvenAmount.toLocaleString()}
@@ -812,8 +824,9 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The revenue amount needed to cover all costs, representing
-                          the point where no profit or loss is made.
+                          The revenue amount needed to cover all costs,
+                          representing the point where no profit or loss is
+                          made.
                         </p>
                         <p className="mt-2 text-xs">
                           Formula: Break Even Units × Selling Price
@@ -821,6 +834,8 @@ export default function BusinessFeasibility({
                       </TooltipContent>
                     </Tooltip>
                   </div>
+
+                  {/* Monthly Net Profit */}
                   <div className="bg-cream rounded-lg p-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -835,8 +850,8 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The profit generated each month after deducting all costs
-                          from revenue.
+                          The profit generated each period after deducting all
+                          costs from revenue.
                         </p>
                         <p className="mt-2 text-xs">
                           Formula: (Sales Volume × Selling Price) - Total Costs
@@ -844,11 +859,15 @@ export default function BusinessFeasibility({
                       </TooltipContent>
                     </Tooltip>
                   </div>
+
+                  {/* Profit Margin */}
                   <div className="bg-cream rounded-lg p-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
-                          <div className="text-xs text-gray-500">Profit Margin</div>
+                          <div className="text-xs text-gray-500">
+                            Profit Margin
+                          </div>
                           <div className="font-medium text-primary">
                             {results.profitMargin.toFixed(1)}%
                           </div>
@@ -856,8 +875,9 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The percentage of revenue that represents profit, indicating
-                          how much of each rupiah of revenue is kept as profit.
+                          The percentage of revenue that represents profit,
+                          indicating how much of each rupiah of revenue is kept
+                          as profit.
                         </p>
                         <p className="mt-2 text-xs">
                           Formula: (Net Profit ÷ Revenue) × 100
@@ -865,11 +885,15 @@ export default function BusinessFeasibility({
                       </TooltipContent>
                     </Tooltip>
                   </div>
+
+                  {/* Payback Period */}
                   <div className="bg-cream rounded-lg p-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
-                          <div className="text-xs text-gray-500">Payback Period</div>
+                          <div className="text-xs text-gray-500">
+                            Payback Period
+                          </div>
                           <div className="font-medium text-primary">
                             {results.paybackPeriod.toFixed(1)} years
                           </div>
@@ -877,8 +901,8 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The time required to recover the initial investment through
-                          profit generation.
+                          The time required to recover the initial investment
+                          through profit generation.
                         </p>
                         <p className="mt-2 text-xs">
                           Formula: Total Investment ÷ Annual Net Profit
@@ -886,6 +910,8 @@ export default function BusinessFeasibility({
                       </TooltipContent>
                     </Tooltip>
                   </div>
+
+                  {/* ROI */}
                   <div className="bg-cream rounded-lg p-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -898,8 +924,8 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          Return on Investment - The percentage return earned on the
-                          initial investment annually.
+                          Return on Investment - The percentage return earned on
+                          the initial investment annually.
                         </p>
                         <p className="mt-2 text-xs">
                           Formula: (Annual Net Profit ÷ Total Investment) × 100

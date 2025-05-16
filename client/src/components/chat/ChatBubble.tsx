@@ -1,3 +1,4 @@
+import React from "react"; // Ensure React is in scope for JSX
 import { useState, useEffect } from "react";
 import { ChatMessage } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -5,52 +6,54 @@ import { Sprout } from "lucide-react";
 import { cn } from "@/lib/theme";
 import TextStreamingEffect from "./TextStreamingEffect";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm"; // For GitHub-flavored markdown
+import rehypeRaw from "rehype-raw"; // To handle raw HTML safely
+import { ReactNode } from "react";
 
-// Custom wrapper for markdown content
+// Adjusting the rendering of markdown content to ensure multi-line support
 const MarkdownContent = ({ content }: { content: string }) => {
   return (
-    <div className="prose prose-sm max-w-none">
+    <div className="markdown-content prose prose-sm max-w-none">
       <ReactMarkdown
+        remarkPlugins={[remarkGfm]} // Enable GitHub-flavored markdown
+        rehypePlugins={[rehypeRaw]} // Handle raw HTML safely
         components={{
-          strong: ({ node, ...props }) => <span className="font-bold" {...props} />,
-          em: ({ node, ...props }) => <span className="italic" {...props} />,
-          code: ({ node, inline, className, children, ...props }) => {
-            const match = /language-(\w+)/.exec(className || '');
-            return inline ? (
+          p: ({ ...props }: { children?: ReactNode }) => (
+            <p className="my-2 leading-relaxed" {...props} />
+          ), // Ensure proper spacing for paragraphs
+          code: ({
+            className,
+            children,
+            ...props
+          }: {
+            className?: string;
+            children?: ReactNode;
+          }) => {
+            const match = /language-(\w+)/.exec(className || "");
+            return !match ? (
               <code className="bg-gray-100 px-1 rounded text-black" {...props}>
                 {children}
               </code>
             ) : (
               <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto my-2">
-                <code className={className} {...props}>
-                  {children}
+                <code className={className || ""} {...props}>
+                  {String(children).trim()}
                 </code>
               </pre>
             );
           },
-          ul: ({ ...props }) => <ul className="list-disc pl-4 space-y-1 my-2" {...props} />,
-          ol: ({ ...props }) => <ol className="list-decimal pl-4 space-y-1 my-2" {...props} />,
-          h1: ({ ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4 first:mt-0" {...props} />,
-          h2: ({ ...props }) => <h2 className="text-xl font-bold mt-5 mb-3" {...props} />,
-          h3: ({ ...props }) => <h3 className="text-lg font-bold mt-4 mb-2" {...props} />,
-          h4: ({ ...props }) => <h4 className="text-base font-bold mt-3 mb-2" {...props} />,
-          h5: ({ ...props }) => <h5 className="text-sm font-bold mt-3 mb-2" {...props} />,
-          h6: ({ ...props }) => <h6 className="text-xs font-bold mt-3 mb-2" {...props} />,
-          p: ({ ...props }) => <p className="my-2 leading-relaxed" {...props} />,
-          blockquote: ({ ...props }) => (
-            <blockquote className="border-l-4 border-gray-200 pl-4 italic my-3" {...props} />
+          blockquote: ({ ...props }: { children?: ReactNode }) => (
+            <blockquote
+              className="border-l-4 border-gray-200 pl-4 italic my-3"
+              {...props}
+            />
           ),
-          hr: () => <hr className="my-4 border-t border-gray-200" />,
-          a: ({ ...props }) => (
-            <a className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+          ul: ({ ...props }: { children?: ReactNode }) => (
+            <ul className="list-disc pl-4 space-y-1 my-2" {...props} />
           ),
-          table: ({ ...props }) => (
-            <div className="overflow-x-auto my-4">
-              <table className="min-w-full divide-y divide-gray-200" {...props} />
-            </div>
+          ol: ({ ...props }: { children?: ReactNode }) => (
+            <ol className="list-decimal pl-4 space-y-1 my-2" {...props} />
           ),
-          th: ({ ...props }) => <th className="px-3 py-2 bg-gray-50 font-semibold text-left" {...props} />,
-          td: ({ ...props }) => <td className="px-3 py-2 border-t" {...props} />,
         }}
       >
         {content || ""}
@@ -66,7 +69,12 @@ interface ChatBubbleProps {
   animate?: boolean;
 }
 
-export default function ChatBubble({ message, userName, userImage, animate = false }: ChatBubbleProps) {
+export default function ChatBubble({
+  message,
+  userName,
+  userImage,
+  animate = false,
+}: ChatBubbleProps) {
   const isUser = message.role === "user";
   const [isStreaming, setIsStreaming] = useState(animate && !isUser);
   const [hasCompleted, setHasCompleted] = useState(false);
@@ -104,14 +112,16 @@ export default function ChatBubble({ message, userName, userImage, animate = fal
           "p-4 shadow-sm max-w-[80%] whitespace-pre-wrap break-words",
           isUser
             ? "bg-primary text-white ml-3 chat-bubble-user"
-            : "bg-white text-gray-800 ml-3 chat-bubble-bot"
+            : "bg-white text-gray-800 ml-3 chat-bubble-bot",
         )}
       >
         {isUser ? (
-          <p className="whitespace-pre-wrap break-words leading-relaxed text-base">{message.content}</p>
+          <p className="whitespace-pre-wrap break-words leading-relaxed text-base">
+            {message.content}
+          </p>
         ) : shouldStream ? (
-          <TextStreamingEffect 
-            fullText={message.content} 
+          <TextStreamingEffect
+            fullText={message.content}
             onComplete={handleStreamComplete}
             className="leading-relaxed text-base"
           />

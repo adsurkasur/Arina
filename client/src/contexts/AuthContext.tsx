@@ -1,12 +1,12 @@
 import React, { createContext, useCallback, useState, useEffect } from "react";
-import { 
-  onAuthChanged, 
-  signInWithGoogle, 
-  signInWithEmail, 
-  registerWithEmail, 
-  signOut 
+import {
+  onAuthChanged,
+  signInWithGoogle,
+  signInWithEmail,
+  registerWithEmail,
+  signOut,
 } from "@/lib/firebase";
-import { createUserProfile } from "@/lib/supabase";
+import { createUserProfile } from "@/lib/mongodb";
 import { User } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -19,7 +19,11 @@ interface AuthContextProps {
   setShowAuthModal: React.Dispatch<React.SetStateAction<boolean>>;
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
-  registerWithEmailPassword: (name: string, email: string, password: string) => Promise<void>;
+  registerWithEmailPassword: (
+    name: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   checkAuthState: () => void;
 }
@@ -37,7 +41,9 @@ export const AuthContext = createContext<AuthContextProps>({
   checkAuthState: () => {},
 });
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -51,7 +57,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userData: User = {
           id: firebaseUser.uid,
           email: firebaseUser.email || "",
-          name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
+          name:
+            firebaseUser.displayName ||
+            firebaseUser.email?.split("@")[0] ||
+            "User",
           photoURL: firebaseUser.photoURL || undefined,
         };
         setUser(userData);
@@ -73,11 +82,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Create profile in Supabase if it doesn't exist
         await createUserProfile(
           result.user.uid,
-          result.user.email || '',
-          result.user.displayName || result.user.email?.split('@')[0] || 'User',
-          result.user.photoURL
+          result.user.email || "",
+          result.user.displayName || result.user.email?.split("@")[0] || "User",
+          result.user.photoURL,
         );
-        
+
         setShowAuthModal(false);
         toast({
           title: "Success",
@@ -112,14 +121,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const registerWithEmailPassword = async (name: string, email: string, password: string) => {
+  const registerWithEmailPassword = async (
+    name: string,
+    email: string,
+    password: string,
+  ) => {
     try {
       const result = await registerWithEmail(email, password);
-      
+
       if (result.user) {
         // Create profile in Supabase
         await createUserProfile(result.user.uid, email, name);
-        
+
         setShowAuthModal(false);
         toast({
           title: "Account created",

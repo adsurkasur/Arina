@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
   plugins: [
@@ -15,6 +16,10 @@ export default defineConfig({
           ),
         ]
       : []),
+    nodePolyfills({
+      // Corrected: Using the imported 'nodePolyfills' function
+      protocolImports: true,
+    }),
   ],
   resolve: {
     alias: {
@@ -27,5 +32,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+  },
+  server: {
+    // Add this if you need specific server options
+  },
+  optimizeDeps: {
+    exclude: ["mongodb"], // Prevent Vite from bundling MongoDB for the client
+    ssr: {
+      // noExternal: ["mongodb"], // Only needed if you're doing SSR
+    },
   },
 });
