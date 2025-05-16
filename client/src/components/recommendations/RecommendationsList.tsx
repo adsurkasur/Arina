@@ -1,6 +1,4 @@
-The code adds tooltips to recommendation fields by importing necessary UI components and integrating them into the RecommendationsList component.
-```
-```replit_final_file
+
 import React, { useState } from 'react';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useAuth } from '@/hooks/useAuth';
@@ -238,17 +236,17 @@ export function RecommendationsList() {
                           </div>
                           <p className="mt-2 text-sm text-gray-600">{item.description}</p>
                           <div className="flex items-center mt-3 justify-between">
-                          <Tooltip>
+                            <Tooltip>
                               <TooltipTrigger>
-                                  <Badge variant="secondary" className="capitalize flex items-center gap-1">
-                                      {item.type}
-                                      <Info className="h-3 w-3" />
-                                  </Badge>
+                                <Badge variant="secondary" className="capitalize flex items-center gap-1">
+                                  {item.type}
+                                  <Info className="h-3 w-3" />
+                                </Badge>
                               </TooltipTrigger>
                               <TooltipContent>
-                                  <p>Type of recommendation: {item.type}</p>
+                                <p>Type of recommendation: {item.type}</p>
                               </TooltipContent>
-                          </Tooltip>
+                            </Tooltip>
                           </div>
                         </div>
                       ))}
