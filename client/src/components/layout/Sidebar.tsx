@@ -27,7 +27,6 @@ import {
   ClipboardList,
   Info,
 } from "lucide-react";
-import { InfoTooltip } from "@/components/ui/tooltip-info";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -162,16 +161,13 @@ export function Sidebar({
                       <li>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
-                              <button
-                                onClick={() => openTool("businessFeasibility")}
-                                className="flex items-center flex-1"
-                              >
-                                <Calculator className="h-5 w-5 mr-3" />
-                                <span>Business Feasibility Analysis</span>
-                              </button>
-                              <InfoTooltip content="Analyze your business's financial feasibility including investment costs, operational costs, break-even point, ROI, and payback period. Make informed decisions about your agricultural venture's viability." />
-                            </div>
+                            <button
+                              onClick={() => openTool("businessFeasibility")}
+                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                            >
+                              <Calculator className="h-5 w-5 mr-3" />
+                              <span>Business Feasibility</span>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
@@ -187,16 +183,13 @@ export function Sidebar({
                       <li>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
-                              <button
-                                onClick={() => openTool("demandForecasting")}
-                                className="flex items-center flex-1"
-                              >
-                                <ChartBar className="h-5 w-5 mr-3" />
-                                <span>Demand Forecasting</span>
-                              </button>
-                              <InfoTooltip content="Predict future market demand patterns for your agricultural products using your historical sales data, market trends, and seasonal variations to optimize production planning." />
-                            </div>
+                            <button
+                              onClick={() => openTool("demandForecasting")}
+                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                            >
+                              <ChartBar className="h-5 w-5 mr-3" />
+                              <span>Demand Forecasting</span>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
@@ -212,16 +205,13 @@ export function Sidebar({
                       <li>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
-                              <button
-                                onClick={() => openTool("optimizationAnalysis")}
-                                className="flex items-center flex-1"
-                              >
-                                <BarChart3 className="h-5 w-5 mr-3" />
-                                <span>Optimization Analysis</span>
-                              </button>
-                              <InfoTooltip content="Find the optimal balance of resources, crop selection, and production methods to maximize profits while minimizing costs. Uses advanced algorithms to help you make the most efficient decisions for your farm." />
-                            </div>
+                            <button
+                              onClick={() => openTool("optimizationAnalysis")}
+                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                            >
+                              <BarChart3 className="h-5 w-5 mr-3" />
+                              <span>Optimization Analysis</span>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
@@ -237,16 +227,13 @@ export function Sidebar({
                       <li>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
-                              <button
-                                onClick={() => openTool("recommendations")}
-                                className="flex items-center flex-1"
-                              >
-                                <Lightbulb className="h-5 w-5 mr-3" />
-                                <span>Smart Recommendations</span>
-                              </button>
-                              <InfoTooltip content="Receive personalized crop selection, business opportunity, and market entry recommendations based on your analysis history, local seasonal conditions, and current agricultural trends." />
-                            </div>
+                            <button
+                              onClick={() => openTool("recommendations")}
+                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                            >
+                              <Lightbulb className="h-5 w-5 mr-3" />
+                              <span>Smart Recommendations</span>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
@@ -262,16 +249,13 @@ export function Sidebar({
                       <li>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
-                              <button
-                                onClick={() => openTool("analysisHistory")}
-                                className="flex items-center flex-1"
-                              >
-                                <ClipboardList className="h-5 w-5 mr-3" />
-                                <span>Analysis History</span>
-                              </button>
-                              <InfoTooltip content="Access and review all your previous business feasibility studies, demand forecasts, and optimization analyses with detailed visualizations and the ability to compare results over time." />
-                            </div>
+                            <button
+                              onClick={() => openTool("analysisHistory")}
+                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                            >
+                              <ClipboardList className="h-5 w-5 mr-3" />
+                              <span>Analysis History</span>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent
                             side="right"
@@ -289,7 +273,7 @@ export function Sidebar({
               </CollapsibleContent>
             </Collapsible>
 
-
+            
           </div>
 
           {/* Chat History Section */}
