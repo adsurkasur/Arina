@@ -10,7 +10,7 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
     <>
       {/* Welcome Message */}
       <div className="flex justify-center mb-6 font-sans">
-        <div className="bg-white rounded-lg p-6 shadow-md max-w-2xl w-full">
+        <div className="bg-cream rounded-lg p-6 shadow-md max-w-2xl w-full">
           <h2 className="text-2xl font-semibold text-primary mb-4">Welcome to Arina</h2>
           <p className="mb-4">Your AI-powered agricultural business assistant. I can help you with:</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

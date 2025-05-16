@@ -108,10 +108,10 @@ export function MainLayout({
               {/* Right Sidebar */}
               <div
                 className={cn(
-                  "fixed top-0 right-0 h-full w-96 z-40 bg-white border-l border-gray-200 shadow-2xl transition-transform duration-500 ease-linear flex flex-col",
+                  "fixed top-0 right-0 h-full w-96 z-40 bg-white border-l border-gray-200 shadow-2xl transform transition-transform duration-500 ease-linear flex flex-col",
                   showRightPanel
-                    ? "translate-x-0 animate-featurepanel-in"
-                    : "translate-x-full pointer-events-none animate-featurepanel-out"
+                    ? "translate-x-0 animate-sidebar-in"
+                    : "translate-x-full pointer-events-none animate-sidebar-out"
                 )}
                 style={{ willChange: "transform" }}
               >
