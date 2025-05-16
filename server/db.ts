@@ -1,6 +1,5 @@
 import { MongoClient, Db } from "mongodb";
 import * as schema from "@shared/schema";
-import express from "express";
 
 let db: Db | null = null;
 let mongoClient: MongoClient | null = null;
@@ -37,37 +36,8 @@ function getDb(): Db {
   return db;
 }
 
-const router = express.Router();
-
-// Middleware to ensure DB is initialized before handling requests
-router.use((req, res, next) => {
-  if (!db) {
-    res.status(503).json({ error: "Database not initialized" });
-  } else {
-    next();
-  }
-});
-
-// Example API endpoint to fetch chat history
-router.get("/api/chat-history", async (req, res) => {
-  const { userId } = req.query;
-  if (!userId || typeof userId !== "string") {
-    return res.status(400).json({ error: "User ID is required" });
-  }
-
-  try {
-    // Use chat_conversations collection for chat history
-    const conversations = await getDb()
-      .collection("chat_conversations")
-      .find({ user_id: userId })
-      .sort({ updated_at: -1 })
-      .toArray();
-    res.json(conversations);
-  } catch (error) {
-    console.error("Error fetching chat history:", error);
-    res.status(500).json({ error: "Failed to fetch chat history" });
-  }
-});
+// This file is only responsible for MongoDB connection and initialization.
+// All API endpoints should be defined in server/routes.ts and use the storage abstraction.
 
 // Graceful shutdown
 process.on("SIGINT", async () => {
@@ -78,4 +48,4 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-export { getDb, initializeDb, router as default };
+export { getDb, initializeDb };

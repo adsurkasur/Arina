@@ -24,7 +24,7 @@ export const createChatSession = async (history: ChatMessage[] = []) => {
   try {
     const chat = model.startChat({
       history: history.map((msg) => ({
-        role: msg.role === 'assistant' ? 'model' : msg.role,
+        role: msg.role,
         parts: [{ text: msg.content }],
       })),
       generationConfig: {
@@ -41,7 +41,10 @@ export const createChatSession = async (history: ChatMessage[] = []) => {
     return chat;
   } catch (error) {
     console.error("Error creating chat session:", error);
-    throw new Error("Failed to initialize chat session: " + (error.message || error));
+    const errorMessage = (typeof error === "object" && error !== null && "message" in error)
+      ? (error as { message?: string }).message
+      : String(error);
+    throw new Error("Failed to initialize chat session: " + errorMessage);
   }
 };
 
