@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from 'react';
 import { 
   BarChart as BarChartIcon, 
@@ -101,7 +102,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   } = useAnalysisHistory();
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState('all');
 
   // Apply filters to results
   const filteredResults = analysisResults.filter(result => {
@@ -271,7 +272,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                         outerRadius={90}
                         paddingAngle={2}
                         dataKey="value"
-                        label={({name, percent}) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                        label={({name, percent}: any) => `${name}: ${(percent * 100).toFixed(1)}%`}
                         labelLine={false}
                       >
                         {pieData.map((entry, index) => (
@@ -300,8 +301,10 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           )}
           
           <TabsContent value="raw" className="pt-4">
-            <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md overflow-auto max-h-[400px]">
-              <pre className="text-xs">{JSON.stringify(data, null, 2)}</pre>
+            <div className="w-full max-w-full max-h-[min(400px,60vh)] overflow-auto overflow-x-auto rounded border bg-muted p-2">
+              <pre className="text-xs break-all whitespace-pre-wrap w-full max-w-full min-w-0">
+                {JSON.stringify(data, null, 2)}
+              </pre>
             </div>
           </TabsContent>
         </Tabs>
@@ -355,7 +358,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                     <YAxis 
                       tick={{ fontSize: 12 }}
                       tickLine={{ stroke: '#e5e7eb' }}
-                      tickFormatter={(value) => formatValue(value, '')}
+                      tickFormatter={(value: any) => formatValue(value, '')}
                     />
                     <Tooltip 
                       formatter={(value: any) => [formatValue(value as number), 'Units']}
@@ -430,8 +433,10 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           </TabsContent>
           
           <TabsContent value="raw" className="pt-4">
-            <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md overflow-auto max-h-[400px]">
-              <pre className="text-xs">{JSON.stringify(data, null, 2)}</pre>
+            <div className="w-full max-w-full max-h-[min(400px,60vh)] overflow-auto overflow-x-auto rounded border bg-muted p-2">
+              <pre className="text-xs break-all whitespace-pre-wrap w-full max-w-full min-w-0">
+                {JSON.stringify(data, null, 2)}
+              </pre>
             </div>
           </TabsContent>
         </Tabs>
@@ -484,7 +489,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                       <YAxis 
                         tick={{ fontSize: 12 }}
                         tickLine={{ stroke: '#e5e7eb' }}
-                        tickFormatter={(value) => formatValue(value, '')}
+                        tickFormatter={(value: any) => formatValue(value, '')}
                       />
                       <Tooltip 
                         formatter={(value: any) => [formatValue(value as number, 'units'), 'Value']}
@@ -558,8 +563,10 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           )}
           
           <TabsContent value="raw" className="pt-4">
-            <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md overflow-auto max-h-[400px]">
-              <pre className="text-xs">{JSON.stringify(data, null, 2)}</pre>
+            <div className="w-full max-w-full max-h-[min(400px,60vh)] overflow-auto overflow-x-auto rounded border bg-muted p-2">
+              <pre className="text-xs break-all whitespace-pre-wrap w-full max-w-full min-w-0">
+                {JSON.stringify(data, null, 2)}
+              </pre>
             </div>
           </TabsContent>
         </Tabs>
@@ -644,8 +651,10 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
             </TabsContent>
             
             <TabsContent value="raw" className="pt-4">
-              <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md overflow-auto max-h-[400px]">
-                <pre className="text-xs">{JSON.stringify(dataObj, null, 2)}</pre>
+              <div className="w-full max-w-full max-h-[min(400px,60vh)] overflow-auto overflow-x-auto rounded border bg-muted p-2">
+                <pre className="text-xs break-all whitespace-pre-wrap w-full max-w-full min-w-0">
+                  {JSON.stringify(dataObj, null, 2)}
+                </pre>
               </div>
             </TabsContent>
           </Tabs>

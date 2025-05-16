@@ -20,6 +20,7 @@ export interface ChatMessage {
   conversation_id: string;
   role: 'user' | 'assistant';
   content: string;
+  sender_id: string;
   created_at?: string;
 }
 

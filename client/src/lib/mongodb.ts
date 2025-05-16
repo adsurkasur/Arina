@@ -112,12 +112,13 @@ export const addChatMessage = async (
   conversationId: string,
   role: "user" | "assistant",
   content: string,
+  sender_id: string,
 ) => {
   try {
     const response = await fetch("/api/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation_id: conversationId, role, content }),
+      body: JSON.stringify({ conversation_id: conversationId, role, content, sender_id }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Failed to add message");

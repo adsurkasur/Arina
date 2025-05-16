@@ -1,4 +1,5 @@
 import React, { createContext, useState, useCallback, useEffect } from "react";
+import type { ReactNode } from "react";
 import { ChatConversation, ChatMessage } from "@/types";
 import {
   createChatSession,
@@ -44,13 +45,10 @@ export const ChatContext = createContext<ChatContextProps>({
   loadChatHistory: async () => {},
 });
 
-export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [conversations, setConversations] = useState<ChatConversation[]>([]);
-  const [activeConversation, setActiveConversation] =
-    useState<ChatConversation | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export const ChatProvider = ({ children }: { children: ReactNode }) => {
+  const [conversations, setConversations] = useState([] as ChatConversation[]);
+  const [activeConversation, setActiveConversation] = useState<ChatConversation | null>(null);
+  const [messages, setMessages] = useState([] as ChatMessage[]);
   const [chatSession, setChatSession] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -68,15 +66,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loadChatHistory = useCallback(async () => {
     if (!user) return;
-
     try {
       setIsLoading(true);
       const { data, error } = await getChatHistory(user.id);
-
       if (error) throw error;
-
       if (data) {
-        setConversations(data);
+        setConversations((_prev: ChatConversation[]) => data);
       }
     } catch (error: any) {
       toast({
@@ -137,28 +132,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     async (conversationId: string) => {
       try {
         setIsLoading(true);
-
-        // Find the conversation in the state
-        const conversation = conversations.find((c) => c.id === conversationId);
+        const conversation = conversations.find((c: ChatConversation) => c.id === conversationId);
         if (!conversation) throw new Error("Conversation not found");
-
         setActiveConversation(conversation);
-
-        // Load messages for this conversation
         const { data, error } = await getChatMessages(conversationId);
-
         if (error) throw error;
-
         if (data) {
-          setMessages(data);
-
-          // Initialize Gemini chat session with history
+          setMessages((_prev: ChatMessage[]) => data);
           try {
-            const chatMessages = data.map((msg) => ({
+            const chatMessages = data.map((msg: ChatMessage) => ({
               role: msg.role === "assistant" ? "model" : msg.role,
               content: msg.content,
             }));
-
             const session = await createChatSession(chatMessages);
             if (!session) {
               throw new Error("Failed to create chat session");
@@ -212,28 +197,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const _sendMessage = async (conversationId: string, content: string) => {
     try {
       setIsSending(true);
-
       // Add user message to UI immediately
       const userMessage: ChatMessage = {
         conversation_id: conversationId,
         role: "user",
         content,
+        sender_id: user?.id || "",
       };
-
-      setMessages((prev) => [...prev, userMessage]);
-
+      setMessages((prev: ChatMessage[]) => [...prev, userMessage]);
       // Save user message to database
-      await addChatMessage(conversationId, "user", content);
-
+      await addChatMessage(conversationId, "user", content, user?.id || "");
       // Wait for AI response with proper error handling
+      let aiResponse: string = "";
       try {
         // Include analysis history for context if available
-        const aiResponse = await sendGeminiMessage(
+        aiResponse = await sendGeminiMessage(
           chatSession,
           content,
           analysisResults, // Pass analysis history for context
         );
-
         if (!aiResponse) {
           console.error("Chat response is null:", {
             chatSession,
@@ -242,19 +224,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           });
           throw new Error("Empty response from model");
         }
-
         // Add AI response to UI
         const assistantMessage: ChatMessage = {
           conversation_id: conversationId,
           role: "assistant",
           content: aiResponse,
+          sender_id: "assistant",
         };
-
-        setMessages((prev) => [...prev, assistantMessage]);
-
+        setMessages((prev: ChatMessage[]) => [...prev, assistantMessage]);
         // Save assistant message to database
-        await addChatMessage(conversationId, "assistant", aiResponse);
-
+        await addChatMessage(conversationId, "assistant", aiResponse, "assistant");
         return aiResponse;
       } catch (error: any) {
         if (error.status === 429) {
@@ -264,25 +243,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
             role: "assistant",
             content:
               "I'm receiving too many requests right now. Please wait a moment before trying again.",
+            sender_id: "assistant",
           };
-          setMessages((prev) => [...prev, errorMessage]);
+          setMessages((prev: ChatMessage[]) => [...prev, errorMessage]);
           return;
         }
-
         // Handle other errors
         const errorMessage: ChatMessage = {
           conversation_id: conversationId,
           role: "assistant",
           content:
             "I apologize, but I encountered an error processing your request. Please try again.",
+          sender_id: "assistant",
         };
-        setMessages((prev) => [...prev, errorMessage]);
+        setMessages((prev: ChatMessage[]) => [...prev, errorMessage]);
         return errorMessage.content;
       }
-
       // Save assistant message to database
-      await addChatMessage(conversationId, "assistant", aiResponse);
-
+      await addChatMessage(conversationId, "assistant", aiResponse, "assistant");
       // Update conversation title if it's the first message
       if (
         messages.length === 0 &&

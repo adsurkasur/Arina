@@ -25,6 +25,7 @@ const chatMessageSchema = z.object({
   conversation_id: z.string(),
   role: z.string(), // 'user' or 'assistant'
   content: z.string(),
+  sender_id: z.string(),
 });
 
 export class DatabaseStorage {
