@@ -273,53 +273,7 @@ export function Sidebar({
               </CollapsibleContent>
             </Collapsible>
 
-            <div className="mt-4 px-3">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <button
-                    className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                  >
-                    <Info className="h-5 w-5 mr-3" />
-                    <span>About Arina</span>
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl">Arina - AI-Powered Agricultural Analytics</DialogTitle>
-                    <DialogDescription>
-                      A comprehensive platform for data-driven agricultural business decisions
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <h3 className="font-medium">Core Features</h3>
-                      <ul className="list-disc pl-5 space-y-1 text-sm">
-                        <li>Business feasibility analysis with ROI, payback period, break-even calculations</li>
-                        <li>Demand forecasting to predict market trends using historical data</li>
-                        <li>Optimization analysis for profit maximization and cost reduction</li>
-                        <li>AI-powered recommendations based on analysis history and chat interactions</li>
-                        <li>Interactive visualizations with crop seasonality awareness</li>
-                      </ul>
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-medium">Technical Stack</h3>
-                      <ul className="list-disc pl-5 space-y-1 text-sm">
-                        <li>React frontend with Tailwind CSS</li>
-                        <li>Firebase Authentication for secure access</li>
-                        <li>Google Gemini AI for intelligent assistant capabilities</li>
-                        <li>PostgreSQL database for data persistence</li>
-                        <li>Express API for backend services</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <DialogFooter className="sm:justify-start">
-                    <Button type="button" variant="default">
-                      Learn More
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
+            
           </div>
 
           {/* Chat History Section */}
@@ -419,6 +373,55 @@ export function Sidebar({
               </DialogContent>
             </Dialog>
           </div>
+        </div>
+
+        {/* About Arina at bottom */}
+        <div className="mt-auto px-3 pb-4">
+          <Dialog>
+            <DialogTrigger asChild>
+              <button
+                className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+              >
+                <Info className="h-5 w-5 mr-3" />
+                <span>About Arina</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-xl">Arina - AI-Powered Agricultural Analytics</DialogTitle>
+                <DialogDescription>
+                  A comprehensive platform for data-driven agricultural business decisions
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <h3 className="font-medium">Core Features</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Business feasibility analysis with ROI, payback period, break-even calculations</li>
+                    <li>Demand forecasting to predict market trends using historical data</li>
+                    <li>Optimization analysis for profit maximization and cost reduction</li>
+                    <li>AI-powered recommendations based on analysis history and chat interactions</li>
+                    <li>Interactive visualizations with crop seasonality awareness</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-medium">Technical Stack</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>React frontend with Tailwind CSS</li>
+                    <li>Firebase Authentication for secure access</li>
+                    <li>Google Gemini AI for intelligent assistant capabilities</li>
+                    <li>PostgreSQL database for data persistence</li>
+                    <li>Express API for backend services</li>
+                  </ul>
+                </div>
+              </div>
+              <DialogFooter className="sm:justify-start">
+                <Button type="button" variant="default">
+                  Learn More
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </aside>
     </>
