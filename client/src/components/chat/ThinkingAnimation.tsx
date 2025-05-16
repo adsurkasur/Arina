@@ -35,12 +35,12 @@ export default function ThinkingAnimation() {
   };
   
   return (
-    <div className="flex mb-4">
+    <div className="flex mb-4 font-sans">
       <div className="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white">
         <Sprout className="h-4 w-4" />
       </div>
       
-      <div className="ml-3 bg-white p-4 rounded-tr-lg rounded-br-lg rounded-bl-lg shadow-sm max-w-[80%]">
+      <div className="ml-3 bg-white p-4 rounded-tr-lg rounded-br-lg rounded-bl-lg shadow-sm max-w-[80%] font-sans">
         <div className="flex flex-col space-y-2">
           <div className="text-xs text-gray-500 mb-1">Generating response...</div>
           <motion.div

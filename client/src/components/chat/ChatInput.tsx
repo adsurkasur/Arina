@@ -25,13 +25,13 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
   };
   
   return (
-    <div className="border-t border-gray-200 bg-white p-4">
+    <div className="border-t border-gray-200 bg-white p-4 font-sans">
       <div className="max-w-2xl mx-auto">
         <form onSubmit={handleSubmit} className="relative">
           <textarea
             ref={inputRef}
             placeholder="Ask Arina about your agricultural business..."
-            className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+            className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-sans"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             disabled={disabled}
@@ -53,7 +53,7 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
             <Send className="h-5 w-5" />
           </Button>
         </form>
-        <div className="flex justify-center mt-2 text-xs text-gray-500">
+        <div className="flex justify-center mt-2 text-xs text-gray-500 font-sans">
           <span>Arina is an AI assistant that can browse the web and integrate with your business tools.</span>
         </div>
       </div>

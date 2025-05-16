@@ -158,16 +158,16 @@ export function Sidebar({
       )}
       >
         {/* Sidebar Header */}
-        <div className="p-4 font-heading">
+        <div className="p-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold flex items-center">
+            <h2 className="text-xl font-bold flex items-center font-sans">
               <span className="mr-2"></span> ArinaAI
             </h2>
           </div>
         </div>
 
         {/* Main Menu Section */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar transition-all duration-300">
+        <div className="flex-1 overflow-y-auto custom-scrollbar transition-all duration-300 font-sans">
           {/* Analysis Tools Dropdown */}
           <div className="px-2 py-2">
             <Collapsible
@@ -175,7 +175,7 @@ export function Sidebar({
               onOpenChange={setAnalysisToolsOpen}
               className="w-full"
             >
-              <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors">
+              <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
                 <div className="flex items-center">
                   <span className="mr-2">Analysis Tools</span>
                 </div>
@@ -185,8 +185,10 @@ export function Sidebar({
                   <ChevronRight className="h-4 w-4" />
                 )}
               </CollapsibleTrigger>
-
-              <CollapsibleContent>
+              {/* Animate dropdown with slide/fade */}
+              <CollapsibleContent
+                className="overflow-hidden transition-all duration-300 data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp"
+              >
                 <div className="pl-2 mt-1">
                   <TooltipProvider>
                     <ul className="space-y-1">

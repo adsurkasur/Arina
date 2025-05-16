@@ -107,7 +107,7 @@ export function MainLayout({
                 <div className={
                   cn(
                     "h-full bg-white border-l border-gray-200 overflow-y-auto custom-scrollbar transition-transform duration-500 ease-in-out",
-                    showRightPanel ? "translate-x-0 animate-sidebar-in" : "translate-x-full animate-sidebar-out"
+                    showRightPanel ? "translate-x-0 animate-featurepanel-in" : "-translate-x-full animate-featurepanel-out"
                   )
                 }>
                   {rightPanel}

@@ -100,7 +100,7 @@ export default function ChatBubble({
   }, [message.id, isUser, animate]);
 
   return (
-    <div className={cn("flex mb-4", isUser && "justify-end")}>
+    <div className={cn("flex mb-4 font-sans", isUser && "justify-end")}>
       {!isUser && (
         <div className="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white">
           <Sprout className="h-4 w-4" />
@@ -109,7 +109,7 @@ export default function ChatBubble({
 
       <div
         className={cn(
-          "p-4 shadow-sm max-w-[80%] whitespace-pre-wrap break-words",
+          "p-4 shadow-sm max-w-[80%] whitespace-pre-wrap break-words font-sans",
           isUser
             ? "bg-primary text-white ml-3 chat-bubble-user"
             : "bg-white text-gray-800 ml-3 chat-bubble-bot",

@@ -4,7 +4,7 @@ import { Sprout } from "lucide-react";
 
 export default function TypingIndicator() {
   return (
-    <div className="flex mb-4">
+    <div className="flex mb-4 font-sans">
       <motion.div
         className="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-lg"
         initial={{ scale: 0.8, opacity: 0.7 }}
@@ -14,7 +14,7 @@ export default function TypingIndicator() {
         <Sprout className="h-4 w-4" />
       </motion.div>
       <motion.div
-        className="ml-3 bg-white p-3 rounded-tr-lg rounded-br-lg rounded-bl-lg shadow-md max-w-[80%]"
+        className="ml-3 bg-white p-3 rounded-tr-lg rounded-br-lg rounded-bl-lg shadow-md max-w-[80%] font-sans"
         initial={{ x: 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 18 }}

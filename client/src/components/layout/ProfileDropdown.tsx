@@ -44,7 +44,7 @@ export function ProfileDropdown({ openTool }: ProfileDropdownProps) {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <button className="focus:outline-none">
+        <button className="focus:outline-none font-sans">
           <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
             <AvatarImage src={user.photoURL} alt={user.name} />
             <AvatarFallback className="bg-primary text-white">
@@ -53,7 +53,7 @@ export function ProfileDropdown({ openTool }: ProfileDropdownProps) {
           </Avatar>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-56 font-sans">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium">{user.name}</p>

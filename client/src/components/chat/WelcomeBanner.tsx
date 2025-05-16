@@ -9,9 +9,9 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
   return (
     <>
       {/* Welcome Message */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-6 font-sans">
         <div className="bg-white rounded-lg p-6 shadow-md max-w-2xl w-full">
-          <h2 className="text-2xl font-heading font-semibold text-primary mb-4">Welcome to Arina</h2>
+          <h2 className="text-2xl font-semibold text-primary mb-4">Welcome to Arina</h2>
           <p className="mb-4">Your AI-powered agricultural business assistant. I can help you with:</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="bg-cream p-3 rounded-lg flex items-start">
@@ -47,7 +47,7 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
       </div>
 
       {/* Example Images Banner */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-6 font-sans">
         <div className="flex space-x-2 overflow-x-auto w-full max-w-2xl">
           <img 
             src="https://cdn.pixabay.com/photo/2016/11/08/05/50/agriculture-1807549_1280.jpg" 
@@ -68,7 +68,7 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
       </div>
 
       {/* Getting Started Prompt */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-6 font-sans">
         <div className="bg-white rounded-lg p-6 shadow-md max-w-2xl w-full">
           <h3 className="font-heading font-medium text-primary text-lg mb-2">How can I help you today?</h3>
           <p className="text-sm text-gray-600 mb-4">
