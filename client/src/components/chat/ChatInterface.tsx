@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,21 +8,33 @@ import TypingIndicator from "./TypingIndicator";
 import ThinkingAnimation from "./ThinkingAnimation";
 import { Button } from "../ui/button";
 import { MessageSquarePlus } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ChatInterface() {
-  const { messages, isLoading, sendMessage, isSending, activeConversation, createNewChat } = useChat();
+  const { messages, isLoading, sendMessage, isSending, activeConversation, createNewChat, deleteChat, refetchChats } = useChat();
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showThinking, setShowThinking] = useState(false);
   const [lastMessageAnimated, setLastMessageAnimated] = useState<string | null>(null);
-  
+  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isSending]);
-  
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    
+
     if (isSending) {
       setShowThinking(false);
       timer = setTimeout(() => {
@@ -32,12 +43,12 @@ export default function ChatInterface() {
     } else {
       setShowThinking(false);
     }
-    
+
     return () => {
       clearTimeout(timer);
     };
   }, [isSending]);
-  
+
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length-1].role === 'assistant') {
       const lastMsg = messages[messages.length-1];
@@ -46,18 +57,34 @@ export default function ChatInterface() {
       }
     }
   }, [messages, lastMessageAnimated]);
-  
+
   const handleSendMessage = (content: string) => {
     if (content.trim()) {
       sendMessage(content);
       setLastMessageAnimated(null);
     }
   };
-  
+
   const shouldAnimateMessage = (message: ChatMessage, index: number) => {
     return message.role === 'assistant' && 
            index === messages.length - 1 && 
            message.content === lastMessageAnimated;
+  };
+
+  const handleDeleteChat = async (id: string) => {
+    setChatToDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!chatToDelete) return;
+
+    try {
+      await deleteChat(chatToDelete);
+      await refetchChats();
+      setChatToDelete(null);
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+    }
   };
 
   if (!activeConversation) {
@@ -78,7 +105,7 @@ export default function ChatInterface() {
       </div>
     );
   }
-  
+
   return (
     <>
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" id="chatMessages">
@@ -110,8 +137,21 @@ export default function ChatInterface() {
         )}
         <div ref={messagesEndRef} />
       </div>
-      
       <ChatInput onSendMessage={handleSendMessage} disabled={isSending} />
+      <AlertDialog open={!!chatToDelete} onOpenChange={() => setChatToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Chat</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this chat? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
