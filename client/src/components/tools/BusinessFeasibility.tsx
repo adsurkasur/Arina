@@ -35,6 +35,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 // Form validation schema
 const formSchema = z.object({
@@ -337,7 +343,7 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
 
             {/* Operational Costs Section */}
             <div className="space-y-2">
-              <FormLabel>Monthly Operational Costs</FormLabel>
+              <FormLabel>Periodical Operational Costs</FormLabel>
               <FormDescription>Recurring monthly expenses</FormDescription>
 
               {operationalFields.map((field, index) => (
@@ -545,9 +551,20 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               {/* Key Metrics */}
               <div className="grid grid-cols-2 gap-4 p-4">
+                <TooltipProvider>
                 <div className="bg-cream rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Unit Cost (HPP)</div>
-                  <div className="font-medium text-primary">Rp {results.unitCost.toLocaleString()}</div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <div className="text-xs text-gray-500">Unit Cost (HPP)</div>
+                      <div className="font-medium text-primary">Rp {results.unitCost.toLocaleString()}</div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[300px]">
+                    <p>Cost of producing one unit including direct materials, labor, and overhead.</p>
+                    <p className="mt-2 text-xs">Formula: (Total Operational Costs + Production Cost) ÷ Monthly Volume</p>
+                  </TooltipContent>
+                </Tooltip>
                 </div>
                 <div className="bg-cream rounded-lg p-3">
                   <div className="text-xs text-gray-500">Selling Price</div>
@@ -577,6 +594,7 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                   <div className="text-xs text-gray-500">ROI</div>
                   <div className="font-medium text-primary">{results.roi.toFixed(1)}%</div>
                 </div>
+                </TooltipProvider>
               </div>
 
               {/* Summary */}

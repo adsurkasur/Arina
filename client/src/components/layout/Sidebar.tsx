@@ -263,6 +263,25 @@ export function Sidebar({
                 </div>
               </CollapsibleContent>
             </Collapsible>
+            
+            <div className="mt-4 px-3">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => {
+                      alert("Arina - AI-Powered Agricultural Business Analytics\n\nA comprehensive platform designed to help agricultural businesses make data-driven decisions through advanced analytics, feasibility studies, and AI-powered recommendations.");
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                  >
+                    <Info className="h-5 w-5 mr-3" />
+                    <span>About Arina</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="bg-cream text-primary">
+                  <p>Learn more about this project</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
 
           {/* Chat History Section */}

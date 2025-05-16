@@ -53,6 +53,14 @@ export const sendMessage = async (
   retries = 3,
   delay = 1000,
 ): Promise<string> => {
+  // Improved system prompt for more focused responses
+  const systemPrompt = `You are Arina, an AI assistant specializing in agricultural business analysis. 
+  Focus on providing clear, actionable insights based on data and agricultural expertise. 
+  Keep responses concise and relevant to the agricultural business context.
+  If analyzing numbers, show your calculations and reasoning.`;
+  
+  // Combine system prompt with user message
+  const enhancedMessage = `${systemPrompt}\n\nUser query: ${message}`;
   if (!chat) {
     throw new Error('Chat session is not initialized');
   }

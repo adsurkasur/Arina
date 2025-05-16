@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 interface TextStreamingEffectProps {
   fullText: string;
-  speed?: number; // ms per character
   onComplete?: () => void;
 }
 
-// Custom wrapper to apply className to ReactMarkdown
 const MarkdownRenderer = ({ children }: { children: string }) => {
   return (
-    <div className="prose prose-sm max-w-none streaming-text">
+    <div className="prose prose-sm max-w-none">
       <ReactMarkdown
         components={{
           a: ({ ...props }) => (
@@ -59,63 +56,16 @@ const MarkdownRenderer = ({ children }: { children: string }) => {
 
 export default function TextStreamingEffect({ 
   fullText, 
-  speed = 10, 
   onComplete 
 }: TextStreamingEffectProps) {
-  const [displayedText, setDisplayedText] = useState('');
-  const [isComplete, setIsComplete] = useState(false);
-  
-  useEffect(() => {
-    let currentIndex = 0;
-    let timer: NodeJS.Timeout;
-    
-    const streamText = () => {
-      if (currentIndex < fullText.length) {
-        // Add next character
-        setDisplayedText(prev => prev + fullText[currentIndex]);
-        currentIndex++;
-        
-        // Schedule next character
-        timer = setTimeout(streamText, speed);
-      } else {
-        setIsComplete(true);
-        onComplete?.();
-      }
-    };
-    
-    // Start streaming
-    timer = setTimeout(streamText, speed);
-    
-    // Clean up on unmount or when fullText changes
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [fullText, speed, onComplete]);
-  
-  const [showCursor, setShowCursor] = useState(true);
-
-  useEffect(() => {
-    const cursorTimeout = setTimeout(() => {
-      if (isComplete) {
-        setShowCursor(false);
-      }
-    }, 1000);
-
-    return () => clearTimeout(cursorTimeout);
-  }, [isComplete]);
+  // Call onComplete immediately since we're not animating anymore
+  if (onComplete) {
+    setTimeout(onComplete, 100);
+  }
 
   return (
     <div className="relative inline-block w-full">
-      <MarkdownRenderer>{displayedText}</MarkdownRenderer>
-      {showCursor && (
-        <span 
-          className="absolute -ml-[1px] w-[2px] h-[1.2em] bg-primary animate-blink"
-          style={{ 
-            left: `${displayedText.length * 0.6}ch`,
-            bottom: '0.1em'
-          }}
-        />
-      )}
+      <MarkdownRenderer>{fullText}</MarkdownRenderer>
     </div>
   );
 }
