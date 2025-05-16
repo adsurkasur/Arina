@@ -755,52 +755,157 @@ export default function BusinessFeasibility({
                     </Tooltip>
                   </div>
                   <div className="bg-cream rounded-lg p-3">
-                    <div className="text-xs text-gray-500">Selling Price</div>
-                    <div className="font-medium text-primary">
-                      Rp {results.sellingPrice.toLocaleString()}
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <div className="text-xs text-gray-500">Selling Price</div>
+                          <div className="font-medium text-primary">
+                            Rp {results.sellingPrice.toLocaleString()}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[300px]">
+                        <p>
+                          The price at which each unit is sold to customers, calculated
+                          by adding the markup percentage to the unit cost.
+                        </p>
+                        <p className="mt-2 text-xs">
+                          Formula: Unit Cost × (1 + Markup%)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="bg-cream rounded-lg p-3">
-                    <div className="text-xs text-gray-500">
-                      Break Even Point (Units)
-                    </div>
-                    <div className="font-medium text-primary">
-                      {Math.ceil(results.breakEvenUnits).toLocaleString()} units
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <div className="text-xs text-gray-500">
+                            Break Even Point (Units)
+                          </div>
+                          <div className="font-medium text-primary">
+                            {Math.ceil(results.breakEvenUnits).toLocaleString()} units
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[300px]">
+                        <p>
+                          The number of units that need to be sold to cover all costs,
+                          where total revenue equals total costs.
+                        </p>
+                        <p className="mt-2 text-xs">
+                          Formula: Fixed Costs ÷ (Selling Price - Variable Cost per Unit)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="bg-cream rounded-lg p-3">
-                    <div className="text-xs text-gray-500">
-                      Break Even Point (Rp)
-                    </div>
-                    <div className="font-medium text-primary">
-                      Rp {results.breakEvenAmount.toLocaleString()}
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <div className="text-xs text-gray-500">
+                            Break Even Point (Rp)
+                          </div>
+                          <div className="font-medium text-primary">
+                            Rp {results.breakEvenAmount.toLocaleString()}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[300px]">
+                        <p>
+                          The revenue amount needed to cover all costs, representing
+                          the point where no profit or loss is made.
+                        </p>
+                        <p className="mt-2 text-xs">
+                          Formula: Break Even Units × Selling Price
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="bg-cream rounded-lg p-3">
-                    <div className="text-xs text-gray-500">
-                      Monthly Net Profit
-                    </div>
-                    <div className="font-medium text-primary">
-                      Rp {results.monthlyNetProfit.toLocaleString()}
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <div className="text-xs text-gray-500">
+                            Monthly Net Profit
+                          </div>
+                          <div className="font-medium text-primary">
+                            Rp {results.monthlyNetProfit.toLocaleString()}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[300px]">
+                        <p>
+                          The profit generated each month after deducting all costs
+                          from revenue.
+                        </p>
+                        <p className="mt-2 text-xs">
+                          Formula: (Sales Volume × Selling Price) - Total Costs
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="bg-cream rounded-lg p-3">
-                    <div className="text-xs text-gray-500">Profit Margin</div>
-                    <div className="font-medium text-primary">
-                      {results.profitMargin.toFixed(1)}%
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <div className="text-xs text-gray-500">Profit Margin</div>
+                          <div className="font-medium text-primary">
+                            {results.profitMargin.toFixed(1)}%
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[300px]">
+                        <p>
+                          The percentage of revenue that represents profit, indicating
+                          how much of each rupiah of revenue is kept as profit.
+                        </p>
+                        <p className="mt-2 text-xs">
+                          Formula: (Net Profit ÷ Revenue) × 100
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="bg-cream rounded-lg p-3">
-                    <div className="text-xs text-gray-500">Payback Period</div>
-                    <div className="font-medium text-primary">
-                      {results.paybackPeriod.toFixed(1)} years
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <div className="text-xs text-gray-500">Payback Period</div>
+                          <div className="font-medium text-primary">
+                            {results.paybackPeriod.toFixed(1)} years
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[300px]">
+                        <p>
+                          The time required to recover the initial investment through
+                          profit generation.
+                        </p>
+                        <p className="mt-2 text-xs">
+                          Formula: Total Investment ÷ Annual Net Profit
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="bg-cream rounded-lg p-3">
-                    <div className="text-xs text-gray-500">ROI</div>
-                    <div className="font-medium text-primary">
-                      {results.roi.toFixed(1)}%
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <div className="text-xs text-gray-500">ROI</div>
+                          <div className="font-medium text-primary">
+                            {results.roi.toFixed(1)}%
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[300px]">
+                        <p>
+                          Return on Investment - The percentage return earned on the
+                          initial investment annually.
+                        </p>
+                        <p className="mt-2 text-xs">
+                          Formula: (Annual Net Profit ÷ Total Investment) × 100
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </TooltipProvider>
               </div>
