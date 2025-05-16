@@ -1,245 +1,162 @@
-import { 
-  User, InsertUser, 
-  ChatConversation, InsertChatConversation,
-  ChatMessage, InsertChatMessage,
-  AnalysisResult, InsertAnalysisResult,
-  RecommendationSet, InsertRecommendationSet,
-  RecommendationItem, InsertRecommendationItem
-} from "@shared/schema";
 import { v4 as uuidv4 } from "uuid";
-
-// Interface for storage operations
-export interface IStorage {
-  // User operations
-  getUser(id: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-
-  // Chat conversation operations
-  getConversations(userId: string): Promise<ChatConversation[]>;
-  getConversation(id: string): Promise<ChatConversation | undefined>;
-  createConversation(conversation: InsertChatConversation): Promise<ChatConversation>;
-  updateConversation(id: string, data: Partial<ChatConversation>): Promise<ChatConversation>;
-  deleteConversation(id: string): Promise<void>;
-
-  // Chat message operations
-  getMessages(conversationId: string): Promise<ChatMessage[]>;
-  createMessage(message: InsertChatMessage): Promise<ChatMessage>;
-
-  // Analysis result operations
-  getAnalysisResults(userId: string, type?: string): Promise<AnalysisResult[]>;
-  getAnalysisResult(id: string): Promise<AnalysisResult | undefined>;
-  createAnalysisResult(result: InsertAnalysisResult): Promise<AnalysisResult>;
-  deleteAnalysisResult(id: string): Promise<void>;
-  
-  // Recommendation operations
-  getRecommendationSets(userId: string): Promise<RecommendationSet[]>;
-  getRecommendationSet(id: string): Promise<RecommendationSet | undefined>;
-  getRecommendationItems(setId: string): Promise<RecommendationItem[]>;
-  createRecommendationSet(set: InsertRecommendationSet): Promise<RecommendationSet>;
-  createRecommendationItem(item: InsertRecommendationItem): Promise<RecommendationItem>;
-  deleteRecommendationSet(id: string): Promise<void>;
-}
-
 import { db } from "./db";
-import { 
-  users, chatConversations, chatMessages, analysisResults,
-  recommendationSets, recommendationItems,
-  usersRelations, chatConversationsRelations, chatMessagesRelations, analysisResultsRelations,
-  recommendationSetsRelations, recommendationItemsRelations
-} from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { IStorage, User, InsertUser, ChatConversation, InsertChatConversation, ChatMessage, InsertChatMessage, AnalysisResult, InsertAnalysisResult, RecommendationSet, InsertRecommendationSet, RecommendationItem, InsertRecommendationItem } from "@shared/schema";
 
-// Database storage implementation
 export class DatabaseStorage implements IStorage {
-  private sessionData: Map<string, any> = new Map();
-  private dbAvailable: boolean = true;
-
-  private async tryDb<T>(operation: () => Promise<T>, fallback: () => T): Promise<T> {
-    if (!this.dbAvailable) return fallback();
-    
-    try {
-      return await operation();
-    } catch (error) {
-      console.warn('Database operation failed, using session storage:', error);
-      this.dbAvailable = false;
-      return fallback();
-    }
-  }
-
-  // User operations
   async getUser(id: string): Promise<User | undefined> {
-    return this.tryDb(
-      async () => {
-        const result = await db.select().from(users).where(eq(users.id, id));
-        return result[0];
-      },
-      () => {
-        const users = this.sessionData.get('users') || {};
-        return users[id];
-      }
-    );
+    const user = await db.collection('users').findOne({ id });
+    return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.email, email));
-    return result[0];
+    const user = await db.collection('users').findOne({ email });
+    return user || undefined;
   }
 
   async createUser(userData: InsertUser): Promise<User> {
-    // Check if user exists first
-    const existing = await this.getUserByEmail(userData.email);
-    if (existing) {
-      return existing;
-    }
-    
-    // Create new user if doesn't exist
-    const result = await db.insert(users).values({
+    const user = {
       ...userData,
       created_at: new Date()
-    }).returning();
-    
-    return result[0];
+    };
+    await db.collection('users').insertOne(user);
+    return user;
   }
 
-  // Chat conversation operations
   async getConversations(userId: string): Promise<ChatConversation[]> {
-    return await db
-      .select()
-      .from(chatConversations)
-      .where(eq(chatConversations.user_id, userId))
-      .orderBy(desc(chatConversations.updated_at));
+    return await db.collection('chat_conversations')
+      .find({ user_id: userId })
+      .sort({ updated_at: -1 })
+      .toArray();
   }
 
   async getConversation(id: string): Promise<ChatConversation | undefined> {
-    const result = await db.select().from(chatConversations).where(eq(chatConversations.id, id));
-    return result[0];
+    const conversation = await db.collection('chat_conversations').findOne({ id });
+    return conversation || undefined;
   }
 
   async createConversation(conversationData: InsertChatConversation): Promise<ChatConversation> {
-    const result = await db.insert(chatConversations).values(conversationData).returning();
-    return result[0];
+    const conversation = {
+      id: uuidv4(),
+      ...conversationData,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    await db.collection('chat_conversations').insertOne(conversation);
+    return conversation;
   }
 
   async updateConversation(id: string, data: Partial<ChatConversation>): Promise<ChatConversation> {
-    // Set the updated_at timestamp
     const updateData = {
       ...data,
       updated_at: new Date()
     };
-    
-    const result = await db
-      .update(chatConversations)
-      .set(updateData)
-      .where(eq(chatConversations.id, id))
-      .returning();
-      
-    if (result.length === 0) {
-      throw new Error("Conversation not found");
-    }
-    
-    return result[0];
+    const result = await db.collection('chat_conversations')
+      .findOneAndUpdate(
+        { id },
+        { $set: updateData },
+        { returnDocument: 'after' }
+      );
+    if (!result) throw new Error("Conversation not found");
+    return result;
   }
 
   async deleteConversation(id: string): Promise<void> {
-    // The cascade delete will handle removing messages automatically
-    await db.delete(chatConversations).where(eq(chatConversations.id, id));
+    await db.collection('chat_conversations').deleteOne({ id });
+    await db.collection('chat_messages').deleteMany({ conversation_id: id });
   }
 
-  // Chat message operations
   async getMessages(conversationId: string): Promise<ChatMessage[]> {
-    return await db
-      .select()
-      .from(chatMessages)
-      .where(eq(chatMessages.conversation_id, conversationId))
-      .orderBy(chatMessages.created_at);
+    return await db.collection('chat_messages')
+      .find({ conversation_id: conversationId })
+      .sort({ created_at: 1 })
+      .toArray();
   }
 
   async createMessage(messageData: InsertChatMessage): Promise<ChatMessage> {
-    const result = await db.insert(chatMessages).values(messageData).returning();
-    
-    // Update the conversation's updated_at timestamp
-    await db
-      .update(chatConversations)
-      .set({ updated_at: new Date() })
-      .where(eq(chatConversations.id, messageData.conversation_id));
-      
-    return result[0];
+    const message = {
+      id: uuidv4(),
+      ...messageData,
+      created_at: new Date()
+    };
+    await db.collection('chat_messages').insertOne(message);
+    await db.collection('chat_conversations').updateOne(
+      { id: messageData.conversation_id },
+      { $set: { updated_at: new Date() } }
+    );
+    return message;
   }
 
-  // Analysis result operations
   async getAnalysisResults(userId: string, type?: string): Promise<AnalysisResult[]> {
-    if (type) {
-      return await db
-        .select()
-        .from(analysisResults)
-        .where(
-          and(
-            eq(analysisResults.user_id, userId),
-            eq(analysisResults.type, type)
-          )
-        )
-        .orderBy(desc(analysisResults.updated_at));
-    } else {
-      return await db
-        .select()
-        .from(analysisResults)
-        .where(eq(analysisResults.user_id, userId))
-        .orderBy(desc(analysisResults.updated_at));
-    }
+    const query = type ? { user_id: userId, type } : { user_id: userId };
+    return await db.collection('analysis_results')
+      .find(query)
+      .sort({ updated_at: -1 })
+      .toArray();
   }
 
   async getAnalysisResult(id: string): Promise<AnalysisResult | undefined> {
-    const result = await db.select().from(analysisResults).where(eq(analysisResults.id, id));
-    return result[0];
+    const result = await db.collection('analysis_results').findOne({ id });
+    return result || undefined;
   }
 
   async createAnalysisResult(resultData: InsertAnalysisResult): Promise<AnalysisResult> {
-    const result = await db.insert(analysisResults).values(resultData).returning();
-    return result[0];
+    const result = {
+      id: uuidv4(),
+      ...resultData,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    await db.collection('analysis_results').insertOne(result);
+    return result;
   }
 
   async deleteAnalysisResult(id: string): Promise<void> {
-    await db.delete(analysisResults).where(eq(analysisResults.id, id));
+    await db.collection('analysis_results').deleteOne({ id });
   }
-  
-  // Recommendation operations
+
   async getRecommendationSets(userId: string): Promise<RecommendationSet[]> {
-    return await db
-      .select()
-      .from(recommendationSets)
-      .where(eq(recommendationSets.user_id, userId))
-      .orderBy(desc(recommendationSets.created_at));
+    return await db.collection('recommendation_sets')
+      .find({ user_id: userId })
+      .sort({ created_at: -1 })
+      .toArray();
   }
-  
+
   async getRecommendationSet(id: string): Promise<RecommendationSet | undefined> {
-    const result = await db.select().from(recommendationSets).where(eq(recommendationSets.id, id));
-    return result[0];
+    const set = await db.collection('recommendation_sets').findOne({ id });
+    return set || undefined;
   }
-  
+
   async getRecommendationItems(setId: string): Promise<RecommendationItem[]> {
-    return await db
-      .select()
-      .from(recommendationItems)
-      .where(eq(recommendationItems.set_id, setId))
-      .orderBy(desc(recommendationItems.created_at));
+    return await db.collection('recommendation_items')
+      .find({ set_id: setId })
+      .sort({ created_at: -1 })
+      .toArray();
   }
-  
+
   async createRecommendationSet(setData: InsertRecommendationSet): Promise<RecommendationSet> {
-    const result = await db.insert(recommendationSets).values(setData).returning();
-    return result[0];
+    const set = {
+      id: uuidv4(),
+      ...setData,
+      created_at: new Date()
+    };
+    await db.collection('recommendation_sets').insertOne(set);
+    return set;
   }
-  
+
   async createRecommendationItem(itemData: InsertRecommendationItem): Promise<RecommendationItem> {
-    const result = await db.insert(recommendationItems).values(itemData).returning();
-    return result[0];
+    const item = {
+      id: uuidv4(),
+      ...itemData,
+      created_at: new Date()
+    };
+    await db.collection('recommendation_items').insertOne(item);
+    return item;
   }
-  
+
   async deleteRecommendationSet(id: string): Promise<void> {
-    // The cascade delete will handle removing items automatically
-    await db.delete(recommendationSets).where(eq(recommendationSets.id, id));
+    await db.collection('recommendation_sets').deleteOne({ id });
+    await db.collection('recommendation_items').deleteMany({ set_id: id });
   }
 }
 
-// Export a singleton instance
 export const storage = new DatabaseStorage();
