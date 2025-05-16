@@ -2,7 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_ENV=production node dist/index.js",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist"
+    "build:client": "cd ../client && npm install && npm run build",
+    "build:server": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "postbuild": "cp -r ../client/dist/* ./public/",
+    "build": "npm run build:client && npm run build:server && npm run postbuild",
+    "start": "NODE_ENV=production node dist/index.js"
   }
 }
