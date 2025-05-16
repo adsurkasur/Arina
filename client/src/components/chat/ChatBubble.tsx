@@ -75,15 +75,16 @@ export default function ChatBubble({ message, userName, userImage, animate = fal
         )}
       >
         {isUser ? (
-          <p className="whitespace-pre-wrap break-words">{message.content}</p>
+          <p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
         ) : shouldAnimate ? (
           <TextStreamingEffect 
             fullText={message.content} 
             speed={20} 
             onComplete={() => setShowAnimation(false)}
+            className="leading-relaxed"
           />
         ) : (
-          <div className="whitespace-pre-wrap break-words">
+          <div className="whitespace-pre-wrap break-words leading-relaxed prose prose-sm max-w-none">
             <MarkdownContent content={message.content} />
           </div>
         )}
