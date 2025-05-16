@@ -1,4 +1,8 @@
-"scripts": {
-  "start": "NODE_ENV=production node dist/index.js",
-  "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist"
+{
+  "name": "server",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "NODE_ENV=production node dist/index.js",
+    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist"
+  }
 }
