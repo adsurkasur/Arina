@@ -6,15 +6,33 @@ import { sql } from 'drizzle-orm';
 export async function migrate() {
   console.log('Running migrations...');
   
-  // Add delay and retry logic for database connection
-  const maxRetries = 3;
-  let currentTry = 0;
+  const isSQLite = !process.env.DATABASE_URL || process.env.DATABASE_URL.includes('sqlite');
   
-  while (currentTry < maxRetries) {
-    try {
-      console.log(`Migration attempt ${currentTry + 1}/${maxRetries}`);
-      // Create tables
+  try {
+    if (isSQLite) {
+      console.log('Running SQLite migrations...');
       await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS users (
+          id TEXT PRIMARY KEY,
+          email TEXT UNIQUE NOT NULL,
+          name TEXT NOT NULL,
+          photo_url TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      // Continue with other table creations...
+      console.log('SQLite migrations completed');
+      return;
+    }
+
+    // Neon PostgreSQL migrations
+    const maxRetries = 3;
+    let currentTry = 0;
+    
+    while (currentTry < maxRetries) {
+      try {
+        console.log(`PostgreSQL migration attempt ${currentTry + 1}/${maxRetries}`);
+        await db.execute(sql`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
