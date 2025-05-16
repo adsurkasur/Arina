@@ -3,7 +3,12 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { X, Save, FileDown, CalculatorIcon } from "lucide-react";
+import { X, Save, FileDown, CalculatorIcon, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { saveAnalysisResult } from "@/lib/supabase";
 import { generateForecast } from "@/utils/forecasting";
@@ -242,7 +247,17 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
               name="productName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+  Product Name
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Info className="h-4 w-4 text-gray-500" />
+    </TooltipTrigger>
+    <TooltipContent className="max-w-[300px]">
+      Enter the name of the product you want to forecast demand for
+    </TooltipContent>
+  </Tooltip>
+</FormLabel>
                   <FormControl>
                     <Input placeholder="Rice" {...field} />
                   </FormControl>

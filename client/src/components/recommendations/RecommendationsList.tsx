@@ -1,3 +1,6 @@
+The code adds tooltips to recommendation fields by importing necessary UI components and integrating them into the RecommendationsList component.
+```
+```replit_final_file
 import React, { useState } from 'react';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,9 +13,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { 
   RefreshCw, Calendar, Trash2, Lightbulb,
   BarChart4, TrendingUp, ShoppingCart, Leaf, 
-  AlertCircle
+  AlertCircle, Info
 } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function RecommendationsList() {
   const { user } = useAuth();
@@ -26,7 +34,7 @@ export function RecommendationsList() {
       return 'winter';
     }
   );
-  
+
   const {
     recommendations,
     loading,
@@ -121,13 +129,13 @@ export function RecommendationsList() {
             </>
           )}
         </Button>
-        
+
         <Badge variant="outline" className="flex items-center gap-1 ml-2">
           <Calendar className="h-3 w-3" />
           <span className="capitalize">{currentSeason}</span>
         </Badge>
       </div>
-      
+
       {/* Tabs for filtering recommendations */}
       <Tabs defaultValue="all" value={currentTab} onValueChange={setCurrentTab}>
         <TabsList className="grid grid-cols-5 w-full">
@@ -137,7 +145,7 @@ export function RecommendationsList() {
           <TabsTrigger value="market">Market</TabsTrigger>
           <TabsTrigger value="resource">Resources</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value={currentTab} className="mt-4">
           {loading ? (
             // Loading state
@@ -206,7 +214,7 @@ export function RecommendationsList() {
                       </Button>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent className="pt-4 pb-2">
                     <div className="space-y-4">
                       {set.items.map(item => (
@@ -230,15 +238,23 @@ export function RecommendationsList() {
                           </div>
                           <p className="mt-2 text-sm text-gray-600">{item.description}</p>
                           <div className="flex items-center mt-3 justify-between">
-                            <Badge variant="secondary" className="capitalize">
-                              {item.type}
-                            </Badge>
+                          <Tooltip>
+                              <TooltipTrigger>
+                                  <Badge variant="secondary" className="capitalize flex items-center gap-1">
+                                      {item.type}
+                                      <Info className="h-3 w-3" />
+                                  </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                  <p>Type of recommendation: {item.type}</p>
+                              </TooltipContent>
+                          </Tooltip>
                           </div>
                         </div>
                       ))}
                     </div>
                   </CardContent>
-                  
+
                   <CardFooter className="bg-cream/5 pt-3 pb-3 px-6 text-xs text-muted-foreground">
                     <p>
                       Recommendations based on your historical data and agricultural conditions.

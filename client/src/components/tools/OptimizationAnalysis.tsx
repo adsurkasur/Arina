@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { X, Save, FileDown, CalculatorIcon, Plus, Check } from "lucide-react";
+import { X, Save, FileDown, CalculatorIcon, Plus, Check, Info } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { saveAnalysisResult } from "@/lib/supabase";
 import { runOptimization } from "@/utils/optimization";
@@ -55,6 +55,11 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 // Form validation schema
 const variableSchema = z.object({
@@ -146,7 +151,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
   // Watch for optimization type
   const optimizationType = form.watch("type");
   const variables = form.watch("variables");
-  
+
   // Setup field arrays for dynamic inputs
   const { 
     fields: variableFields,
@@ -156,7 +161,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
     control: form.control,
     name: "variables",
   });
-  
+
   const { 
     fields: constraintFields,
     append: appendConstraint, 
@@ -165,7 +170,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
     control: form.control,
     name: "constraints",
   });
-  
+
   const { 
     fields: goalFields,
     append: appendGoal, 
@@ -181,7 +186,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
       variableId: index.toString(),
       coefficient: 0
     }));
-    
+
     appendConstraint({
       id: uuidv4(),
       name: `Constraint ${constraintFields.length + 1}`,
@@ -197,7 +202,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
       variableId: index.toString(),
       coefficient: 0
     }));
-    
+
     appendGoal({
       id: uuidv4(),
       name: `Goal ${goalFields.length + 1}`,
@@ -276,7 +281,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
   // Prepare chart data
   const prepareChartData = () => {
     if (!results) return [];
-    
+
     return results.variables.map(variable => ({
       name: variable.name,
       value: variable.value
@@ -414,7 +419,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                   <TabsTrigger value="goals" className="flex-1">Goals</TabsTrigger>
                 )}
               </TabsList>
-              
+
               {/* Variables Tab */}
               <TabsContent value="variables" className="space-y-4 mt-4">
                 <div className="flex justify-between items-center">
@@ -437,7 +442,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                     <Plus className="h-4 w-4 mr-1" /> Add Variable
                   </Button>
                 </div>
-                
+
                 <div className="space-y-4">
                   {variableFields.map((field, index) => (
                     <div key={field.id} className="p-4 border border-gray-200 rounded-md">
@@ -454,14 +459,24 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name={`variables.${index}.name`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Name</FormLabel>
+                              <FormLabel className="flex items-center gap-2">
+                                Name
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-4 w-4 text-gray-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-[300px]">
+                                    Name of the variable to optimize (e.g., production quantity, resource allocation)
+                                  </TooltipContent>
+                                </Tooltip>
+                              </FormLabel>
                               <FormControl>
                                 <Input placeholder="e.g., Rice production (tons)" {...field} />
                               </FormControl>
@@ -469,7 +484,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                             </FormItem>
                           )}
                         />
-                        
+
                         {optimizationType === "profit_max" && (
                           <FormField
                             control={form.control}
@@ -490,7 +505,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                             )}
                           />
                         )}
-                        
+
                         {optimizationType === "cost_min" && (
                           <FormField
                             control={form.control}
@@ -511,7 +526,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                             )}
                           />
                         )}
-                        
+
                         <FormField
                           control={form.control}
                           name={`variables.${index}.lowerBound`}
@@ -531,7 +546,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={form.control}
                           name={`variables.${index}.upperBound`}
@@ -556,7 +571,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                   ))}
                 </div>
               </TabsContent>
-              
+
               {/* Constraints Tab */}
               <TabsContent value="constraints" className="space-y-4 mt-4">
                 <div className="flex justify-between items-center">
@@ -570,7 +585,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                     <Plus className="h-4 w-4 mr-1" /> Add Constraint
                   </Button>
                 </div>
-                
+
                 <div className="space-y-4">
                   {constraintFields.map((field, index) => (
                     <div key={field.id} className="p-4 border border-gray-200 rounded-md">
@@ -587,7 +602,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
-                      
+
                       <FormField
                         control={form.control}
                         name={`constraints.${index}.name`}
@@ -601,11 +616,11 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                           </FormItem>
                         )}
                       />
-                      
+
                       <div className="mt-3">
                         <FormLabel>Coefficients</FormLabel>
                         <FormDescription>Set the coefficient for each variable in this constraint</FormDescription>
-                        
+
                         {variables.map((variable, varIndex) => (
                           <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
                             <div className="col-span-4">
@@ -638,7 +653,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                           </div>
                         ))}
                       </div>
-                      
+
                       <div className="flex items-end gap-4 mt-4">
                         <FormField
                           control={form.control}
@@ -665,7 +680,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={form.control}
                           name={`constraints.${index}.rhs`}
@@ -689,7 +704,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                   ))}
                 </div>
               </TabsContent>
-              
+
               {/* Goals Tab (for Goal Programming) */}
               {optimizationType === "goal_programming" && (
                 <TabsContent value="goals" className="space-y-4 mt-4">
@@ -704,7 +719,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                       <Plus className="h-4 w-4 mr-1" /> Add Goal
                     </Button>
                   </div>
-                  
+
                   {goalFields.length === 0 ? (
                     <div className="p-8 text-center border border-dashed border-gray-300 rounded-md">
                       <p className="text-gray-500">No goals defined yet. Click "Add Goal" to create one.</p>
@@ -725,7 +740,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                               <X className="h-4 w-4" />
                             </Button>
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                               control={form.control}
@@ -740,7 +755,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                                 </FormItem>
                               )}
                             />
-                            
+
                             <FormField
                               control={form.control}
                               name={`goals.${index}.direction`}
@@ -765,7 +780,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                                 </FormItem>
                               )}
                             />
-                            
+
                             <FormField
                               control={form.control}
                               name={`goals.${index}.target`}
@@ -785,7 +800,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                                 </FormItem>
                               )}
                             />
-                            
+
                             <FormField
                               control={form.control}
                               name={`goals.${index}.priority`}
@@ -807,11 +822,11 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                               )}
                             />
                           </div>
-                          
+
                           <div className="mt-3">
                             <FormLabel>Goal Coefficients</FormLabel>
                             <FormDescription>How each variable contributes to this goal</FormDescription>
-                            
+
                             {variables.map((variable, varIndex) => (
                               <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
                                 <div className="col-span-4">
@@ -886,7 +901,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
         {results && (
           <div id="optimization-results" className="mt-6 border-t border-gray-200 pt-4">
             <h3 className="text-lg font-heading font-medium text-primary mb-3">Optimization Results</h3>
-            
+
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               {/* Feasibility Status */}
               <div className="p-4 bg-gray-50 border-b border-gray-200">
@@ -905,7 +920,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                   </p>
                 )}
               </div>
-              
+
               {/* Solution Visualization */}
               {results.feasible && (
                 <div className="p-4">
@@ -924,7 +939,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                   </div>
                 </div>
               )}
-              
+
               {/* Results Table */}
               {results.feasible && (
                 <div className="p-4 border-t border-gray-200">
@@ -957,7 +972,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                   </div>
                 </div>
               )}
-              
+
               {/* Constraints Status */}
               {results.feasible && (
                 <div className="p-4 border-t border-gray-200">
@@ -998,7 +1013,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                   </div>
                 </div>
               )}
-              
+
               {/* Goal Achievement (for Goal Programming) */}
               {results.feasible && results.goals && results.goals.length > 0 && (
                 <div className="p-4 border-t border-gray-200">
@@ -1037,7 +1052,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                   </div>
                 </div>
               )}
-              
+
               {/* Summary */}
               <div className="p-4 border-t border-gray-200">
                 <h4 className="font-medium text-gray-700 mb-2">Optimization Summary</h4>
