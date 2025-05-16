@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/theme";
 import { useMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,21 +9,20 @@ import { Button } from "@/components/ui/button";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-  rightPanel?: React.ReactNode;
-  showRightPanel: boolean;
-  setShowRightPanel: (show: boolean) => void;
-  setActiveTool: (tool: string | null) => void;
-}
-
+// Fix: use global JSX.Element for props
 export function MainLayout({
   children,
   rightPanel,
   showRightPanel,
   setShowRightPanel,
   setActiveTool,
-}: MainLayoutProps) {
+}: {
+  children: JSX.Element;
+  rightPanel?: JSX.Element;
+  showRightPanel?: boolean;
+  setShowRightPanel?: (open: boolean) => void;
+  setActiveTool?: (tool: string) => void;
+}) {
   const { user } = useAuth();
   const isMobile = useMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
@@ -58,7 +57,7 @@ export function MainLayout({
       {/* Main Content Area */}
       <div
         className={cn(
-          "flex-1 flex flex-col transition-all duration-200",
+          "flex-1 flex flex-col transition-all duration-500 ease-in-out bg-white/90 backdrop-blur-sm",
           isMobile ? "ml-0" : sidebarOpen ? "ml-64" : "ml-0",
           "w-full",
         )}
@@ -105,7 +104,12 @@ export function MainLayout({
               <ResizableHandle withHandle />
               
               <ResizablePanel defaultSize={40} minSize={30}>
-                <div className="h-full bg-white border-l border-gray-200 overflow-y-auto custom-scrollbar">
+                <div className={
+                  cn(
+                    "h-full bg-white border-l border-gray-200 overflow-y-auto custom-scrollbar transition-transform duration-500 ease-in-out",
+                    showRightPanel ? "translate-x-0 animate-sidebar-in" : "translate-x-full animate-sidebar-out"
+                  )
+                }>
                   {rightPanel}
                 </div>
               </ResizablePanel>

@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
@@ -79,13 +80,13 @@ export function Sidebar({
   } = useChat();
   const [analysisToolsOpen, setAnalysisToolsOpen] = useState(true);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
-  const [currentConversation, setCurrentConversation] = useState<{
+  const [currentConversation, setCurrentConversation] = React.useState<{
     id: string;
     title: string;
   } | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [conversationToDelete, setConversationToDelete] = useState<
+  const [conversationToDelete, setConversationToDelete] = React.useState<
     string | null
   >(null);
 
@@ -99,7 +100,7 @@ export function Sidebar({
   // Handle opening the rename dialog
   const handleRenameClick = (
     conversation: { id: string; title: string },
-    e: React.MouseEvent,
+    e: React.MouseEvent<HTMLButtonElement>,
   ) => {
     e.stopPropagation(); // Prevent loading the conversation when clicking the menu
     setCurrentConversation(conversation);
@@ -108,7 +109,7 @@ export function Sidebar({
   };
 
   // Handle submitting the rename dialog
-  const handleRenameSubmit = async (e: React.FormEvent) => {
+  const handleRenameSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (currentConversation && newTitle.trim()) {
       await renameConversation(currentConversation.id, newTitle.trim());
@@ -117,7 +118,7 @@ export function Sidebar({
   };
 
   // Open delete dialog
-  const handleDeleteClick = (conversationId: string, e: React.MouseEvent) => {
+  const handleDeleteClick = (conversationId: string, e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent loading the conversation when clicking the menu
     setConversationToDelete(conversationId);
     setIsDeleteDialogOpen(true);
@@ -149,13 +150,12 @@ export function Sidebar({
       )}
 
       {/* Sidebar */}
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-300 ease-in-out flex flex-col",
-          isOpen
-            ? "translate-x-0 sidebar-enter"
-            : "-translate-x-full sidebar-exit",
-        )}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-500 ease-in-out flex flex-col shadow-2xl",
+        isOpen
+          ? "translate-x-0 animate-sidebar-in"
+          : "-translate-x-full animate-sidebar-out",
+      )}
       >
         {/* Sidebar Header */}
         <div className="p-4 font-heading">
@@ -167,7 +167,7 @@ export function Sidebar({
         </div>
 
         {/* Main Menu Section */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto custom-scrollbar transition-all duration-300">
           {/* Analysis Tools Dropdown */}
           <div className="px-2 py-2">
             <Collapsible
@@ -339,7 +339,7 @@ export function Sidebar({
 
             <div className="mt-1 space-y-1">
               {conversations && conversations.length > 0 ? (
-                conversations.map((conversation) => (
+                conversations.map((conversation: { id: string; title: string }) => (
                   <div
                     key={conversation.id}
                     className="flex items-center relative group"
@@ -406,9 +406,9 @@ export function Sidebar({
                 <form onSubmit={handleRenameSubmit}>
                   <div className="flex items-center gap-4 py-2">
                     <Input
-                      className="flex-1 text-black"
                       value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
+                      onChange={(e: any) => setNewTitle(e.target.value)}
+                      className="flex-1 text-black"
                       placeholder="Enter new title"
                     />
                   </div>
@@ -527,7 +527,7 @@ export function Sidebar({
             </DialogContent>
           </Dialog>
         </div>
-      </aside>
+      </div>
     </>
   );
 }
