@@ -302,6 +302,17 @@ export class DatabaseStorage {
     return item;
   }
 
+  async createAnalysisResult(resultData: InsertAnalysisResult): Promise<AnalysisResult> {
+    const result = {
+      id: uuidv4(),
+      ...resultData,
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
+    await getDb().collection("analysis_results").insertOne(result);
+    return result;
+  }
+
   async deleteRecommendationSet(id: string): Promise<void> {
     await getDb().collection("recommendation_sets").deleteOne({ id });
     await getDb().collection("recommendation_items").deleteMany({ set_id: id });
