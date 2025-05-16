@@ -229,7 +229,19 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
               name="businessName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Name</FormLabel>
+                  <div className="flex items-center gap-1">
+  <FormLabel>Business Name</FormLabel>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-gray-500" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-[300px]">
+        <p>The name of your agricultural business venture</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</div>
                   <FormControl>
                     <Input placeholder="Strawberry Farm" {...field} />
                   </FormControl>
@@ -240,7 +252,19 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
 
             {/* Investment Costs Section */}
             <div className="space-y-2">
-              <FormLabel>Investment Costs</FormLabel>
+              <div className="flex items-center gap-1">
+  <FormLabel>Investment Costs</FormLabel>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-gray-500" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-[300px]">
+        <p>One-time expenses required to start the business, such as equipment, land, buildings, etc.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</div>
               <FormDescription>One-time expenses to start the business</FormDescription>
 
               {investmentFields.map((field, index) => (
@@ -343,7 +367,19 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
 
             {/* Operational Costs Section */}
             <div className="space-y-2">
-              <FormLabel>Periodical Operational Costs</FormLabel>
+              <div className="flex items-center gap-1">
+  <FormLabel>Periodical Operational Costs</FormLabel>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-gray-500" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-[300px]">
+        <p>Recurring expenses required to keep the business running, such as labor, utilities, raw materials, etc.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</div>
               <FormDescription>Recurring monthly expenses</FormDescription>
 
               {operationalFields.map((field, index) => (
@@ -451,7 +487,19 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                 name="productionCostPerUnit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Production Cost per Unit (Rp)</FormLabel>
+                    <div className="flex items-center gap-1">
+  <FormLabel>Production Cost per Unit (Rp)</FormLabel>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-gray-500" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-[300px]">
+        <p>The cost to produce one unit of your product, including direct materials and labor</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</div>
                     <FormControl>
                       <Input 
                         placeholder="0" 
@@ -477,7 +525,19 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                 name="monthlySalesVolume"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sales Volume per Month</FormLabel>
+                    <div className="flex items-center gap-1">
+  <FormLabel>Sales Volume per Month</FormLabel>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-gray-500" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-[300px]">
+        <p>Expected number of units sold per month</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</div>
                     <FormControl>
                       <Input 
                         placeholder="0" 
@@ -496,7 +556,19 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
                 name="markup"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Markup (%)</FormLabel>
+                    <div className="flex items-center gap-1">
+  <FormLabel>Markup (%)</FormLabel>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-gray-500" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-[300px]">
+        <p>Percentage added to the cost price to determine selling price</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</div>
                     <FormControl>
                       <Input 
                         placeholder="0" 
