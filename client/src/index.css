@@ -329,3 +329,7 @@ html,
 * {
   font-family: 'Inter', sans-serif !important;
 }
+
+#chatMessages {
+  background-color: hsl(var(--background)); /* Apply the cream white background */
+}
