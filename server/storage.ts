@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import { db } from "./db";
+import { getDb } from "./db";
 import {
-  IStorage,
   User,
   InsertUser,
   ChatConversation,
@@ -28,15 +27,29 @@ const chatMessageSchema = z.object({
   sender_id: z.string(),
 });
 
-export class DatabaseStorage implements IStorage {
+export class DatabaseStorage {
   async getUser(id: string): Promise<User | undefined> {
-    const user = await db.collection("users").findOne({ id });
-    return user || undefined;
+    const user = await getDb().collection("users").findOne({ id });
+    if (!user) return undefined;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      photo_url: user.photo_url ?? null,
+      created_at: user.created_at ?? null,
+    };
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const user = await db.collection("users").findOne({ email });
-    return user || undefined;
+    const user = await getDb().collection("users").findOne({ email });
+    if (!user) return undefined;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      photo_url: user.photo_url ?? null,
+      created_at: user.created_at ?? null,
+    };
   }
 
   async createUser(userData: InsertUser): Promise<User> {
@@ -44,23 +57,43 @@ export class DatabaseStorage implements IStorage {
       ...userData,
       created_at: new Date(),
     };
-    await db.collection("users").insertOne(user);
-    return user;
+    await getDb().collection("users").insertOne(user);
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      photo_url: user.photo_url ?? null,
+      created_at: user.created_at ?? null,
+    };
   }
 
   async getConversations(userId: string): Promise<ChatConversation[]> {
-    return await db
+    const results = await getDb()
       .collection("chat_conversations")
       .find({ user_id: userId })
       .sort({ updated_at: -1 })
       .toArray();
+    return results.map((c: any) => ({
+      id: c.id,
+      user_id: c.user_id,
+      title: c.title,
+      created_at: c.created_at ?? null,
+      updated_at: c.updated_at ?? null,
+    }));
   }
 
   async getConversation(id: string): Promise<ChatConversation | undefined> {
-    const conversation = await db
+    const c = await getDb()
       .collection("chat_conversations")
       .findOne({ id });
-    return conversation || undefined;
+    if (!c) return undefined;
+    return {
+      id: c.id,
+      user_id: c.user_id,
+      title: c.title,
+      created_at: c.created_at ?? null,
+      updated_at: c.updated_at ?? null,
+    };
   }
 
   async createConversation(
@@ -74,7 +107,7 @@ export class DatabaseStorage implements IStorage {
         created_at: new Date(),
         updated_at: new Date(),
       };
-      await db.collection("chat_conversations").insertOne(conversation);
+      await getDb().collection("chat_conversations").insertOne(conversation);
       return conversation;
     } catch (error) {
       console.error("Error creating conversation:", error);
@@ -90,21 +123,28 @@ export class DatabaseStorage implements IStorage {
       ...data,
       updated_at: new Date(),
     };
-    const result = await db
+    const result = await getDb()
       .collection("chat_conversations")
       .findOneAndUpdate(
         { id },
         { $set: updateData },
         { returnDocument: "after" },
       );
-    if (!result) throw new Error("Conversation not found");
-    return result;
+    if (!result || !result.value) throw new Error("Conversation not found");
+    const c = result.value;
+    return {
+      id: c.id,
+      user_id: c.user_id,
+      title: c.title,
+      created_at: c.created_at ?? null,
+      updated_at: c.updated_at ?? null,
+    };
   }
 
   async deleteConversation(id: string): Promise<void> {
     try {
-      await db.collection("chat_conversations").deleteOne({ id });
-      await db.collection("chat_messages").deleteMany({ conversation_id: id });
+      await getDb().collection("chat_conversations").deleteOne({ id });
+      await getDb().collection("chat_messages").deleteMany({ conversation_id: id });
     } catch (error) {
       console.error("Error deleting conversation:", error);
       throw new Error("Failed to delete conversation");
@@ -117,13 +157,20 @@ export class DatabaseStorage implements IStorage {
     skip: number = 0,
   ): Promise<ChatMessage[]> {
     try {
-      return await db
+      const results = await getDb()
         .collection("chat_messages")
         .find({ conversation_id: conversationId })
         .sort({ created_at: 1 })
         .skip(skip)
         .limit(limit)
         .toArray();
+      return results.map((m: any) => ({
+        id: m.id,
+        conversation_id: m.conversation_id,
+        role: m.role,
+        content: m.content,
+        created_at: m.created_at ?? null,
+      }));
     } catch (error) {
       console.error("Error fetching messages:", error);
       throw new Error("Failed to fetch messages");
@@ -138,8 +185,8 @@ export class DatabaseStorage implements IStorage {
         ...messageData,
         created_at: new Date(),
       };
-      await db.collection("chat_messages").insertOne(message);
-      await db
+      await getDb().collection("chat_messages").insertOne(message);
+      await getDb()
         .collection("chat_conversations")
         .updateOne(
           { id: messageData.conversation_id },
@@ -157,56 +204,78 @@ export class DatabaseStorage implements IStorage {
     type?: string,
   ): Promise<AnalysisResult[]> {
     const query = type ? { user_id: userId, type } : { user_id: userId };
-    return await db
+    const results = await getDb()
       .collection("analysis_results")
       .find(query)
       .sort({ updated_at: -1 })
       .toArray();
+    return results.map((r: any) => ({
+      id: r.id,
+      user_id: r.user_id,
+      type: r.type,
+      data: r.data,
+      created_at: r.created_at ?? null,
+      updated_at: r.updated_at ?? null,
+    }));
   }
 
   async getAnalysisResult(id: string): Promise<AnalysisResult | undefined> {
-    const result = await db.collection("analysis_results").findOne({ id });
-    return result || undefined;
-  }
-
-  async createAnalysisResult(
-    resultData: InsertAnalysisResult,
-  ): Promise<AnalysisResult> {
-    const result = {
-      id: uuidv4(),
-      ...resultData,
-      created_at: new Date(),
-      updated_at: new Date(),
+    const r = await getDb().collection("analysis_results").findOne({ id });
+    if (!r) return undefined;
+    return {
+      id: r.id,
+      user_id: r.user_id,
+      type: r.type,
+      data: r.data,
+      created_at: r.created_at ?? null,
+      updated_at: r.updated_at ?? null,
     };
-    await db.collection("analysis_results").insertOne(result);
-    return result;
-  }
-
-  async deleteAnalysisResult(id: string): Promise<void> {
-    await db.collection("analysis_results").deleteOne({ id });
   }
 
   async getRecommendationSets(userId: string): Promise<RecommendationSet[]> {
-    return await db
+    const results = await getDb()
       .collection("recommendation_sets")
       .find({ user_id: userId })
       .sort({ created_at: -1 })
       .toArray();
+    return results.map((s: any) => ({
+      id: s.id,
+      user_id: s.user_id,
+      summary: s.summary,
+      created_at: s.created_at ?? null,
+    }));
   }
 
   async getRecommendationSet(
     id: string,
   ): Promise<RecommendationSet | undefined> {
-    const set = await db.collection("recommendation_sets").findOne({ id });
-    return set || undefined;
+    const s = await getDb().collection("recommendation_sets").findOne({ id });
+    if (!s) return undefined;
+    return {
+      id: s.id,
+      user_id: s.user_id,
+      summary: s.summary,
+      created_at: s.created_at ?? null,
+    };
   }
 
   async getRecommendationItems(setId: string): Promise<RecommendationItem[]> {
-    return await db
+    const results = await getDb()
       .collection("recommendation_items")
       .find({ set_id: setId })
       .sort({ created_at: -1 })
       .toArray();
+    return results.map((i: any) => ({
+      id: i.id,
+      set_id: i.set_id,
+      title: i.title,
+      type: i.type,
+      description: i.description,
+      confidence: i.confidence,
+      data: i.data,
+      source: i.source,
+      created_at: i.created_at ?? null,
+    }));
   }
 
   async createRecommendationSet(
@@ -217,7 +286,7 @@ export class DatabaseStorage implements IStorage {
       ...setData,
       created_at: new Date(),
     };
-    await db.collection("recommendation_sets").insertOne(set);
+    await getDb().collection("recommendation_sets").insertOne(set);
     return set;
   }
 
@@ -229,49 +298,13 @@ export class DatabaseStorage implements IStorage {
       ...itemData,
       created_at: new Date(),
     };
-    await db.collection("recommendation_items").insertOne(item);
+    await getDb().collection("recommendation_items").insertOne(item);
     return item;
   }
 
   async deleteRecommendationSet(id: string): Promise<void> {
-    await db.collection("recommendation_sets").deleteOne({ id });
-    await db.collection("recommendation_items").deleteMany({ set_id: id });
-  }
-
-  async createRecommendationSetWithItems(
-    setData: InsertRecommendationSet,
-    itemsData: InsertRecommendationItem[],
-  ): Promise<RecommendationSet> {
-    const session = db.client.startSession();
-    try {
-      session.startTransaction();
-
-      const set = {
-        id: uuidv4(),
-        ...setData,
-        created_at: new Date(),
-      };
-      await db.collection("recommendation_sets").insertOne(set, { session });
-
-      const items = itemsData.map((item) => ({
-        id: uuidv4(),
-        ...item,
-        set_id: set.id,
-        created_at: new Date(),
-      }));
-      await db
-        .collection("recommendation_items")
-        .insertMany(items, { session });
-
-      await session.commitTransaction();
-      return set;
-    } catch (error) {
-      await session.abortTransaction();
-      console.error("Error creating recommendation set with items:", error);
-      throw new Error("Failed to create recommendation set with items");
-    } finally {
-      session.endSession();
-    }
+    await getDb().collection("recommendation_sets").deleteOne({ id });
+    await getDb().collection("recommendation_items").deleteMany({ set_id: id });
   }
 }
 
