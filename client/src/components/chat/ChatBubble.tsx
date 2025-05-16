@@ -17,7 +17,7 @@ const MarkdownContent = ({ content }: { content: string }) => {
           code: ({ node, inline, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '');
             return inline ? (
-              <code className="bg-gray-100 px-1 rounded" {...props}>
+              <code className="bg-gray-100 px-1 rounded text-black" {...props}>
                 {children}
               </code>
             ) : (
