@@ -7,7 +7,9 @@ import { setupVite, serveStatic, log } from "./vite.js";
 import { migrate } from './migrations.js';
 
 // Run migrations before any other imports to avoid circular import issues
-await migrate().catch(console.error);
+(async () => {
+  await migrate().catch(console.error);
+})();
 
 const app = express();
 app.use(express.json());

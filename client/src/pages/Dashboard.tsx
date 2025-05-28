@@ -15,7 +15,7 @@ import SettingsPanel from "@/components/profile/SettingsPanel";
 export default function Dashboard() {
   const { user } = useAuth();
   const isMobile = useMobile();
-  const [activeTool, setActiveTool] = useState(null);
+  const [activeTool, setActiveTool] = useState<string | null>(null);
   const [showRightPanel, setShowRightPanel] = useState(false);
 
   // Close the active tool panel
@@ -68,12 +68,14 @@ export default function Dashboard() {
     }
   };
 
+  const handleSetActiveTool = (tool: string) => setActiveTool(tool as string);
+
   return (
     <MainLayout
       rightPanel={renderActiveTool()}
       showRightPanel={showRightPanel}
       setShowRightPanel={setShowRightPanel}
-      setActiveTool={setActiveTool}
+      setActiveTool={handleSetActiveTool}
     >
       <ChatInterface />
     </MainLayout>

@@ -462,52 +462,76 @@ function filterBigintFromChildren(children: React.ReactNode): React.ReactNode {
   return children;
 }
 
-const SidebarGroupLabel = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> & { asChild?: boolean }
->(({ className, asChild = false, children, ...props }, ref) => {
-  const Comp = asChild ? Slot : "div";
-  const safeChildren = filterBigintFromChildren(children);
-  return (
-    <Comp
-      ref={ref}
-      data-sidebar="group-label"
-      className={cn(
-        "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
-        className,
-      )}
-      {...props}
-    >
-      {safeChildren as any}
-    </Comp>
-  );
-});
+const SidebarGroupLabel = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'> & { asChild?: boolean }>(
+  ({ className, asChild = false, children, ...props }, ref) => {
+    const safeChildren = filterBigintFromChildren(children);
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref}
+          className={cn(
+            "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+            "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
+            className,
+          )}
+        >
+          {safeChildren as any}
+        </Slot>
+      );
+    }
+    return (
+      <div
+        ref={ref}
+        data-sidebar="group-label"
+        className={cn(
+          "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+          "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
+          className,
+        )}
+        {...props}
+      >
+        {safeChildren as any}
+      </div>
+    );
+  }
+);
 SidebarGroupLabel.displayName = "SidebarGroupLabel";
 
-const SidebarGroupAction = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button"> & { asChild?: boolean }
->(({ className, asChild = false, children, ...props }, ref) => {
-  const Comp = asChild ? Slot : "button";
-  const safeChildren = filterBigintFromChildren(children);
-  return (
-    <Comp
-      ref={ref}
-      data-sidebar="group-action"
-      className={cn(
-        "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
-        "after:absolute after:-inset-2 after:md:hidden",
-        "group-data-[collapsible=icon]:hidden",
-        className,
-      )}
-      {...props}
-    >
-      {safeChildren as any}
-    </Comp>
-  );
-});
+const SidebarGroupAction = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<'button'> & { asChild?: boolean }>(
+  ({ className, asChild = false, children, ...props }, ref) => {
+    const safeChildren = filterBigintFromChildren(children);
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref}
+          className={cn(
+            "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+            "after:absolute after:-inset-2 after:md:hidden",
+            "group-data-[collapsible=icon]:hidden",
+            className,
+          )}
+        >
+          {safeChildren as any}
+        </Slot>
+      );
+    }
+    return (
+      <button
+        ref={ref}
+        data-sidebar="group-action"
+        className={cn(
+          "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+          "after:absolute after:-inset-2 after:md:hidden",
+          "group-data-[collapsible=icon]:hidden",
+          className,
+        )}
+        {...props}
+      >
+        {safeChildren as any}
+      </button>
+    );
+  }
+);
 SidebarGroupAction.displayName = "SidebarGroupAction";
 
 const sidebarMenuButtonVariants = cva(
@@ -532,14 +556,11 @@ const sidebarMenuButtonVariants = cva(
   },
 );
 
-const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button"> & {
-    asChild?: boolean;
-    isActive?: boolean;
-    tooltip?: string | React.ComponentProps<typeof TooltipContent>;
-  } & VariantProps<typeof sidebarMenuButtonVariants>
->(
+const SidebarMenuButton = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<'button'> & {
+  asChild?: boolean;
+  isActive?: boolean;
+  tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+} & VariantProps<typeof sidebarMenuButtonVariants>>(
   (
     {
       asChild = false,
@@ -553,11 +574,17 @@ const SidebarMenuButton = React.forwardRef<
     },
     ref,
   ) => {
-    const Comp = asChild ? Slot : "button";
     const { isMobile, state } = useSidebar();
     const safeChildren = filterBigintFromChildren(children);
-    const button = (
-      <Comp
+    const button = asChild ? (
+      <Slot
+        ref={ref}
+        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+      >
+        {safeChildren as any}
+      </Slot>
+    ) : (
+      <button
         ref={ref}
         data-sidebar="menu-button"
         data-size={size}
@@ -566,7 +593,7 @@ const SidebarMenuButton = React.forwardRef<
         {...props}
       >
         {safeChildren as any}
-      </Comp>
+      </button>
     );
     if (!tooltip) {
       return button;
@@ -591,37 +618,51 @@ const SidebarMenuButton = React.forwardRef<
 );
 SidebarMenuButton.displayName = "SidebarMenuButton";
 
-const SidebarMenuAction = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button"> & {
-    asChild?: boolean;
-    showOnHover?: boolean;
+const SidebarMenuAction = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<'button'> & { asChild?: boolean; showOnHover?: boolean }>(
+  ({ className, asChild = false, showOnHover = false, children, ...props }, ref) => {
+    const safeChildren = filterBigintFromChildren(children);
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref}
+          className={cn(
+            "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
+            "after:absolute after:-inset-2 after:md:hidden",
+            "peer-data-[size=sm]/menu-button:top-1",
+            "peer-data-[size=default]/menu-button:top-1.5",
+            "peer-data-[size=lg]/menu-button:top-2.5",
+            "group-data-[collapsible=icon]:hidden",
+            showOnHover &&
+              "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+            className,
+          )}
+        >
+          {safeChildren as any}
+        </Slot>
+      );
+    }
+    return (
+      <button
+        ref={ref}
+        data-sidebar="menu-action"
+        className={cn(
+          "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
+          "after:absolute after:-inset-2 after:md:hidden",
+          "peer-data-[size=sm]/menu-button:top-1",
+          "peer-data-[size=default]/menu-button:top-1.5",
+          "peer-data-[size=lg]/menu-button:top-2.5",
+          "group-data-[collapsible=icon]:hidden",
+          showOnHover &&
+            "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+          className,
+        )}
+        {...props}
+      >
+        {safeChildren as any}
+      </button>
+    );
   }
->(({ className, asChild = false, showOnHover = false, children, ...props }, ref) => {
-  const Comp = asChild ? Slot : "button";
-  const safeChildren = filterBigintFromChildren(children);
-  return (
-    <Comp
-      ref={ref}
-      data-sidebar="menu-action"
-      className={cn(
-        "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
-        "after:absolute after:-inset-2 after:md:hidden",
-        "peer-data-[size=sm]/menu-button:top-1",
-        "peer-data-[size=default]/menu-button:top-1.5",
-        "peer-data-[size=lg]/menu-button:top-2.5",
-        "group-data-[collapsible=icon]:hidden",
-        showOnHover &&
-          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
-        className,
-      )}
-      {...props}
-    >
-      {safeChildren as any}
-    </Comp>
-  );
-});
+);
 SidebarMenuAction.displayName = "SidebarMenuAction";
 
 const SidebarMenuBadge = React.forwardRef<
@@ -706,36 +747,51 @@ const SidebarMenuSubItem = React.forwardRef<
 >(({ ...props }, ref) => <li ref={ref} {...props} />);
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem";
 
-const SidebarMenuSubButton = React.forwardRef<
-  HTMLAnchorElement,
-  React.ComponentProps<"a"> & {
-    asChild?: boolean;
-    size?: "sm" | "md";
-    isActive?: boolean;
+const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, React.ComponentPropsWithoutRef<'a'> & {
+  asChild?: boolean;
+  size?: "sm" | "md";
+  isActive?: boolean;
+}>(
+  ({ asChild = false, size = "md", isActive, className, children, ...props }, ref) => {
+    const safeChildren = filterBigintFromChildren(children);
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref}
+          className={cn(
+            "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+            "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+            size === "sm" && "text-xs",
+            size === "md" && "text-sm",
+            "group-data-[collapsible=icon]:hidden",
+            className,
+          )}
+        >
+          {safeChildren as any}
+        </Slot>
+      );
+    }
+    return (
+      <a
+        ref={ref}
+        data-sidebar="menu-sub-button"
+        data-size={size}
+        data-active={isActive}
+        className={cn(
+          "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+          "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+          size === "sm" && "text-xs",
+          size === "md" && "text-sm",
+          "group-data-[collapsible=icon]:hidden",
+          className,
+        )}
+        {...props}
+      >
+        {safeChildren as any}
+      </a>
+    );
   }
->(({ asChild = false, size = "md", isActive, className, children, ...props }, ref) => {
-  const Comp = asChild ? Slot : "a";
-  const safeChildren = filterBigintFromChildren(children);
-  return (
-    <Comp
-      ref={ref}
-      data-sidebar="menu-sub-button"
-      data-size={size}
-      data-active={isActive}
-      className={cn(
-        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-        size === "sm" && "text-xs",
-        size === "md" && "text-sm",
-        "group-data-[collapsible=icon]:hidden",
-        className,
-      )}
-      {...props}
-    >
-      {safeChildren as any}
-    </Comp>
-  );
-});
+);
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton";
 
 const SidebarMenu = React.forwardRef<

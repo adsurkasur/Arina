@@ -55,14 +55,24 @@ const BreadcrumbLink = React.forwardRef<
 >(({ asChild, className, children, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
   const safeChildren = filterBigintFromChildren(children)
+  if (asChild) {
+    return (
+      <Slot
+        ref={ref}
+        className={cn("transition-colors hover:text-foreground", className)}
+      >
+        {safeChildren as any}
+      </Slot>
+    )
+  }
   return (
-    <Comp
+    <a
       ref={ref}
       className={cn("transition-colors hover:text-foreground", className)}
       {...props}
     >
       {safeChildren as any}
-    </Comp>
+    </a>
   )
 })
 BreadcrumbLink.displayName = "BreadcrumbLink"

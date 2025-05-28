@@ -213,7 +213,7 @@ export const runOptimization = (input: OptimizationInput): OptimizationResult =>
     name,
     type,
     feasible: result.feasible,
-    objectiveValue: result.objectiveValue,
+    objectiveValue: 'objectiveValue' in result ? result.objectiveValue : undefined,
     variables: variables.map(v => ({
       id: v.id,
       name: v.name,

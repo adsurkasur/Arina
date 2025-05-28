@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { getQueryFn, queryClient } from '@/lib/queryClient';
 import { RecommendationSet, RecommendationItem, GenerateRecommendationsParams } from '@/types/recommendations';
@@ -11,31 +11,42 @@ export function useRecommendations() {
   const [recommendations, setRecommendations] = useState<(RecommendationSet & { items: RecommendationItem[] })[]>([]);
 
   // Use React Query for fetching recommendations
-  const { 
-    isLoading: loading, 
+  const {
+    isLoading: loading,
     data: fetchedRecommendations,
-    refetch 
-  } = useQuery({
+    refetch,
+    error: fetchError
+  } = useQuery<
+    (RecommendationSet & { items: RecommendationItem[] })[],
+    Error
+  >({
     queryKey: ['recommendations', user?.id],
-    queryFn: getQueryFn<(RecommendationSet & { items: RecommendationItem[] })[]>({
-      on401: 'returnNull',
-      endpoint: user ? `/api/recommendations/${user.id}` : null,
-    }),
-    enabled: !!user,
-    onSuccess: (data) => {
-      if (data) {
-        setRecommendations(data);
-      }
+    queryFn: async () => {
+      if (!user) return [];
+      const res = await fetch(`/api/recommendations/${user.id}`);
+      if (!res.ok) throw new Error('Failed to fetch recommendations');
+      return res.json();
     },
-    onError: (error) => {
-      console.error('Error fetching recommendations:', error);
+    enabled: !!user,
+  });
+
+  // Handle side effects for fetched recommendations
+  useEffect(() => {
+    if (fetchedRecommendations) {
+      setRecommendations(fetchedRecommendations);
+    }
+  }, [fetchedRecommendations]);
+
+  useEffect(() => {
+    if (fetchError) {
+      console.error('Error fetching recommendations:', fetchError);
       toast({
         title: 'Failed to load recommendations',
         description: 'Could not retrieve your personalized recommendations.',
         variant: 'destructive',
       });
     }
-  });
+  }, [fetchError, toast]);
 
   // Use React Query for generating recommendations
   const { 

@@ -48,16 +48,25 @@ function filterBigintFromChildren(children: React.ReactNode): React.ReactNode {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, children, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
     const safeChildren = filterBigintFromChildren(children);
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+        >
+          {safeChildren as any}
+        </Slot>
+      );
+    }
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
       >
         {safeChildren as any}
-      </Comp>
+      </button>
     );
   }
 );

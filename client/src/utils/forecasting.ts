@@ -208,7 +208,7 @@ export const generateForecast = (input: ForecastInput): ForecastResult => {
       historicalForecasts.push(avg);
     }
   } else if (method === 'exponential') {
-    historicalForecasts = calculateExponentialSmoothing(historicalData, smoothingFactor);
+    historicalForecasts = calculateExponentialSmoothing(historicalData, smoothingFactor, periodLength);
   }
 
   // Filter out NaN values for MAPE calculation
