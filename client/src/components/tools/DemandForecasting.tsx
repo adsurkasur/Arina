@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -72,13 +73,9 @@ const formSchema = z.object({
       }),
     )
     .min(3, { message: "At least 3 historical data points are required" }),
-  forecastPeriods: z
-    .number()
-    .min(1, { message: "Must forecast at least 1 period" })
-    .max(12, { message: "Maximum 12 periods allowed" }),
   method: z.enum(["sma", "exponential"]),
   smoothingFactor: z.number().min(0).max(1).optional(),
-  periodLength: z.number().min(1).max(12).optional(),
+  periodLength: z.number().min(1).max(12),
 });
 
 interface DemandForecastingProps {
@@ -102,7 +99,6 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
         { id: uuidv4(), period: "Period 2", demand: 0 },
         { id: uuidv4(), period: "Period 3", demand: 0 },
       ],
-      forecastPeriods: 3,
       method: "sma",
       smoothingFactor: 0.3,
       periodLength: 3,
@@ -260,10 +256,10 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
             {/* Product Name */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="productName"
               render={({ field }) => (
                 <FormItem>
@@ -343,7 +339,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
                 >
                   <div className="col-span-5">
                     <FormField
-                      control={form.control}
+                      control={form.control as any}
                       name={`historicalDemand.${index}.period`}
                       render={({ field }) => (
                         <FormItem>
@@ -357,7 +353,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
                   </div>
                   <div className="col-span-5">
                     <FormField
-                      control={form.control}
+                      control={form.control as any}
                       name={`historicalDemand.${index}.demand`}
                       render={({ field }) => (
                         <FormItem>
@@ -421,7 +417,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
 
             {/* Forecast Method */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="method"
               render={({ field }) => (
                 <FormItem>
@@ -469,7 +465,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
 
             {method === "exponential" && (
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="smoothingFactor"
                 render={({ field }) => (
                   <FormItem>
@@ -503,7 +499,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
 
             {method === "sma" && (
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="periodLength"
                 render={({ field }) => (
                   <FormItem>

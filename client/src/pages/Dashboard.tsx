@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useMobile } from "@/hooks/use-mobile";
@@ -9,11 +10,12 @@ import OptimizationAnalysis from "@/components/tools/OptimizationAnalysis";
 import RecommendationDashboard from "@/components/recommendations/RecommendationDashboard";
 import AnalysisHistory from "@/components/history/AnalysisHistory";
 import UserProfile from "@/components/profile/UserProfile";
+import SettingsPanel from "@/components/profile/SettingsPanel";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const isMobile = useMobile();
-  const [activeTool, setActiveTool] = useState<string | null>(null);
+  const [activeTool, setActiveTool] = useState(null);
   const [showRightPanel, setShowRightPanel] = useState(false);
 
   // Close the active tool panel
@@ -26,7 +28,7 @@ export default function Dashboard() {
 
   // Render the active tool component
   const renderActiveTool = () => {
-    if (!activeTool) return null;
+    if (!activeTool) return undefined;
 
     switch (activeTool) {
       case "userProfile":
@@ -42,9 +44,8 @@ export default function Dashboard() {
       case "analysisHistory":
         return <AnalysisHistory onClose={handleCloseToolPanel} />;
       case "settings":
-        return <UserProfile onClose={handleCloseToolPanel} />;
+        return <SettingsPanel onClose={handleCloseToolPanel} />;
       case "help":
-        // Placeholder for help panel
         return (
           <div className="p-4">
             <div className="flex justify-between items-center mb-4">
@@ -63,7 +64,7 @@ export default function Dashboard() {
           </div>
         );
       default:
-        return null;
+        return undefined;
     }
   };
 

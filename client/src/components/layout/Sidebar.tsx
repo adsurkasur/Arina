@@ -1,5 +1,5 @@
-import React from "react";
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
+import type { MouseEvent, FormEvent } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useChat } from "@/hooks/useChat";
@@ -56,6 +56,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ChatConversation } from "@/types";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -80,15 +81,10 @@ export function Sidebar({
   } = useChat();
   const [analysisToolsOpen, setAnalysisToolsOpen] = useState(true);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
-  const [currentConversation, setCurrentConversation] = React.useState<{
-    id: string;
-    title: string;
-  } | null>(null);
+  const [currentConversation, setCurrentConversation] = useState<ChatConversation | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [conversationToDelete, setConversationToDelete] = React.useState<
-    string | null
-  >(null);
+  const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
 
   // Handle toggling the sidebar on mobile
   const handleCloseSidebar = () => {
@@ -99,8 +95,8 @@ export function Sidebar({
 
   // Handle opening the rename dialog
   const handleRenameClick = (
-    conversation: { id: string; title: string },
-    e: React.MouseEvent<HTMLButtonElement>,
+    conversation: ChatConversation,
+    e: any,
   ) => {
     e.stopPropagation(); // Prevent loading the conversation when clicking the menu
     setCurrentConversation(conversation);
@@ -109,7 +105,7 @@ export function Sidebar({
   };
 
   // Handle submitting the rename dialog
-  const handleRenameSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRenameSubmit = async (e: any) => {
     e.preventDefault();
     if (currentConversation && newTitle.trim()) {
       await renameConversation(currentConversation.id, newTitle.trim());
@@ -118,7 +114,7 @@ export function Sidebar({
   };
 
   // Open delete dialog
-  const handleDeleteClick = (conversationId: string, e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDeleteClick = (conversationId: string, e: any) => {
     e.stopPropagation(); // Prevent loading the conversation when clicking the menu
     setConversationToDelete(conversationId);
     setIsDeleteDialogOpen(true);
@@ -168,6 +164,16 @@ export function Sidebar({
 
         {/* Main Menu Section */}
         <div className="flex-1 overflow-y-auto custom-scrollbar transition-all duration-300 font-sans">
+          {/* Dashboard Menu Item */}
+          <div className="px-2 py-2">
+            <button
+              onClick={() => openTool("dashboard")}
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
+            >
+              <BarChart3 className="h-5 w-5 mr-3" />
+              <span>Dashboard</span>
+            </button>
+          </div>
           {/* Analysis Tools Dropdown */}
           <div className="px-2 py-2">
             <Collapsible
@@ -341,7 +347,7 @@ export function Sidebar({
 
             <div className="mt-1 space-y-1">
               {conversations && conversations.length > 0 ? (
-                conversations.map((conversation: { id: string; title: string }) => (
+                conversations.map((conversation) => (
                   <div
                     key={conversation.id}
                     className="flex items-center relative group"
@@ -364,19 +370,19 @@ export function Sidebar({
                           className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-white/20"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <MoreVertical className="h-4 w-4" />
+                          <MoreVertical className="h-4 w-4 text-white/70" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-48" align="end">
+                      <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={(e) => handleRenameClick(conversation, e)}
+                          onClick={(e: any) => handleRenameClick(conversation as ChatConversation, e)}
                           className="cursor-pointer"
                         >
                           <Pencil className="mr-2 h-4 w-4" />
                           Rename
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={(e) => handleDeleteClick(conversation.id, e)}
+                          onClick={(e: any) => handleDeleteClick(conversation.id, e)}
                           className="cursor-pointer text-red-500 focus:text-red-500"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />

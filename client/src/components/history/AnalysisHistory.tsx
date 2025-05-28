@@ -1,19 +1,5 @@
-import React from "react";
-import { useState } from 'react';
-import { 
-  BarChart as BarChartIcon, 
-  Calculator, 
-  ChartBar, 
-  ClipboardList, 
-  Clock, 
-  Search, 
-  Trash2, 
-  XCircle,
-  TrendingUp,
-  Info,
-  DollarSign,
-  Calendar
-} from 'lucide-react';
+import * as React from "react";
+const { useState } = React;
 import { format } from 'date-fns';
 import {
   BarChart,
@@ -30,6 +16,20 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import { 
+  BarChart as BarChartIcon, 
+  Calculator, 
+  ChartBar, 
+  ClipboardList, 
+  Clock, 
+  Search, 
+  Trash2, 
+  XCircle,
+  TrendingUp,
+  Info,
+  DollarSign,
+  Calendar
+} from 'lucide-react';
 
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { AnalysisResult } from '@shared/schema';
@@ -71,22 +71,21 @@ const TYPE_ICONS = {
   'optimization': <BarChartIcon className="h-5 w-5" />
 };
 
-// Chart colors
+// Chart colors using CSS variables for palette consistency
 const CHART_COLORS = {
-  primary: '#1F3A13', // Primary brand color (dark green)
-  secondary: '#4D7C0F', // Secondary green
-  accent: '#F97316', // Orange
-  highlight: '#3B82F6', // Blue
-  muted: '#94A3B8', // Gray
-  background: '#F9F9EF', // Cream background
-  lightGreen: '#84CC16'
+  primary: 'hsl(var(--primary))',
+  secondary: 'hsl(var(--secondary))',
+  accent: 'hsl(var(--accent))',
+  highlight: 'hsl(var(--popover))',
+  muted: 'hsl(var(--muted))',
+  background: 'hsl(var(--background))',
+  lightGreen: 'hsl(var(--muted))',
 };
 
-// For pie charts
 const PIE_COLORS = [
-  CHART_COLORS.primary, 
-  CHART_COLORS.accent, 
-  CHART_COLORS.highlight, 
+  CHART_COLORS.primary,
+  CHART_COLORS.accent,
+  CHART_COLORS.highlight,
   CHART_COLORS.secondary,
   CHART_COLORS.lightGreen
 ];
@@ -154,22 +153,28 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   };
   
   // Function to render a key metric with icon and visualization
-  const renderKeyMetric = (label: string, value: any, icon: React.ReactNode, trend?: 'up' | 'down' | 'neutral', unit: string = '') => {
+  const renderKeyMetric = (
+    label: string,
+    value: any,
+    icon: any, // fallback to any for icon
+    trend?: 'up' | 'down' | 'neutral',
+    unit: string = ''
+  ) => {
     let trendIcon = null;
-    let trendColor = 'text-gray-500';
-    
+    let trendColor = 'text-muted-foreground';
+
     if (trend === 'up') {
-      trendIcon = <TrendingUp className="h-4 w-4 ml-1 text-green-500" />;
-      trendColor = 'text-green-500';
+      trendIcon = <TrendingUp className="h-4 w-4 ml-1 text-green-600" />;
+      trendColor = 'text-green-600';
     } else if (trend === 'down') {
       trendIcon = <TrendingUp className="h-4 w-4 ml-1 text-red-500 transform rotate-180" />;
       trendColor = 'text-red-500';
     }
-    
+
     const formattedValue = typeof value === 'number' 
       ? formatValue(value, unit)
       : value;
-    
+
     return (
       <div className="bg-secondary/10 p-3 rounded-lg">
         <div className="flex items-center mb-1">
@@ -302,7 +307,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           
           <TabsContent value="raw" className="pt-4">
             <div className="w-full max-w-full max-h-[min(400px,60vh)] overflow-auto overflow-x-auto rounded border bg-muted p-2">
-              <pre className="text-xs break-all whitespace-pre-wrap w-full max-w-full min-w-0">
+              <pre className="text-xs bg-muted break-words whitespace-pre-wrap w-full max-w-full min-w-0 overflow-x-auto rounded border p-2">
                 {JSON.stringify(data, null, 2)}
               </pre>
             </div>
@@ -349,15 +354,15 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis 
                       dataKey="name" 
                       tick={{ fontSize: 12 }}
-                      tickLine={{ stroke: '#e5e7eb' }}
+                      tickLine={{ stroke: 'hsl(var(--border))' }}
                     />
                     <YAxis 
                       tick={{ fontSize: 12 }}
-                      tickLine={{ stroke: '#e5e7eb' }}
+                      tickLine={{ stroke: 'hsl(var(--border))' }}
                       tickFormatter={(value: any) => formatValue(value, '')}
                     />
                     <Tooltip 
@@ -434,7 +439,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           
           <TabsContent value="raw" className="pt-4">
             <div className="w-full max-w-full max-h-[min(400px,60vh)] overflow-auto overflow-x-auto rounded border bg-muted p-2">
-              <pre className="text-xs break-all whitespace-pre-wrap w-full max-w-full min-w-0">
+              <pre className="text-xs bg-muted break-words whitespace-pre-wrap w-full max-w-full min-w-0 overflow-x-auto rounded border p-2">
                 {JSON.stringify(data, null, 2)}
               </pre>
             </div>
@@ -480,15 +485,15 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                 <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                       <XAxis 
                         dataKey="name" 
                         tick={{ fontSize: 12 }}
-                        tickLine={{ stroke: '#e5e7eb' }}
+                        tickLine={{ stroke: 'hsl(var(--border))' }}
                       />
                       <YAxis 
                         tick={{ fontSize: 12 }}
-                        tickLine={{ stroke: '#e5e7eb' }}
+                        tickLine={{ stroke: 'hsl(var(--border))' }}
                         tickFormatter={(value: any) => formatValue(value, '')}
                       />
                       <Tooltip 
@@ -543,7 +548,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                          constraint.type === '>=' || constraint.type === '>' ? '≥' : '='}
                         <span className="ml-1">{formatValue(constraint.limit || 0)}</span>
                         {constraint.slack === 0 && (
-                          <Badge className="ml-2" variant="outline">Binding</Badge>
+                          <Badge variant="outline">Binding</Badge>
                         )}
                       </div>
                     </div>
@@ -564,7 +569,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           
           <TabsContent value="raw" className="pt-4">
             <div className="w-full max-w-full max-h-[min(400px,60vh)] overflow-auto overflow-x-auto rounded border bg-muted p-2">
-              <pre className="text-xs break-all whitespace-pre-wrap w-full max-w-full min-w-0">
+              <pre className="text-xs bg-muted break-words whitespace-pre-wrap w-full max-w-full min-w-0 overflow-x-auto rounded border p-2">
                 {JSON.stringify(data, null, 2)}
               </pre>
             </div>
@@ -635,11 +640,13 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                       <div className="font-medium text-sm text-primary mb-1">{key}</div>
                       <div className="ml-2">
                         {isLargeObject ? (
-                          <Badge variant="outline" className="cursor-pointer" onClick={() => console.log(value)}>
+                          <Badge variant="outline">
                             {Array.isArray(value) ? `Array[${value.length}]` : `Object{${Object.keys(value).length}}`}
                           </Badge>
                         ) : typeof value === 'object' ? (
-                          <pre className="text-xs bg-gray-50 dark:bg-gray-900 p-2 rounded overflow-auto">{JSON.stringify(value, null, 2)}</pre>
+                          <pre className="text-xs bg-muted break-words whitespace-pre-wrap w-full max-w-full min-w-0 overflow-x-auto rounded border p-2">
+                            {JSON.stringify(value, null, 2)}
+                          </pre>
                         ) : (
                           <span>{String(value)}</span>
                         )}
@@ -652,7 +659,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
             
             <TabsContent value="raw" className="pt-4">
               <div className="w-full max-w-full max-h-[min(400px,60vh)] overflow-auto overflow-x-auto rounded border bg-muted p-2">
-                <pre className="text-xs break-all whitespace-pre-wrap w-full max-w-full min-w-0">
+                <pre className="text-xs bg-muted break-words whitespace-pre-wrap w-full max-w-full min-w-0 overflow-x-auto rounded border p-2">
                   {JSON.stringify(dataObj, null, 2)}
                 </pre>
               </div>
@@ -700,11 +707,12 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
 
       <div className="flex flex-col md:flex-row gap-3 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search analysis history..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            // @ts-ignore
+            onChange={e => setSearchQuery(e.target.value)}
             className="pl-8"
           />
         </div>
@@ -760,7 +768,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge variant="outline" className="ml-auto mr-2">
+                    <Badge variant="outline">
                       {getTypeLabel(result.type)}
                     </Badge>
                   </div>
@@ -772,13 +780,11 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
                   <AccordionContent className="pt-0 px-5 pb-4">
                     <CardContent className="p-0 pt-4">
                       <div>
-                        {/* Log the data to debug what's available */}
-                        {console.log('Analysis data:', result.id, result.type, result.data)}
                         {renderAnalysisData(result.data, result.type)}
                       </div>
                     </CardContent>
                     <CardFooter className="px-0 pt-4 pb-0 flex justify-end space-x-2">
-                      <Badge className="bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer">
+                      <Badge>
                         {formatDate(result.created_at)}
                       </Badge>
                       <Button

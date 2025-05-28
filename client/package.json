@@ -7,6 +7,12 @@
     "postbuild": "echo 'Client build complete.'"
   },
   "devDependencies": {
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
     "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "i18next": "^25.2.1",
+    "react-i18next": "^15.5.2"
   }
 }

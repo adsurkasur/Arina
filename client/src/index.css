@@ -79,12 +79,12 @@ body {
   --border: 94 30% 37%;               /* #4B7B3F */
   --input: 94 30% 37%;                /* #4B7B3F */
   --ring: 60 44% 96%;                 /* #F9F9EF */
-  --sidebar-background: 60 44% 96%;   /* #F9F9EF */
-  --sidebar-foreground: 98 48% 16%;   /* #1F3A13 */
+  --sidebar-background: 98 48% 16%;   /* #1F3A13 */
+  --sidebar-foreground: 60 44% 96%;   /* #F9F9EF */
   --sidebar-accent: 94 30% 37%;       /* #4B7B3F */
-  --sidebar-accent-foreground: 98 48% 16%; /* #1F3A13 */
-  --sidebar-border: 94 30% 37%;       /* #4B7B3F */
-  --sidebar-ring: 60 44% 96%;         /* #F9F9EF */
+  --sidebar-accent-foreground: 60 44% 96%; /* #F9F9EF */
+  --sidebar-border: 94 30% 80%;       /* #D6E5C3 */
+  --sidebar-ring: 98 48% 16%;         /* #1F3A13 */
 }
 
 /* Custom styles for the app */

@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -366,7 +367,7 @@ export default function BusinessFeasibility({
                                 ) || 0;
                               form.setValue(
                                 `investmentCosts.${index}.amount`,
-                                value * price,
+                                Number(value) * Number(price),
                               );
                             }}
                           />
@@ -405,7 +406,7 @@ export default function BusinessFeasibility({
                                 ) || 0;
                               form.setValue(
                                 `investmentCosts.${index}.amount`,
-                                value * quantity,
+                                Number(value) * Number(quantity),
                               );
                             }}
                           />
@@ -432,7 +433,7 @@ export default function BusinessFeasibility({
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  appendInvestment({ id: uuidv4(), name: "", amount: 0 })
+                  appendInvestment({ id: uuidv4(), name: "", quantity: 0, price: 0, amount: 0 })
                 }
                 className="mt-2"
               >
@@ -504,7 +505,7 @@ export default function BusinessFeasibility({
                                 ) || 0;
                               form.setValue(
                                 `operationalCosts.${index}.amount`,
-                                value * price,
+                                Number(value) * Number(price),
                               );
                             }}
                           />
@@ -543,7 +544,7 @@ export default function BusinessFeasibility({
                                 ) || 0;
                               form.setValue(
                                 `operationalCosts.${index}.amount`,
-                                value * quantity,
+                                Number(value) * Number(quantity),
                               );
                             }}
                           />
@@ -570,7 +571,7 @@ export default function BusinessFeasibility({
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  appendOperational({ id: uuidv4(), name: "", amount: 0 })
+                  appendOperational({ id: uuidv4(), name: "", quantity: 0, price: 0, amount: 0 })
                 }
                 className="mt-2"
               >

@@ -1,3 +1,4 @@
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { LineChart, BarChart3, PieChart, Brain } from "lucide-react";
 

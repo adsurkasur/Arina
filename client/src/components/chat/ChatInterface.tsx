@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
 import { ChatMessage } from "@/types";
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function ChatInterface() {
-  const { messages, isLoading, sendMessage, isSending, activeConversation, createNewChat, deleteChat, refetchChats } = useChat();
+  const { messages, isLoading, sendMessage, isSending, activeConversation, createNewChat, deleteConversation, loadChatHistory } = useChat();
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showThinking, setShowThinking] = useState(false);
@@ -77,10 +77,9 @@ export default function ChatInterface() {
 
   const confirmDelete = async () => {
     if (!chatToDelete) return;
-
     try {
-      await deleteChat(chatToDelete);
-      await refetchChats();
+      await deleteConversation(chatToDelete);
+      await loadChatHistory();
       setChatToDelete(null);
     } catch (error) {
       console.error('Error deleting chat:', error);

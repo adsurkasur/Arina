@@ -43,16 +43,24 @@ const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a"> & {
     asChild?: boolean
+    children?: React.ReactNode
   }
->(({ asChild, className, ...props }, ref) => {
+>(({ asChild, className, children, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
 
+  // Filter out children of type 'bigint' (not valid ReactNode)
+  const safeChildren =
+    typeof children === "bigint" ? String(children) : children
+
+  // Only pass valid props to Slot or 'a'
   return (
     <Comp
       ref={ref}
       className={cn("transition-colors hover:text-foreground", className)}
       {...props}
-    />
+    >
+      {safeChildren}
+    </Comp>
   )
 })
 BreadcrumbLink.displayName = "BreadcrumbLink"

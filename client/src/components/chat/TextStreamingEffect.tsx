@@ -1,10 +1,10 @@
-
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 interface TextStreamingEffectProps {
   fullText: string;
   onComplete?: () => void;
+  className?: string;
 }
 
 const MarkdownRenderer = ({ children }: { children: string }) => {
@@ -27,7 +27,7 @@ const MarkdownRenderer = ({ children }: { children: string }) => {
           p: ({ ...props }) => (
             <p {...props} className="mb-2" />
           ),
-          code: ({ className, children, ...props }) => {
+          code: ({ className, children, ...props }: { className?: string; children?: React.ReactNode }) => {
             const match = /language-(\w+)/.exec(className || '');
             return !match ? (
               <code {...props} className="bg-gray-100 p-0.5 rounded">{children}</code>
@@ -58,7 +58,8 @@ const MarkdownRenderer = ({ children }: { children: string }) => {
 
 export default function TextStreamingEffect({ 
   fullText, 
-  onComplete 
+  onComplete, 
+  className 
 }: TextStreamingEffectProps) {
   useEffect(() => {
     if (onComplete) {
@@ -67,7 +68,7 @@ export default function TextStreamingEffect({
   }, [fullText, onComplete]);
 
   return (
-    <div className="relative inline-block w-full">
+    <div className={className ? `relative inline-block w-full ${className}` : "relative inline-block w-full"}>
       <MarkdownRenderer>{fullText}</MarkdownRenderer>
     </div>
   );

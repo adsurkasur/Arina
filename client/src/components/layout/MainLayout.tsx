@@ -28,8 +28,8 @@ export function MainLayout({
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
   const openTool = (tool: string) => {
-    setActiveTool(tool);
-    setShowRightPanel(true);
+    if (setActiveTool) setActiveTool(tool);
+    if (setShowRightPanel) setShowRightPanel(true);
   };
 
   return (
