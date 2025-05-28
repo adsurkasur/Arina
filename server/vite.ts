@@ -6,6 +6,11 @@ import { type Server } from "http";
 import { nanoid } from "nanoid";
 import { fileURLToPath } from "url";
 
+// Use __dirname to always resolve from the server/ directory, then go up one level to the project root
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '..');
+
 const viteLogger = {
   ...console,
   error: (msg: string, options?: any) => {
@@ -37,7 +42,7 @@ export async function setupVite(app: Express, server: Server) {
   };
 
   const vite = await createViteServer({
-    configFile: path.join(__dirname, '../../client/vite.config.ts'), // robust relative path for monorepo
+    configFile: path.join(projectRoot, 'client/vite.config.ts'), // always resolve from project root
     customLogger: viteLogger,
     server: serverOptions,
     appType: "custom",
@@ -64,9 +69,6 @@ export async function setupVite(app: Express, server: Server) {
     }
   });
 }
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export function serveStatic(app: Express) {
   // Serve the correct production build directory from the project root
