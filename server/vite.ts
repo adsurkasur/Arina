@@ -1,3 +1,12 @@
+// ---
+// BEST PRACTICE NOTE:
+// - setupVite(app, server): Used only in development. Injects Vite dev middleware so you can use Express (port 5000) for both API and frontend if desired.
+//   (But you can also use Vite's own dev server on port 5173 for HMR and fast refresh.)
+// - serveStatic(app): Used only in production. Serves the built frontend from client/dist/public.
+//
+// This ensures a clean separation between dev and prod, and works on Replit and locally.
+// ---
+
 import express, { type Express } from "express";
 import * as fs from "fs";
 import * as path from "path";

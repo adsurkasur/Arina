@@ -77,4 +77,15 @@ app.use((req, res, next) => {
   });
 })();
 
+// ---
+// BEST PRACTICE NOTE:
+// In development, use Vite dev server (port 5173) for the frontend and Express (port 5000) for the API.
+// In production, Express serves the built frontend from client/dist/public on port 5000.
+//
+// On Replit:
+//   - For development, expose port 5173 for the frontend (Vite) and port 5000 for the API (Express).
+//   - For production, run the client build and expose port 5000 only.
+//
+// This setup works for both local and Replit deployments.
+// ---
 // Remove all top-level code, only export functions and types from this file
