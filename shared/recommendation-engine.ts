@@ -1,4 +1,4 @@
-import { AnalysisResult, ChatMessage } from "./schema";
+import { AnalysisResult, ChatMessage } from "./schema.js";
 
 // Types for recommendation engine
 export interface RecommendationInput {

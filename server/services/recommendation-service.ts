@@ -1,12 +1,10 @@
 import { v4 as uuid } from 'uuid';
-import { storage } from '../storage';
-import { generateRecommendations } from '@shared/recommendation-engine';
-import type { 
-  RecommendationSet, 
-  RecommendationItem, 
-  InsertRecommendationSet, 
-  InsertRecommendationItem 
-} from '@shared/schema';
+import { storage } from '../storage.js';
+import { generateRecommendations } from '../../shared/recommendation-engine.js';
+import {
+  RecommendationSet,
+  RecommendationItem,
+} from '../../shared/schema.js';
 
 interface GenerateRecommendationsParams {
   userId: string;

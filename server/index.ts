@@ -1,13 +1,17 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic, log } from "./vite.js";
+import { migrate } from './migrations.js';
+
+// Run migrations before any other imports to avoid circular import issues
+await migrate().catch(console.error);
 
 const app = express();
 app.use(express.json());
 
-// Run migrations
-import { migrate } from './migrations';
-migrate().catch(console.error);
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
@@ -72,3 +76,5 @@ app.use((req, res, next) => {
     log(`serving on port ${port}`);
   });
 })();
+
+// Remove all top-level code, only export functions and types from this file

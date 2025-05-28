@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { recommendationService } from "./services/recommendation-service";
+import { storage } from "./storage.js";
+import { recommendationService } from "./services/recommendation-service.js";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -37,13 +37,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error creating user:', {
         error,
-        stack: error.stack,
+        stack: (error instanceof Error) ? error.stack : undefined,
         body: req.body
       });
       res.status(500).json({ 
         message: 'Failed to create user',
-        error: error.message,
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        error: (error instanceof Error) ? error.message : String(error),
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.stack : undefined
       });
     }
   });

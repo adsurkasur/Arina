@@ -1,4 +1,4 @@
-import { getDb, initializeDb } from "./db";
+import { getDb, initializeDb } from "./db.js";
 
 async function collectionExists(collectionName: string): Promise<boolean> {
   const collections = await getDb()

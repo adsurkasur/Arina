@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { getDb } from "./db";
+import { getDb } from "./db.js";
 import {
   User,
   InsertUser,
@@ -13,7 +13,7 @@ import {
   InsertRecommendationSet,
   RecommendationItem,
   InsertRecommendationItem,
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { z } from "zod";
 
 const chatConversationSchema = z.object({

@@ -42,7 +42,7 @@ export const getChatHistory = async (userId: string) => {
   try {
     const response = await fetch(`/api/conversations/${userId}`);
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || "Failed to fetch chat history");
+    if (!response.ok) throw new Error(data?.message || "Failed to fetch chat history");
     return { data, error: null };
   } catch (error) {
     console.error("Error fetching chat history:", error);

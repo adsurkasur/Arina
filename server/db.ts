@@ -1,5 +1,5 @@
 import { MongoClient, Db } from "mongodb";
-import * as schema from "@shared/schema";
+import * as schema from "../shared/schema.js";
 
 let db: Db | null = null;
 let mongoClient: MongoClient | null = null;
