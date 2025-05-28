@@ -291,7 +291,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
 
   return (
     <Card className="w-full border-none shadow-none">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between bg-white">
         <div>
           <CardTitle className="text-xl font-heading font-semibold text-primary">
             Optimization Analysis
@@ -305,7 +305,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
         </Button>
       </CardHeader>
 
-      <CardContent className="overflow-y-auto max-h-[calc(100vh-12rem)]">
+      <CardContent className="overflow-y-auto max-h-[calc(100vh-12rem)] bg-white">
         <div className="bg-cream rounded-lg p-4 mb-4">
           <p className="text-sm text-gray-700">
             Define your optimization problem by specifying variables, constraints, and objectives.

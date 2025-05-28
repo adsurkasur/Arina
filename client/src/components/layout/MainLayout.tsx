@@ -33,7 +33,7 @@ export function MainLayout({
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-cream">
+    <div className="flex h-screen overflow-hidden bg-white">
       {/* Sidebar Toggle for Mobile */}
       {isMobile && !sidebarOpen && (
         <Button
@@ -57,13 +57,17 @@ export function MainLayout({
       {/* Main Content Area */}
       <div
         className={cn(
-          "flex-1 flex flex-col transition-all duration-500 ease-in-out bg-white/90 backdrop-blur-sm",
+          "flex-1 flex flex-col transition-[margin] duration-[300ms] ease-in-out bg-white",
           isMobile ? "ml-0" : sidebarOpen ? "ml-64" : "ml-0",
           "w-full",
         )}
       >
         {/* Top Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-4 sticky top-0 z-30">
+        <header
+          className={cn(
+            "bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-4 sticky top-0 z-30 w-full left-0",
+          )}
+        >
           {!isMobile && (
             <Button
               variant="ghost"
@@ -95,7 +99,7 @@ export function MainLayout({
             <ResizablePanelGroup direction="horizontal">
               {/* Main Content */}
               <ResizablePanel defaultSize={60} minSize={40}>
-                <div className="flex-1 flex flex-col h-full">
+                <div className="flex-1 flex flex-col h-full bg-white/90">
                   {children}
                 </div>
               </ResizablePanel>
@@ -106,7 +110,7 @@ export function MainLayout({
               <ResizablePanel defaultSize={40} minSize={30}>
                 <div className={
                   cn(
-                    "h-full bg-white border-l border-gray-200 overflow-y-auto custom-scrollbar transition-transform duration-500 ease-in-out",
+                    "h-full bg-white/90 border-l border-gray-200 overflow-y-auto custom-scrollbar transition-transform duration-[200ms] ease-in-out",
                     showRightPanel ? "translate-x-0 animate-featurepanel-in" : "-translate-x-full animate-featurepanel-out"
                   )
                 }>
@@ -116,7 +120,7 @@ export function MainLayout({
             </ResizablePanelGroup>
           ) : (
             /* When no tool panel or on mobile */
-            <div className="flex-1 flex flex-col h-full">
+            <div className="flex-1 flex flex-col h-full bg-white/90">
               {children}
             </div>
           )}

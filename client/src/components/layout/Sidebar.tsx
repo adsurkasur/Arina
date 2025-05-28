@@ -32,7 +32,6 @@ import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
@@ -144,13 +143,12 @@ export function Sidebar({
           onClick={() => setIsOpen(false)}
         />
       )}
-
       {/* Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-500 ease-in-out flex flex-col shadow-2xl",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-[300ms] ease-in-out flex flex-col shadow-2xl",
         isOpen
-          ? "translate-x-0 animate-sidebar-in"
-          : "-translate-x-full animate-sidebar-out",
+          ? "translate-x-0"
+          : "-translate-x-full",
       )}
       >
         {/* Sidebar Header */}
@@ -163,7 +161,7 @@ export function Sidebar({
         </div>
 
         {/* Main Menu Section */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar transition-all duration-300 font-sans">
+        <div className="flex-1 overflow-y-auto custom-scrollbar transition-all duration-[200ms] font-sans">
           {/* Dashboard Menu Item */}
           <div className="px-2 py-2">
             <button
@@ -193,139 +191,137 @@ export function Sidebar({
               </CollapsibleTrigger>
               {/* Animate dropdown with slide/fade */}
               <CollapsibleContent
-                className="overflow-hidden transition-all duration-300 data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp"
+                className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp"
               >
                 <div className="pl-2 mt-1">
-                  <TooltipProvider>
-                    <ul className="space-y-1">
-                      <li>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => openTool("businessFeasibility")}
-                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                            >
-                              <Calculator className="h-5 w-5 mr-3" />
-                              <span>Business Feasibility</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                  <ul className="space-y-1">
+                    <li>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => openTool("businessFeasibility")}
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <p className="text-sm">
-                              Analyze your business's financial feasibility
-                              including investment costs, operational costs,
-                              break-even point, ROI, and payback period. Make
-                              informed decisions about your agricultural
-                              venture's viability.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </li>
+                            <Calculator className="h-5 w-5 mr-3" />
+                            <span>Business Feasibility</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                        >
+                          <p className="text-sm">
+                            Analyze your business's financial feasibility
+                            including investment costs, operational costs,
+                            break-even point, ROI, and payback period. Make
+                            informed decisions about your agricultural
+                            venture's viability.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </li>
 
-                      <li>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => openTool("demandForecasting")}
-                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                            >
-                              <ChartBar className="h-5 w-5 mr-3" />
-                              <span>Demand Forecasting</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                    <li>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => openTool("demandForecasting")}
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <p className="text-sm">
-                              Predict future market demand patterns for your
-                              agricultural products using your historical sales
-                              data, market trends, and seasonal variations to
-                              optimize production planning.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </li>
+                            <ChartBar className="h-5 w-5 mr-3" />
+                            <span>Demand Forecasting</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                        >
+                          <p className="text-sm">
+                            Predict future market demand patterns for your
+                            agricultural products using your historical sales
+                            data, market trends, and seasonal variations to
+                            optimize production planning.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </li>
 
-                      <li>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => openTool("optimizationAnalysis")}
-                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                            >
-                              <BarChart3 className="h-5 w-5 mr-3" />
-                              <span>Optimization Analysis</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                    <li>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => openTool("optimizationAnalysis")}
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <p className="text-sm">
-                              Find the optimal balance of resources, crop
-                              selection, and production methods to maximize
-                              profits while minimizing costs. Uses advanced
-                              algorithms to help you make the most efficient
-                              decisions for your farm.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </li>
+                            <BarChart3 className="h-5 w-5 mr-3" />
+                            <span>Optimization Analysis</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                        >
+                          <p className="text-sm">
+                            Find the optimal balance of resources, crop
+                            selection, and production methods to maximize
+                            profits while minimizing costs. Uses advanced
+                            algorithms to help you make the most efficient
+                            decisions for your farm.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </li>
 
-                      <li>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => openTool("recommendations")}
-                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                            >
-                              <Lightbulb className="h-5 w-5 mr-3" />
-                              <span>Smart Recommendations</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                    <li>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => openTool("recommendations")}
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <p className="text-sm">
-                              Receive personalized crop selection, business
-                              opportunity, and market entry recommendations
-                              based on your analysis history, local seasonal
-                              conditions, and current agricultural trends.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </li>
+                            <Lightbulb className="h-5 w-5 mr-3" />
+                            <span>Smart Recommendations</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                        >
+                          <p className="text-sm">
+                            Receive personalized crop selection, business
+                            opportunity, and market entry recommendations
+                            based on your analysis history, local seasonal
+                            conditions, and current agricultural trends.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </li>
 
-                      <li>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => openTool("analysisHistory")}
-                              className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                            >
-                              <ClipboardList className="h-5 w-5 mr-3" />
-                              <span>Analysis History</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="right"
-                            className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                    <li>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => openTool("analysisHistory")}
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <p className="text-sm">
-                              Access and review all your previous business
-                              feasibility studies, demand forecasts, and
-                              optimization analyses with detailed visualizations
-                              and the ability to compare results over time.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </li>
-                    </ul>
-                  </TooltipProvider>
+                            <ClipboardList className="h-5 w-5 mr-3" />
+                            <span>Analysis History</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                        >
+                          <p className="text-sm">
+                            Access and review all your previous business
+                            feasibility studies, demand forecasts, and
+                            optimization analyses with detailed visualizations
+                            and the ability to compare results over time.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </li>
+                  </ul>
                 </div>
               </CollapsibleContent>
             </Collapsible>
@@ -338,7 +334,11 @@ export function Sidebar({
                 Chat History
               </h3>
               <button
-                onClick={createNewChat}
+                onClick={() => {
+                  createNewChat();
+                  if (openTool) openTool(""); // Ensure dashboard is closed
+                  if (isMobile) setIsOpen(false);
+                }}
                 className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
               >
                 <Plus className="h-3 w-3" />
@@ -355,6 +355,7 @@ export function Sidebar({
                     <button
                       onClick={() => {
                         loadConversation(conversation.id);
+                        if (openTool) openTool(""); // Ensure dashboard is closed
                         if (isMobile) setIsOpen(false);
                       }}
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"

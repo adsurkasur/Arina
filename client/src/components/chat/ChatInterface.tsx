@@ -33,7 +33,7 @@ export default function ChatInterface() {
   }, [messages, isSending]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
 
     if (isSending) {
       setShowThinking(false);
@@ -88,7 +88,7 @@ export default function ChatInterface() {
 
   if (!activeConversation) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-background">
+      <div className="flex flex-col items-center justify-center h-full bg-muted">
         <h1 className="text-4xl font-bold text-primary mb-4">Welcome to Arina</h1>
         <p className="text-lg text-gray-600 mb-8 text-center max-w-md">
           Your AI-powered agricultural business assistant. Start a new conversation to get insights and recommendations.
@@ -107,7 +107,7 @@ export default function ChatInterface() {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" id="chatMessages">
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-muted" id="chatMessages">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

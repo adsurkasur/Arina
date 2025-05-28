@@ -11,6 +11,7 @@ import RecommendationDashboard from "@/components/recommendations/Recommendation
 import AnalysisHistory from "@/components/history/AnalysisHistory";
 import UserProfile from "@/components/profile/UserProfile";
 import SettingsPanel from "@/components/profile/SettingsPanel";
+import DashboardHome from "./DashboardHome";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -70,14 +71,21 @@ export default function Dashboard() {
 
   const handleSetActiveTool = (tool: string) => setActiveTool(tool as string);
 
+  // Only show dashboard if explicitly opened via sidebar
+  const showDashboardHome = activeTool === "dashboard";
+
+  // Prevent right panel from opening for dashboard
+  const dashboardRightPanel = showDashboardHome ? undefined : renderActiveTool();
+  const dashboardShowRightPanel = showDashboardHome ? false : showRightPanel;
+
   return (
     <MainLayout
-      rightPanel={renderActiveTool()}
-      showRightPanel={showRightPanel}
+      rightPanel={dashboardRightPanel}
+      showRightPanel={dashboardShowRightPanel}
       setShowRightPanel={setShowRightPanel}
       setActiveTool={handleSetActiveTool}
     >
-      <ChatInterface />
+      {showDashboardHome ? <DashboardHome /> : <ChatInterface />}
     </MainLayout>
   );
 }

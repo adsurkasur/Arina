@@ -694,7 +694,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   }
 
   return (
-    <div className="p-4 h-full flex flex-col">
+    <div className="p-4 h-full flex flex-col bg-muted">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-primary">Analysis History</h2>
         <button 
