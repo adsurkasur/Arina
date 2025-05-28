@@ -7,6 +7,7 @@
     "postbuild": "echo 'Client build complete.'"
   },
   "devDependencies": {
+    "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@types/react": "^18.2.73",
     "@types/react-dom": "^18.2.18",
     "concurrently": "^9.1.2"

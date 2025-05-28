@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useAuth } from '@/hooks/useAuth';
@@ -196,7 +195,10 @@ export function RecommendationsList() {
                         <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {format(new Date(set.created_at), 'MMM d, yyyy')}
+                            {(() => {
+                              const date = new Date(set.created_at);
+                              return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'MMM d, yyyy');
+                            })()}
                           </span>
                           <span>•</span>
                           <span>{set.items.length} recommendations</span>

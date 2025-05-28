@@ -14,23 +14,23 @@ interface GenerateRecommendationsParams {
 function mapRecommendationSetFromDb(set: any) {
   return {
     id: set.id,
-    userId: set.user_id,
+    user_id: set.user_id, // snake_case for frontend
     summary: set.summary,
-    createdAt: set.created_at instanceof Date ? set.created_at.toISOString() : set.created_at,
+    created_at: set.created_at instanceof Date ? set.created_at.toISOString() : set.created_at, // snake_case
   };
 }
 
 function mapRecommendationItemFromDb(item: any) {
   return {
     id: item.id,
-    setId: item.set_id,
+    set_id: item.set_id, // snake_case for frontend
     type: item.type,
     title: item.title,
     description: item.description,
     confidence: Number(item.confidence),
     data: item.data,
     source: item.source,
-    createdAt: item.created_at instanceof Date ? item.created_at.toISOString() : item.created_at,
+    created_at: item.created_at instanceof Date ? item.created_at.toISOString() : item.created_at, // snake_case
   };
 }
 
