@@ -53,7 +53,8 @@ export async function setupVite(app: Express, server: Server) {
     const url = req.originalUrl;
 
     try {
-      const clientTemplate = path.join(__dirname, '../../client/index.html');
+      // Use projectRoot to resolve the client index.html robustly for all environments
+      const clientTemplate = path.join(projectRoot, 'client', 'index.html');
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
@@ -72,7 +73,7 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   // Serve the correct production build directory from the project root
-  const distPath = path.join(__dirname, '../../client/dist/public');
+  const distPath = path.join(projectRoot, 'client', 'dist', 'public');
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
