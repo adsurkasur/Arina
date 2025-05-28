@@ -39,15 +39,25 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
+// Utility to filter out bigint from children
+function filterBigintFromChildren(children: React.ReactNode): React.ReactNode {
+  if (typeof children === "bigint") return String(children);
+  if (Array.isArray(children)) return children.map(filterBigintFromChildren);
+  return children;
+}
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    const safeChildren = filterBigintFromChildren(children);
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
-      />
+      >
+        {safeChildren as any}
+      </Comp>
     );
   }
 );

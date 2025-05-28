@@ -39,6 +39,13 @@ const BreadcrumbItem = React.forwardRef<
 ))
 BreadcrumbItem.displayName = "BreadcrumbItem"
 
+// Utility to filter out bigint from children
+function filterBigintFromChildren(children: React.ReactNode): React.ReactNode {
+  if (typeof children === "bigint") return String(children)
+  if (Array.isArray(children)) return children.map(filterBigintFromChildren)
+  return children
+}
+
 const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a"> & {
@@ -47,19 +54,14 @@ const BreadcrumbLink = React.forwardRef<
   }
 >(({ asChild, className, children, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
-
-  // Filter out children of type 'bigint' (not valid ReactNode)
-  const safeChildren =
-    typeof children === "bigint" ? String(children) : children
-
-  // Only pass valid props to Slot or 'a'
+  const safeChildren = filterBigintFromChildren(children)
   return (
     <Comp
       ref={ref}
       className={cn("transition-colors hover:text-foreground", className)}
       {...props}
     >
-      {safeChildren}
+      {safeChildren as any}
     </Comp>
   )
 })

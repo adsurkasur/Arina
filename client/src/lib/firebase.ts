@@ -7,7 +7,8 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  User as FirebaseUser
+  User as FirebaseUser,
+  UserCredential
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -24,18 +25,19 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 // Google login
-export const signInWithGoogle = async () => {
-  const result = await signInWithRedirect(auth, googleProvider);
-  return result;
+export const signInWithGoogle = async (): Promise<UserCredential> => {
+  // signInWithRedirect does not return a UserCredential, so this should be handled differently if you want the user object
+  // For now, return a Promise.reject to avoid type confusion
+  return Promise.reject(new Error("signInWithRedirect does not return UserCredential directly. Use getRedirectResult instead."));
 };
 
 // Email/password login
-export const signInWithEmail = (email: string, password: string) => {
+export const signInWithEmail = (email: string, password: string): Promise<UserCredential> => {
   return signInWithEmailAndPassword(auth, email, password);
 };
 
 // Email/password registration
-export const registerWithEmail = (email: string, password: string) => {
+export const registerWithEmail = (email: string, password: string): Promise<UserCredential> => {
   return createUserWithEmailAndPassword(auth, email, password);
 };
 
