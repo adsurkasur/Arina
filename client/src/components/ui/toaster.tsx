@@ -1,5 +1,6 @@
 import React from "react"
-import { useToast } from "@/hooks/use-toast"
+import { useToast, setNotificationAdd } from "@/hooks/use-toast"
+import { useNotification } from "@/contexts/NotificationContext"
 import {
   Toast,
   ToastClose,
@@ -11,6 +12,12 @@ import {
 
 export function Toaster() {
   const { toasts } = useToast()
+  const { addNotification } = useNotification()
+
+  // Set the notificationAdd function for toast()
+  React.useEffect(() => {
+    setNotificationAdd(addNotification)
+  }, [addNotification])
 
   return (
     <ToastProvider>

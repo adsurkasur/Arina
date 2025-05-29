@@ -140,15 +140,31 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
+// Add a helper to allow toast to also send to NotificationContext
+let notificationAdd: ((n: { title: string; description?: string; type?: string }) => void) | null = null;
+
+export function setNotificationAdd(fn: typeof notificationAdd) {
+  notificationAdd = fn;
+}
+
 function toast({ ...props }: Toast) {
-  const id = genId()
+  const id = genId();
+
+  // Also add to NotificationContext for notification panel
+  if (notificationAdd && props.title) {
+    notificationAdd({
+      title: typeof props.title === "string" ? props.title : "Notification",
+      description: typeof props.description === "string" ? props.description : undefined,
+      type: props.variant === "destructive" ? "error" : "default",
+    });
+  }
 
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
       toast: { ...props, id },
-    })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+    });
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id });
 
   dispatch({
     type: "ADD_TOAST",
@@ -158,16 +174,16 @@ function toast({ ...props }: Toast) {
       open: true,
       duration: NOTIFICATION_DURATION,
       onOpenChange: (open) => {
-        if (!open) dismiss()
+        if (!open) dismiss();
       },
     },
-  })
+  });
 
   return {
     id: id,
     dismiss,
     update,
-  }
+  };
 }
 
 function useToast() {

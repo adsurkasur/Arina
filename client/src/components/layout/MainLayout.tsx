@@ -67,6 +67,14 @@ export function MainLayout({
   const showNotificationPanel = notifPanelOpen;
   const showToolPanel = showRightPanel && !notifPanelOpen;
 
+  // When notification panel closes, also close any tool panel (unify behavior)
+  const handleNotifPanelClose = () => {
+    setNotifPanelOpen(false);
+    if (setShowRightPanel) setShowRightPanel(false);
+    if (setActiveTool) setActiveTool("");
+    setLastActiveTool(null);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-white">
       {/* Sidebar Toggle for Mobile */}
@@ -150,7 +158,7 @@ export function MainLayout({
             >
               {/* Only render content if open, but keep container for close animation */}
               {((showNotificationPanel && !panelAnimatingOut) || (panelAnimatingOut && notifPanelOpen)) && (
-                <NotificationSidePanel open={notifPanelOpen} onClose={() => setNotifPanelOpen(false)} />
+                <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} />
               )}
               {((showToolPanel && !panelAnimatingOut) || (panelAnimatingOut && showRightPanel && rightPanel)) && showToolPanel && rightPanel && React.cloneElement(rightPanel as any, {
                 onClose: () => {
@@ -163,7 +171,7 @@ export function MainLayout({
           )}
           {/* Mobile overlays */}
           {showNotificationPanel && isMobile && (
-            <NotificationSidePanel open={notifPanelOpen} onClose={() => setNotifPanelOpen(false)} />
+            <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} />
           )}
           {showToolPanel && isMobile && rightPanel && React.cloneElement(rightPanel as any, {
             onClose: () => {
