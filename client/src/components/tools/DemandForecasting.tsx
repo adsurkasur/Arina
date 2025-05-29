@@ -259,11 +259,11 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
   };
 
   return (
-    <PanelContainer onClose={onClose} title="Demand Forecasting">
+    <PanelContainer onClose={onClose} title={t('tools.demandForecasting.title')}>
       <div className="space-y-6">
         {/* Section: Forecast Info */}
         <div className="mb-4">
-          <h3 className="font-medium text-lg mb-2">Forecast Information</h3>
+          <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.infoTitle')}</h3>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
               {/* Product Name */}
@@ -273,19 +273,18 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      Product Name
+                      {t('tools.demandForecasting.productName')}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-4 w-4 text-gray-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
-                          Enter the name of the product you want to forecast
-                          demand for.
+                          {t('tools.demandForecasting.productNameTooltip')}
                         </TooltipContent>
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Rice" {...field} />
+                      <Input placeholder={t('tools.demandForecasting.productNamePlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -297,50 +296,48 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
 
         {/* Section: Historical Demand */}
         <div className="mb-4">
-          <h3 className="font-medium text-lg mb-2">Historical Demand</h3>
+          <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.historicalTitle')}</h3>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-base font-medium text-gray-700">
-                  Historical Demand
+                  {t('tools.demandForecasting.historicalDemand')}
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Info className="h-4 w-4 text-gray-500" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[300px]">
-                      Provide historical demand data for at least three periods to
-                      generate an accurate forecast.
+                      {t('tools.demandForecasting.historicalDemandTooltip')}
                     </TooltipContent>
                   </Tooltip>
                 </label>
                 <p className="text-sm text-muted-foreground">
-                  Enter at least 3 periods of historical data
+                  {t('tools.demandForecasting.historicalDemandDesc')}
                 </p>
 
                 <div className="grid grid-cols-12 gap-2 mb-2">
                   <div className="col-span-5">
                     <label className="text-xs flex items-center gap-2 font-medium text-gray-700">
-                      Period
+                      {t('tools.demandForecasting.period')}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-4 w-4 text-gray-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
-                          Specify the time period for the historical demand (e.g.,
-                          "January 2025").
+                          {t('tools.demandForecasting.periodTooltip')}
                         </TooltipContent>
                       </Tooltip>
                     </label>
                   </div>
                   <div className="col-span-5">
                     <label className="text-xs flex items-center gap-2 font-medium text-gray-700">
-                      Demand
+                      {t('tools.demandForecasting.demand')}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-4 w-4 text-gray-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
-                          Enter the demand quantity for the specified period.
+                          {t('tools.demandForecasting.demandTooltip')}
                         </TooltipContent>
                       </Tooltip>
                     </label>
@@ -436,7 +433,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
 
         {/* Section: Forecast Method */}
         <div className="mb-4">
-          <h3 className="font-medium text-lg mb-2">Forecast Method</h3>
+          <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.methodTitle')}</h3>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
               {/* Forecast Method */}
@@ -446,14 +443,13 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      Forecast Method
+                      {t('tools.demandForecasting.method')}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-4 w-4 text-gray-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
-                          Select the forecasting method to use: Simple Moving
-                          Average (SMA) or Exponential Smoothing.
+                          {t('tools.demandForecasting.methodTooltip')}
                         </TooltipContent>
                       </Tooltip>
                     </FormLabel>
@@ -463,22 +459,22 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a method" />
+                          <SelectValue placeholder={t('tools.demandForecasting.methodPlaceholder')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="sma">
-                          Simple Moving Average (SMA)
+                          {t('tools.demandForecasting.sma')}
                         </SelectItem>
                         <SelectItem value="exponential">
-                          Exponential Smoothing
+                          {t('tools.demandForecasting.exponential')}
                         </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>
                       {method === "sma"
-                        ? "SMA calculates the average of the last n periods."
-                        : "Exponential smoothing gives more weight to recent observations."}
+                        ? t('tools.demandForecasting.smaDesc')
+                        : t('tools.demandForecasting.exponentialDesc')}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -494,14 +490,13 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        Smoothing Factor (Alpha)
+                        {t('tools.demandForecasting.smoothingFactor')}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-gray-500" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
-                            Alpha determines how much weight is given to recent
-                            observations (higher = more weight to recent data).
+                            {t('tools.demandForecasting.smoothingFactorTooltip')}
                           </TooltipContent>
                         </Tooltip>
                       </FormLabel>
@@ -528,14 +523,13 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        Historical Periods for SMA
+                        {t('tools.demandForecasting.periodLength')}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-gray-500" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
-                            Number of historical periods to use for SMA
-                            calculation (e.g., SMA3 uses 3 periods).
+                            {t('tools.demandForecasting.periodLengthTooltip')}
                           </TooltipContent>
                         </Tooltip>
                       </FormLabel>
@@ -570,18 +564,18 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
           >
             {isCalculating ? (
               <>
-                <span className="animate-spin mr-2">◌</span>
-                Calculating...
+                <span className="animate-spin mr-2"></span>
+                {t('tools.demandForecasting.calculating')}
               </>
             ) : (
               <>
                 <CalculatorIcon className="mr-2 h-4 w-4" />
-                Generate Forecast
+                {t('tools.demandForecasting.generateForecast')}
               </>
             )}
           </Button>
           <Button type="button" variant="outline" onClick={resetForm}>
-            Reset
+            {t('form.reset')}
           </Button>
         </div>
 
@@ -592,14 +586,14 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
             className="mt-6 border-t border-gray-200 pt-4"
           >
             <h3 className="text-lg font-heading font-medium text-primary mb-3">
-              Forecast Results
+              {t('tools.demandForecasting.resultsTitle')}
             </h3>
 
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               {/* Chart */}
               <div className={graphContainerClass} style={{ minWidth: '350px' }}>
                 <div className="flex justify-between items-center mb-2 w-full">
-                  <h4 className="font-medium text-gray-700">Forecast Chart</h4>
+                  <h4 className="font-medium text-gray-700">{t('tools.demandForecasting.chartTitle')}</h4>
                   <Button
                     type="button"
                     size="sm"
@@ -607,17 +601,17 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                     className="ml-auto"
                     onClick={() => setIsFullscreen(true)}
                   >
-                    Show Graph in Fullscreen
+                    {t('tools.demandForecasting.showGraphFullscreen')}
                   </Button>
                 </div>
                 <div className="space-y-4 w-full">
                   <div className="bg-cream p-4 rounded-lg">
-                    <h5 className="font-medium text-primary mb-2">Understanding the Chart</h5>
+                    <h5 className="font-medium text-primary mb-2">{t('tools.demandForecasting.chartHelpTitle')}</h5>
                     <ul className="text-sm space-y-2">
-                      <li>• Solid line: Your actual historical demand data</li>
-                      <li>• Dashed line: Predicted future demand</li>
-                      <li>• Each point represents demand for one period</li>
-                      <li>• Hover over points to see exact values</li>
+                      <li>{t('tools.demandForecasting.chartHelpSolid')}</li>
+                      <li>{t('tools.demandForecasting.chartHelpDashed')}</li>
+                      <li>{t('tools.demandForecasting.chartHelpPoint')}</li>
+                      <li>{t('tools.demandForecasting.chartHelpHover')}</li>
                     </ul>
                   </div>
                   <div className="h-80 w-full min-w-[350px] mb-6" style={{overflow: 'visible'}}>
@@ -691,14 +685,14 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                 <FullscreenChartModal onClose={() => setIsFullscreen(false)}>
                   <div className="w-full h-full flex flex-col items-center justify-center">
                     <div className="w-full max-w-5xl">
-                      <h4 className="font-medium text-gray-700 mb-2">Forecast Chart (Fullscreen)</h4>
+                      <h4 className="font-medium text-gray-700 mb-2">{t('tools.demandForecasting.fullscreenChartTitle')}</h4>
                       <div className="bg-cream p-4 rounded-lg mb-4">
-                        <h5 className="font-medium text-primary mb-2">Understanding the Chart</h5>
+                        <h5 className="font-medium text-primary mb-2">{t('tools.demandForecasting.chartHelpTitle')}</h5>
                         <ul className="text-sm space-y-2">
-                          <li>• Solid line: Your actual historical demand data</li>
-                          <li>• Dashed line: Predicted future demand</li>
-                          <li>• Each point represents demand for one period</li>
-                          <li>• Hover over points to see exact values</li>
+                          <li>{t('tools.demandForecasting.chartHelpSolid')}</li>
+                          <li>{t('tools.demandForecasting.chartHelpDashed')}</li>
+                          <li>{t('tools.demandForecasting.chartHelpPoint')}</li>
+                          <li>{t('tools.demandForecasting.chartHelpHover')}</li>
                         </ul>
                       </div>
                       <div className="h-[70vh] w-full min-w-[350px] mb-6" style={{overflow: 'visible'}}>
@@ -774,7 +768,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
               {/* Data Table replaced with MAE and MAPE */}
               <div className="p-4">
                 <h4 className="font-medium text-gray-700 mb-3">
-                  Forecast Accuracy Metrics
+                  {t('tools.demandForecasting.accuracyTitle')}
                 </h4>
                 {/* Forecast Accuracy Metrics as cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
@@ -787,15 +781,15 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                           <Info className="h-4 w-4 text-gray-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
-                          <p>Mean Absolute Error (MAE) measures the average magnitude of errors in your forecast, without considering their direction.</p>
-                          <p className="mt-2 text-xs">Formula: (1/n) Σ |Actual - Forecast|</p>
+                          <p>{t('tools.demandForecasting.maeTooltip')}</p>
+                          <p className="mt-2 text-xs">{t('tools.demandForecasting.maeFormula')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
                     <div className="font-medium text-primary text-lg">
                       {results.accuracy?.mae !== undefined && !isNaN(results.accuracy.mae)
                         ? <>{results.accuracy.mae.toFixed(2)}</>
-                        : <span className="text-gray-400">Not enough data</span>}
+                        : <span className="text-gray-400">{t('tools.demandForecasting.notEnoughData')}</span>}
                     </div>
                   </div>
                   {/* MAPE Card */}
@@ -807,15 +801,15 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                           <Info className="h-4 w-4 text-gray-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
-                          <p>Mean Absolute Percentage Error (MAPE) measures the average absolute percent error between actual and forecasted values.</p>
-                          <p className="mt-2 text-xs">Formula: (1/n) Σ |(Actual - Forecast) / Actual| × 100%</p>
+                          <p>{t('tools.demandForecasting.mapeTooltip')}</p>
+                          <p className="mt-2 text-xs">{t('tools.demandForecasting.mapeFormula')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
                     <div className="font-medium text-primary text-lg">
                       {results.accuracy?.mape !== undefined && !isNaN(results.accuracy.mape)
                         ? <>{results.accuracy.mape.toFixed(2)}%</>
-                        : <span className="text-gray-400">Not enough data</span>}
+                        : <span className="text-gray-400">{t('tools.demandForecasting.notEnoughData')}</span>}
                     </div>
                   </div>
                 </div>
@@ -824,7 +818,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
               {/* Interpretation Section */}
               <div className="p-4 border-t border-gray-200">
                 <h4 className="font-medium text-gray-700 mb-2">
-                  Forecast Interpretation
+                  {t('tools.demandForecasting.interpretationTitle')}
                 </h4>
                 <div className="text-sm text-gray-600">
                   {(() => {
@@ -833,20 +827,20 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                     const forecastValue = forecasted && forecasted.length > 0 ? forecasted[0].forecast : null;
                     let interp = "";
                     if (forecastValue !== null && !isNaN(forecastValue)) {
-                      interp += `The predicted demand for the next period for <b>${productName}</b> is <b>${forecastValue.toLocaleString(undefined, {maximumFractionDigits: 2})}</b>. `;
+                      interp += `${t('tools.demandForecasting.predictedDemand')} <b>${productName}</b> ${t('tools.demandForecasting.is')} <b>${forecastValue.toLocaleString(undefined, {maximumFractionDigits: 2})}</b>. `;
                     }
                     if (
                       accuracy &&
                       typeof accuracy.mape === 'number' && !isNaN(accuracy.mape) &&
                       typeof accuracy.mae === 'number' && !isNaN(accuracy.mae)
                     ) {
-                      interp += `The forecast model has a Mean Absolute Error (MAE) of <b>${accuracy.mae.toFixed(2)}</b> and a Mean Absolute Percentage Error (MAPE) of <b>${accuracy.mape.toFixed(2)}%</b>. `;
+                      interp += `${t('tools.demandForecasting.forecastModel')} <b>${accuracy.mae.toFixed(2)}</b> ${t('tools.demandForecasting.and')} <b>${accuracy.mape.toFixed(2)}%</b>. `;
                       if (accuracy.mape < 10) {
-                        interp += "This indicates a highly accurate forecast.";
+                        interp += t('tools.demandForecasting.highlyAccurate');
                       } else if (accuracy.mape < 20) {
-                        interp += "This indicates a reasonably accurate forecast.";
+                        interp += t('tools.demandForecasting.reasonablyAccurate');
                       } else {
-                        interp += "The forecast may have significant error; consider using more historical data or a different method.";
+                        interp += t('tools.demandForecasting.significantError');
                       }
                     }
                     return <span dangerouslySetInnerHTML={{__html: interp}} />;
@@ -863,7 +857,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                   className="mr-2"
                 >
                   <FileDown className="mr-2 h-4 w-4" />
-                  Export as PDF
+                  {t('tools.demandForecasting.exportPDF')}
                 </Button>
                 <Button
                   variant="ghost"
@@ -872,11 +866,11 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                   disabled={isSaving}
                 >
                   {isSaving ? (
-                    <span className="animate-spin mr-2">◌</span>
+                    <span className="animate-spin mr-2"></span>
                   ) : (
                     <Save className="mr-2 h-4 w-4" />
                   )}
-                  Save Analysis
+                  {t('tools.demandForecasting.saveAnalysis')}
                 </Button>
               </div>
             </div>
