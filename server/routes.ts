@@ -51,9 +51,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PATCH endpoint to update user preferences
   app.patch("/api/users/:id/preferences", async (req, res) => {
     try {
-      const { dark_mode, language } = req.body;
-      const updated = await storage.updateUserPreferences(req.params.id, { dark_mode, language });
-      if (!updated) return res.status(404).json({ message: "User not found" });
+      const { dark_mode, language, email, name, photo_url } = req.body;
+      let updated = await storage.updateUserPreferences(req.params.id, { dark_mode, language });
+      if (!updated) {
+        // Upsert: create user if missing, then update preferences
+        if (!email || !name) {
+          return res.status(400).json({ message: "Missing email or name for user creation" });
+        }
+        // Check if a user with this email already exists
+        const existingUser = await storage.getUserByEmail(email);
+        if (existingUser) {
+          // Update that user's id to the current id (merge accounts)
+          await storage.updateUserId(existingUser.id, req.params.id);
+        } else {
+          // Create new user
+          await storage.createUser({
+            id: req.params.id,
+            email,
+            name,
+            photo_url: photo_url ?? null,
+          });
+        }
+        updated = await storage.updateUserPreferences(req.params.id, { dark_mode, language });
+        if (!updated) {
+          // Fallback: fetch and log user by id
+          const userById = await storage.getUser(req.params.id);
+          console.error('[PATCH /api/users/:id/preferences] Failed to upsert user preferences', {
+            id: req.params.id,
+            email,
+            name,
+            photo_url,
+            dark_mode,
+            language,
+            userById
+          });
+          return res.status(500).json({ message: "Failed to upsert user preferences" });
+        }
+      }
       res.json(updated);
     } catch (error: any) {
       res.status(500).json({ message: error.message });

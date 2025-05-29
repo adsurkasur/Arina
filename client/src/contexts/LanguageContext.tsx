@@ -14,7 +14,7 @@ const LanguageContext = createContext<LanguageContextProps>({
 });
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, userReady } = useAuth();
   const [language, setLanguageState] = useState("en");
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     async function loadUserLanguage() {
       setLoading(true);
       let lang = "en";
-      if (user) {
+      if (user && userReady) {
         const { data } = await getUserProfile(user.id);
         if (data && data.language) {
           lang = data.language;
@@ -34,7 +34,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     }
     loadUserLanguage();
     // eslint-disable-next-line
-  }, [user]);
+  }, [user, userReady]);
 
   const setLanguage = (lang: string) => {
     setLanguageState(lang);

@@ -38,18 +38,45 @@ export const getUserProfile = async (userId: string) => {
 };
 
 // Update user preferences
+/**
+ * Update user preferences in MongoDB. If user is missing, auto-create and retry.
+ * @param userId - Firebase UID
+ * @param prefs - Preferences to update
+ * @param userInfo - { email, name, photoURL } (required for fallback)
+ */
 export const updateUserPreferences = async (
   userId: string,
-  prefs: { dark_mode?: boolean; language?: string }
+  prefs: { dark_mode?: boolean; language?: string },
+  userInfo: { email: string; name: string; photoURL?: string }
 ) => {
+  if (!userInfo.email || !userInfo.name) {
+    console.warn("updateUserPreferences called with missing email or name:", userInfo);
+  }
   try {
+    // Always include user info in PATCH body for upsert
+    const patchBody = { ...prefs, email: userInfo.email, name: userInfo.name, photo_url: userInfo.photoURL };
     const response = await fetch(`/api/users/${userId}/preferences`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(prefs),
+      body: JSON.stringify(patchBody),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || "Failed to update preferences");
+    if (!response.ok) {
+      // If user not found, try to create user and retry
+      if (data.message === "User not found" && userInfo) {
+        await createUserProfile(userId, userInfo.email, userInfo.name, userInfo.photoURL);
+        // Retry update
+        const retryResponse = await fetch(`/api/users/${userId}/preferences`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patchBody),
+        });
+        const retryData = await retryResponse.json();
+        if (!retryResponse.ok) throw new Error(retryData.message || "Failed to update preferences");
+        return { data: retryData, error: null };
+      }
+      throw new Error(data.message || "Failed to update preferences");
+    }
     return { data, error: null };
   } catch (error) {
     console.error("Error updating user preferences:", error);

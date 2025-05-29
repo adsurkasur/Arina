@@ -17,7 +17,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
     if (!user) return;
     setLoading(true);
     // Update database first, then update UI
-    await updateUserPreferences(user.id, { dark_mode: !darkMode });
+    await updateUserPreferences(user.id, { dark_mode: !darkMode }, { email: user.email, name: user.name, photoURL: user.photoURL });
     setDarkMode(!darkMode);
     setLoading(false);
   };
@@ -27,7 +27,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
     if (user) {
       setLoading(true);
       // Update database first, then update UI
-      await updateUserPreferences(user.id, { language: lang });
+      await updateUserPreferences(user.id, { language: lang }, { email: user.email, name: user.name, photoURL: user.photoURL });
       i18n.changeLanguage(lang);
       setLoading(false);
     } else {

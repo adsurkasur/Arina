@@ -13,7 +13,7 @@ const ThemeContext = createContext<ThemeContextProps>({
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, userReady } = useAuth();
   const [darkMode, setDarkModeState] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +21,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     async function loadUserTheme() {
       setLoading(true);
-      if (user) {
+      if (user && userReady) {
         const { data } = await getUserProfile(user.id);
         if (data && typeof data.dark_mode === "boolean") {
           setDarkModeState(data.dark_mode);
@@ -36,7 +36,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
     loadUserTheme();
     // eslint-disable-next-line
-  }, [user]);
+  }, [user, userReady]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
