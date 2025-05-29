@@ -127,7 +127,7 @@ export default function UserProfile({ onClose }: UserProfileProps) {
                   <Avatar className="h-24 w-24 border-2 border-primary">
                     <AvatarImage src={user?.photoURL} alt={user?.name} />
                     <AvatarFallback className="text-xl bg-primary text-white">
-                      {user?.name.substring(0, 2).toUpperCase()}
+                      {user?.name?.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   
@@ -139,7 +139,7 @@ export default function UserProfile({ onClose }: UserProfileProps) {
                     </p>
                     <p className="text-sm text-gray-500 flex items-center">
                       <Shield className="h-4 w-4 mr-1" />
-                      {t("Standard Account", "Akun Standar")}
+                      {t('userProfile.standardAccount')}
                     </p>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export default function UserProfile({ onClose }: UserProfileProps) {
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('auth.email')}</Label>
                     <Input 
                       id="email" 
                       name="email" 
@@ -247,20 +247,20 @@ export default function UserProfile({ onClose }: UserProfileProps) {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="current-password">{t('userProfile.currentPassword')}</Label>
-                  <Input id="current-password" type="password" placeholder="••••••••" />
+                  <Input id="current-password" type="password" placeholder={t('auth.passwordPlaceholder')} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new-password">{t('userProfile.newPassword')}</Label>
-                  <Input id="new-password" type="password" placeholder="••••••••" />
+                  <Input id="new-password" type="password" placeholder={t('auth.passwordPlaceholder')} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">{t('userProfile.confirmNewPassword')}</Label>
-                  <Input id="confirm-password" type="password" placeholder="••••••••" />
+                  <Input id="confirm-password" type="password" placeholder={t('auth.confirmPasswordPlaceholder')} />
                 </div>
               </CardContent>
               <CardFooter>
                 <Button variant="outline" className="w-full sm:w-auto mr-2">
-                  {t("Cancel", "Batal")}
+                  {t('userProfile.cancel')}
                 </Button>
                 <Button className="w-full sm:w-auto">
                   <KeyRound className="h-4 w-4 mr-2" />
@@ -317,8 +317,8 @@ export default function UserProfile({ onClose }: UserProfileProps) {
                     {analysisResults.length === 0 ? (
                       <li className="text-gray-400">{t('userProfile.noAnalysisHistory')}</li>
                     ) : (
-                      analysisResults.map((result) => (
-                        <li key={result.id}>{result.type}</li>
+                      analysisResults.map((result: any) => (
+                        <li key={result.id}>{result.title}</li>
                       ))
                     )}
                   </ul>
@@ -346,7 +346,7 @@ export default function UserProfile({ onClose }: UserProfileProps) {
                       <li className="text-gray-400">{t('userProfile.noRecommendationsHistory')}</li>
                     ) : (
                       recommendations.map((rec: any) => (
-                        <li key={rec.id}>{rec.summary || rec.id}</li>
+                        <li key={rec.id}>{rec.title}</li>
                       ))
                     )}
                   </ul>

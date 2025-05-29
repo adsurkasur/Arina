@@ -19,8 +19,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from 'react-i18next';
 
 export default function ChatInterface() {
+  const { t } = useTranslation();
   const { messages, isLoading, sendMessage, isSending, activeConversation, createNewChat, deleteConversation, loadChatHistory } = useChat();
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -89,9 +91,9 @@ export default function ChatInterface() {
   if (!activeConversation) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-muted">
-        <h1 className="text-4xl font-bold text-primary mb-4">Welcome to Arina</h1>
+        <h1 className="text-4xl font-bold text-primary mb-4">{t('chat.title')}</h1>
         <p className="text-lg text-gray-600 mb-8 text-center max-w-md">
-          Your AI-powered agricultural business assistant. Start a new conversation to get insights and recommendations.
+          {t('chat.welcomeMessage')}
         </p>
         <Button 
           onClick={createNewChat}
@@ -99,7 +101,7 @@ export default function ChatInterface() {
           className="gap-2"
         >
           <MessageSquarePlus className="w-5 h-5" />
-          Start New Chat
+          {t('chat.startNewChat')}
         </Button>
       </div>
     );
@@ -115,7 +117,7 @@ export default function ChatInterface() {
         ) : messages.length === 0 ? (
           <div className="flex justify-center items-center h-full">
             <div className="text-center text-gray-500">
-              <p>Start a new conversation by typing a message below.</p>
+              <p>{t('chat.emptyConversation')}</p>
             </div>
           </div>
         ) : (
@@ -140,14 +142,14 @@ export default function ChatInterface() {
       <AlertDialog open={!!chatToDelete} onOpenChange={() => setChatToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Chat</AlertDialogTitle>
+            <AlertDialogTitle>{t('chat.deleteChat')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this chat? This action cannot be undone.
+              {t('chat.deleteChatConfirmation')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel>{t('form.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>{t('form.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -1,46 +1,48 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { LineChart, BarChart3, PieChart, Brain } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface WelcomeBannerProps {
   onToolSelect?: (tool: string) => void;
 }
 
 export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
+  const { t } = useTranslation();
   return (
     <>
       {/* Welcome Message */}
       <div className="flex justify-center mb-6 font-sans">
         <div className="bg-cream rounded-lg p-6 shadow-md max-w-2xl w-full">
-          <h2 className="text-2xl font-semibold text-primary mb-4">Welcome to Arina</h2>
-          <p className="mb-4">Your AI-powered agricultural business assistant. I can help you with:</p>
+          <h2 className="text-2xl font-semibold text-primary mb-4">{t('chat.welcomeTitle')}</h2>
+          <p className="mb-4">{t('chat.welcomeDesc')}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="bg-cream p-3 rounded-lg flex items-start">
               <LineChart className="text-primary mt-1 mr-2 h-5 w-5" />
               <div>
-                <h3 className="font-medium text-primary">Business Feasibility</h3>
-                <p className="text-sm">Analyze profitability and break-even points</p>
+                <h3 className="font-medium text-primary">{t('chat.businessFeasibility')}</h3>
+                <p className="text-sm">{t('chat.businessFeasibilityDesc')}</p>
               </div>
             </div>
             <div className="bg-cream p-3 rounded-lg flex items-start">
               <BarChart3 className="text-primary mt-1 mr-2 h-5 w-5" />
               <div>
-                <h3 className="font-medium text-primary">Demand Forecasting</h3>
-                <p className="text-sm">Predict future sales and market trends</p>
+                <h3 className="font-medium text-primary">{t('chat.demandForecasting')}</h3>
+                <p className="text-sm">{t('chat.demandForecastingDesc')}</p>
               </div>
             </div>
             <div className="bg-cream p-3 rounded-lg flex items-start">
               <PieChart className="text-primary mt-1 mr-2 h-5 w-5" />
               <div>
-                <h3 className="font-medium text-primary">Optimization Analysis</h3>
-                <p className="text-sm">Maximize profits or minimize costs</p>
+                <h3 className="font-medium text-primary">{t('chat.optimizationAnalysis')}</h3>
+                <p className="text-sm">{t('chat.optimizationAnalysisDesc')}</p>
               </div>
             </div>
             <div className="bg-cream p-3 rounded-lg flex items-start">
               <Brain className="text-primary mt-1 mr-2 h-5 w-5" />
               <div>
-                <h3 className="font-medium text-primary">AI Assistance</h3>
-                <p className="text-sm">Get insights and advice for your farm</p>
+                <h3 className="font-medium text-primary">{t('chat.aiAssistance')}</h3>
+                <p className="text-sm">{t('chat.aiAssistanceDesc')}</p>
               </div>
             </div>
           </div>
@@ -71,9 +73,9 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
       {/* Getting Started Prompt */}
       <div className="flex justify-center mb-6 font-sans">
         <div className="bg-white rounded-lg p-6 shadow-md max-w-2xl w-full">
-          <h3 className="font-heading font-medium text-primary text-lg mb-2">How can I help you today?</h3>
+          <h3 className="font-heading font-medium text-primary text-lg mb-2">{t('chat.gettingStarted')}</h3>
           <p className="text-sm text-gray-600 mb-4">
-            Type a question in the chat or try one of these examples:
+            {t('chat.gettingStartedDesc')}
           </p>
           <div className="space-y-2">
             <Button 
@@ -81,21 +83,21 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
               className="w-full justify-start text-left text-gray-800 bg-cream hover:bg-cream-dark border-0"
               onClick={() => onToolSelect && onToolSelect('businessFeasibility')}
             >
-              Help me analyze if a strawberry farm would be profitable
+              {t('chat.example.businessFeasibility')}
             </Button>
             <Button 
               variant="outline" 
               className="w-full justify-start text-left text-gray-800 bg-cream hover:bg-cream-dark border-0"
               onClick={() => onToolSelect && onToolSelect('demandForecasting')}
             >
-              Forecast corn demand for the next 6 months
+              {t('chat.example.demandForecasting')}
             </Button>
             <Button 
               variant="outline" 
               className="w-full justify-start text-left text-gray-800 bg-cream hover:bg-cream-dark border-0"
               onClick={() => onToolSelect && onToolSelect('optimizationAnalysis')}
             >
-              Optimize my crop selection to maximize profits
+              {t('chat.example.optimizationAnalysis')}
             </Button>
           </div>
         </div>

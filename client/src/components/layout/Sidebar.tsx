@@ -57,6 +57,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChatConversation } from "@/types";
 import { useNotification } from "@/contexts/NotificationContext";
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -71,6 +72,7 @@ export function Sidebar({
   isMobile,
   openTool,
 }: SidebarProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const {
     conversations,
@@ -175,7 +177,7 @@ export function Sidebar({
               className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
             >
               <BarChart3 className="h-5 w-5 mr-3" />
-              <span>Dashboard</span>
+              <span>{t('sidebar.dashboard')}</span>
             </button>
           </div>
           {/* Analysis Tools Dropdown */}
@@ -187,7 +189,7 @@ export function Sidebar({
             >
               <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
                 <div className="flex items-center">
-                  <span className="mr-2">Analysis Tools</span>
+                  <span className="mr-2">{t('sidebar.analysisTools')}</span>
                 </div>
                 {analysisToolsOpen ? (
                   <ChevronDown className="h-4 w-4" />
@@ -209,7 +211,7 @@ export function Sidebar({
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <Calculator className="h-5 w-5 mr-3" />
-                            <span>Business Feasibility</span>
+                            <span>{t('sidebar.businessFeasibility')}</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent
@@ -217,11 +219,7 @@ export function Sidebar({
                           className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
-                            Analyze your business's financial feasibility
-                            including investment costs, operational costs,
-                            break-even point, ROI, and payback period. Make
-                            informed decisions about your agricultural
-                            venture's viability.
+                            {t('sidebar.businessFeasibilityDescription')}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -235,7 +233,7 @@ export function Sidebar({
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <ChartBar className="h-5 w-5 mr-3" />
-                            <span>Demand Forecasting</span>
+                            <span>{t('sidebar.demandForecasting')}</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent
@@ -243,10 +241,7 @@ export function Sidebar({
                           className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
-                            Predict future market demand patterns for your
-                            agricultural products using your historical sales
-                            data, market trends, and seasonal variations to
-                            optimize production planning.
+                            {t('sidebar.demandForecastingDescription')}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -260,7 +255,7 @@ export function Sidebar({
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <BarChart3 className="h-5 w-5 mr-3" />
-                            <span>Optimization Analysis</span>
+                            <span>{t('sidebar.optimizationAnalysis')}</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent
@@ -268,11 +263,7 @@ export function Sidebar({
                           className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
-                            Find the optimal balance of resources, crop
-                            selection, and production methods to maximize
-                            profits while minimizing costs. Uses advanced
-                            algorithms to help you make the most efficient
-                            decisions for your farm.
+                            {t('sidebar.optimizationAnalysisDescription')}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -286,7 +277,7 @@ export function Sidebar({
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <Lightbulb className="h-5 w-5 mr-3" />
-                            <span>Smart Recommendations</span>
+                            <span>{t('sidebar.smartRecommendations')}</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent
@@ -294,10 +285,7 @@ export function Sidebar({
                           className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
-                            Receive personalized crop selection, business
-                            opportunity, and market entry recommendations
-                            based on your analysis history, local seasonal
-                            conditions, and current agricultural trends.
+                            {t('sidebar.smartRecommendationsDescription')}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -311,7 +299,7 @@ export function Sidebar({
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <ClipboardList className="h-5 w-5 mr-3" />
-                            <span>Analysis History</span>
+                            <span>{t('sidebar.analysisHistory')}</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent
@@ -319,10 +307,7 @@ export function Sidebar({
                           className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
-                            Access and review all your previous business
-                            feasibility studies, demand forecasts, and
-                            optimization analyses with detailed visualizations
-                            and the ability to compare results over time.
+                            {t('sidebar.analysisHistoryDescription')}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -337,7 +322,7 @@ export function Sidebar({
           <div className="px-2 py-2">
             <div className="flex items-center justify-between px-3 py-2">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                Chat History
+                {t('sidebar.chatHistory')}
               </h3>
               <button
                 onClick={() => {
@@ -346,6 +331,7 @@ export function Sidebar({
                   if (isMobile) setIsOpen(false);
                 }}
                 className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                aria-label={t('sidebar.newChat')}
               >
                 <Plus className="h-3 w-3" />
               </button>
@@ -386,14 +372,14 @@ export function Sidebar({
                           className="cursor-pointer"
                         >
                           <Pencil className="mr-2 h-4 w-4" />
-                          Rename
+                          {t('sidebar.rename')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={(e: any) => handleDeleteClick(conversation.id, e)}
                           className="cursor-pointer text-red-500 focus:text-red-500"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          {t('sidebar.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -401,7 +387,7 @@ export function Sidebar({
                 ))
               ) : (
                 <p className="text-xs text-white/50 px-3 py-2">
-                  No conversations yet
+                  {t('sidebar.noConversations')}
                 </p>
               )}
             </div>
@@ -413,9 +399,9 @@ export function Sidebar({
             >
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Rename Conversation</DialogTitle>
+                  <DialogTitle>{t('sidebar.renameConversation')}</DialogTitle>
                   <DialogDescription>
-                    Enter a new name for this conversation
+                    {t('sidebar.enterNewName')}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleRenameSubmit}>
@@ -424,7 +410,7 @@ export function Sidebar({
                       value={newTitle}
                       onChange={(e: any) => setNewTitle(e.target.value)}
                       className="flex-1 text-black"
-                      placeholder="Enter new title"
+                      placeholder={t('sidebar.enterNewTitle')}
                     />
                   </div>
                   <DialogFooter className="sm:justify-end">
@@ -433,10 +419,10 @@ export function Sidebar({
                       variant="outline"
                       onClick={() => setIsRenameDialogOpen(false)}
                     >
-                      Cancel
+                      {t('sidebar.cancel')}
                     </Button>
                     <Button type="submit" disabled={!newTitle.trim()}>
-                      Save Changes
+                      {t('sidebar.saveChanges')}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -450,10 +436,9 @@ export function Sidebar({
             >
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Delete Conversation</DialogTitle>
+                  <DialogTitle>{t('sidebar.deleteConversation')}</DialogTitle>
                   <DialogDescription>
-                    Are you sure you want to delete this conversation? This
-                    action cannot be undone.
+                    {t('sidebar.confirmDelete')}
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="sm:justify-end">
@@ -462,14 +447,14 @@ export function Sidebar({
                     variant="outline"
                     onClick={cancelDelete}
                   >
-                    Cancel
+                    {t('sidebar.cancel')}
                   </Button>
                   <Button
                     type="button"
                     variant="destructive"
                     onClick={confirmDelete}
                   >
-                    Delete
+                    {t('sidebar.delete')}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -487,7 +472,7 @@ export function Sidebar({
             title="Open Debugging Panel"
           >
             <PanelLeft className="h-5 w-5 mr-3" />
-            <span>Debugging</span>
+            <span>{t('sidebar.debugging')}</span>
           </button>
         </div>
 
@@ -497,60 +482,53 @@ export function Sidebar({
             <DialogTrigger asChild>
               <button className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
                 <Info className="h-5 w-5 mr-3" />
-                <span>About Arina</span>
+                <span>{t('sidebar.aboutArina')}</span>
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle className="text-xl">
-                  Arina - AI-Powered Agricultural Analytics
+                  {t('sidebar.arinaTitle')}
                 </DialogTitle>
                 <DialogDescription>
-                  A comprehensive platform for data-driven agricultural business
-                  decisions
+                  {t('sidebar.arinaDescription')}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <h3 className="font-medium">Core Features</h3>
+                  <h3 className="font-medium">{t('sidebar.coreFeatures')}</h3>
                   <ul className="list-disc pl-5 space-y-1 text-sm">
                     <li>
-                      Business feasibility analysis with ROI, payback period,
-                      break-even calculations
+                      {t('sidebar.feasibilityAnalysis')}
                     </li>
                     <li>
-                      Demand forecasting to predict market trends using
-                      historical data
+                      {t('sidebar.demandForecastingFeature')}
                     </li>
                     <li>
-                      Optimization analysis for profit maximization and cost
-                      reduction
+                      {t('sidebar.optimizationAnalysisFeature')}
                     </li>
                     <li>
-                      AI-powered recommendations based on analysis history and
-                      chat interactions
+                      {t('sidebar.aiRecommendations')}
                     </li>
                     <li>
-                      Interactive visualizations with crop seasonality awareness
+                      {t('sidebar.visualizations')}
                     </li>
                   </ul>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-medium">Technical Stack</h3>
+                  <h3 className="font-medium">{t('sidebar.technicalStack')}</h3>
                   <ul className="list-disc pl-5 space-y-1 text-sm">
-                    <li>React frontend with Tailwind CSS</li>
-                    <li>Firebase Authentication for secure access</li>
-                    <li>
-                      Google Gemini AI for intelligent assistant capabilities
-                    </li>
-                    <li>PostgreSQL database for data persistence</li>
-                    <li>Express API for backend services</li>
+                    <li>{t('sidebar.reactTailwind')}</li>
+                    <li>{t('sidebar.firebaseAuth')}</li>
+                    <li>{t('sidebar.googleGemini')}</li>
+                    <li>{t('sidebar.postgresql')}</li>
+                    <li>{t('sidebar.expressAPI')}</li>
                   </ul>
                 </div>
               </div>
               <DialogFooter className="sm:justify-start">
                 <Button type="button" variant="default">
-                  Learn More
+                  {t('sidebar.learnMore')}
                 </Button>
               </DialogFooter>
             </DialogContent>

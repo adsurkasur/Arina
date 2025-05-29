@@ -16,6 +16,7 @@ import {
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
+import { useTranslation } from 'react-i18next';
 
 import {
   Card,
@@ -101,6 +102,7 @@ export default function BusinessFeasibility({
   const { user } = useAuth();
   const { toast } = useToast();
   const { refetch } = useAnalysisHistory();
+  const { t } = useTranslation();
 
   // Initialize form with default values
   const form = useForm<BusinessFeasibilityInput>({
@@ -272,7 +274,7 @@ export default function BusinessFeasibility({
                             <Info className="h-4 w-4 text-gray-500" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
-                            <p>The name of your agricultural business venture</p>
+                            <p>{t('tools.businessFeasibility.businessNameTooltip')}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -301,8 +303,7 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[300px]">
                         <p>
-                          One-time expenses required to start the business, such as
-                          equipment, land, buildings, etc.
+                          {t('tools.businessFeasibility.investmentCostsTooltip')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -333,7 +334,7 @@ export default function BusinessFeasibility({
                         <FormItem className="w-24">
                           <FormControl>
                             <Input
-                              placeholder="Quantity"
+                              placeholder={t('form.numberPlaceholder')}
                               type="number"
                               step="1"
                               min="0"
@@ -372,7 +373,7 @@ export default function BusinessFeasibility({
                         <FormItem className="w-32">
                           <FormControl>
                             <Input
-                              placeholder="Price"
+                              placeholder={t('form.numberPlaceholder')}
                               type="number"
                               step="1"
                               min="0"
@@ -446,8 +447,7 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[300px]">
                         <p>
-                          Recurring expenses required to keep the business running, such
-                          as labor, utilities, raw materials, etc.
+                          {t('tools.businessFeasibility.operationalCostsTooltip')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -478,7 +478,7 @@ export default function BusinessFeasibility({
                         <FormItem className="w-24">
                           <FormControl>
                             <Input
-                              placeholder="Quantity"
+                              placeholder={t('form.numberPlaceholder')}
                               type="number"
                               step="1"
                               min="0"
@@ -517,7 +517,7 @@ export default function BusinessFeasibility({
                         <FormItem className="w-32">
                           <FormControl>
                             <Input
-                              placeholder="Price"
+                              placeholder={t('form.numberPlaceholder')}
                               type="number"
                               step="1"
                               min="0"
@@ -592,8 +592,7 @@ export default function BusinessFeasibility({
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
                             <p>
-                              The cost to produce one unit of your product, including
-                              direct materials and labor
+                              {t('tools.businessFeasibility.productionCostPerUnitTooltip')}
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -634,7 +633,7 @@ export default function BusinessFeasibility({
                             <Info className="h-4 w-4 text-gray-500" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
-                            <p>Expected number of units sold per period</p>
+                            <p>{t('tools.businessFeasibility.unitsSoldTooltip')}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -660,7 +659,7 @@ export default function BusinessFeasibility({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
-                      <FormLabel>Markup (%)</FormLabel>
+                      <FormLabel>{t('tools.businessFeasibility.markup')}</FormLabel>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -668,8 +667,7 @@ export default function BusinessFeasibility({
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
                             <p>
-                              Percentage added to the cost price to determine selling
-                              price
+                              {t('tools.businessFeasibility.markupTooltip')}
                             </p>
                           </TooltipContent>
                         </Tooltip>

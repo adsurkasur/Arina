@@ -20,6 +20,7 @@ import {
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -80,6 +81,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
   const { user } = useAuth();
   const { toast } = useToast();
   const { refetch } = useAnalysisHistory();
+  const { t } = useTranslation();
 
   // Initialize form with default values
   const form = useForm<ForecastInput>({
@@ -419,13 +421,13 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                   onClick={() =>
                     append({
                       id: uuidv4(),
-                      period: `Period ${fields.length + 1}`,
+                      period: t('tools.demandForecasting.period', { number: fields.length + 1 }),
                       demand: 0,
                     })
                   }
                   className="mt-2"
                 >
-                  Add Period
+                  {t('tools.demandForecasting.addPeriod')}
                 </Button>
               </div>
             </form>

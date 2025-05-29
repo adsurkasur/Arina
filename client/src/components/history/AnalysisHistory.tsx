@@ -30,6 +30,7 @@ import {
   DollarSign,
   Calendar
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { AnalysisResult } from '@shared/schema';
@@ -92,6 +93,7 @@ const PIE_COLORS = [
 ];
 
 export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { 
     analysisResults, 
