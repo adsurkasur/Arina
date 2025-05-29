@@ -22,8 +22,8 @@ export const useWeather = (lat?: number, lon?: number) => {
   const [error, setError] = useState<WeatherError | null>(null);
 
   // OpenWeatherMap API key - Ganti dengan API key Anda
-  const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'YOUR_API_KEY_HERE';
-  
+  const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
+
   const fetchWeather = async (latitude: number, longitude: number) => {
     try {
       setLoading(true);
