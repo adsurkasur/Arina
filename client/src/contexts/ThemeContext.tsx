@@ -22,11 +22,23 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         const { data } = await getUserProfile(user.id);
         if (data && typeof data.dark_mode === "boolean") {
           setDarkModeState(data.dark_mode);
-          document.documentElement.classList.toggle("dark", data.dark_mode);
+          // Always set the class correctly on first load
+          if (data.dark_mode) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
         }
       } else {
         const stored = localStorage.getItem("arina-dark-mode");
-        if (stored !== null) setDarkModeState(stored === "true");
+        if (stored !== null) {
+          setDarkModeState(stored === "true");
+          if (stored === "true") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }
       }
     }
     loadUserTheme();

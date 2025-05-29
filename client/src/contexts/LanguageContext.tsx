@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserProfile } from "@/lib/mongodb";
+import i18n from "@/i18n";
 
 interface LanguageContextProps {
   language: string;
@@ -20,10 +21,17 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     async function loadUserLanguage() {
       if (user) {
         const { data } = await getUserProfile(user.id);
-        if (data && data.language) setLanguageState(data.language);
+        if (data && data.language) {
+          setLanguageState(data.language);
+          // Set the language for i18n immediately
+          i18n.changeLanguage(data.language);
+        }
       } else {
         const stored = localStorage.getItem("arina-language");
-        if (stored) setLanguageState(stored);
+        if (stored) {
+          setLanguageState(stored);
+          i18n.changeLanguage(stored);
+        }
       }
     }
     loadUserLanguage();
@@ -34,7 +42,10 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     localStorage.setItem("arina-language", language);
   }, [language]);
 
-  const setLanguage = (lang: string) => setLanguageState(lang);
+  const setLanguage = (lang: string) => {
+    setLanguageState(lang);
+    i18n.changeLanguage(lang);
+  };
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>
