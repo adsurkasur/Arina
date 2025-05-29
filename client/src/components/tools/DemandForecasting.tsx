@@ -1,5 +1,5 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -76,6 +76,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
   const [results, setResults] = useState<ForecastResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const { refetch } = useAnalysisHistory();
@@ -199,11 +200,12 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
   // Prepare chart data
   const prepareChartData = () => {
     if (!results) return [];
-
     const chartData = [];
+    const historical = results.chart.historical;
+    const forecast = results.chart.forecast;
 
-    // Add historical data
-    for (const point of results.chart.historical) {
+    // Add all historical points
+    for (const point of historical) {
       chartData.push({
         name: point.period,
         Historical: point.value,
@@ -211,16 +213,47 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
       });
     }
 
-    // Add forecast data (extending the array)
-    for (const point of results.chart.forecast) {
-      chartData.push({
-        name: point.period,
-        Historical: null,
-        Forecast: point.value,
-      });
+    // If there is forecast data, connect the last historical point to the forecast line
+    if (historical.length && forecast.length) {
+      // Add a connector point: same period as the last historical, both values set
+      const lastHist = historical[historical.length - 1];
+      chartData[chartData.length - 1] = {
+        name: lastHist.period,
+        Historical: lastHist.value,
+        Forecast: lastHist.value, // This ensures the lines connect visually
+      };
+      // Add all forecast points (including the first, which will duplicate the last historical period)
+      for (let i = 0; i < forecast.length; i++) {
+        chartData.push({
+          name: forecast[i].period,
+          Historical: null,
+          Forecast: forecast[i].value,
+        });
+      }
     }
-
     return chartData;
+  };
+
+  // Graph container styles
+  const graphContainerClass =
+    "relative bg-white rounded-lg border border-gray-200 p-4 mb-6 overflow-x-auto";
+
+  // Fullscreen modal for the chart
+  const FullscreenChartModal = ({ onClose, children }: { onClose: () => void; children: React.ReactNode }) => {
+    return createPortal(
+      <div className="fixed inset-0 z-[9999] bg-white bg-opacity-95 flex flex-col items-center justify-center p-4 overflow-auto">
+        <button
+          className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded px-4 py-2 text-gray-700 font-medium z-50"
+          onClick={onClose}
+        >
+          Close Fullscreen
+        </button>
+        <div className="w-full h-full flex flex-col items-center justify-center max-w-5xl max-h-[90vh]">
+          {children}
+        </div>
+      </div>,
+      document.body
+    );
   };
 
   return (
@@ -562,15 +595,22 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
 
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               {/* Chart */}
-              <div className="p-4">
-                <h4 className="font-medium text-gray-700 mb-3">
-                  Forecast Chart
-                </h4>
-                <div className="space-y-4">
+              <div className={graphContainerClass} style={{ minWidth: '350px' }}>
+                <div className="flex justify-between items-center mb-2 w-full">
+                  <h4 className="font-medium text-gray-700">Forecast Chart</h4>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="ml-auto"
+                    onClick={() => setIsFullscreen(true)}
+                  >
+                    Show Graph in Fullscreen
+                  </Button>
+                </div>
+                <div className="space-y-4 w-full">
                   <div className="bg-cream p-4 rounded-lg">
-                    <h5 className="font-medium text-primary mb-2">
-                      Understanding the Chart
-                    </h5>
+                    <h5 className="font-medium text-primary mb-2">Understanding the Chart</h5>
                     <ul className="text-sm space-y-2">
                       <li>• Solid line: Your actual historical demand data</li>
                       <li>• Dashed line: Predicted future demand</li>
@@ -578,29 +618,32 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                       <li>• Hover over points to see exact values</li>
                     </ul>
                   </div>
-
-                  <div className="h-64 w-full overflow-x-auto min-w-[350px]">
+                  <div className="h-80 w-full min-w-[350px] mb-6" style={{overflow: 'visible'}}>
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={prepareChartData()}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis
                           dataKey="name"
                           label={{
                             value: "Time Periods",
-                            position: "bottom",
-                            offset: 0,
+                            position: "insideBottom",
+                            offset: -10,
                           }}
+                          interval={0}
+                          tick={{ fontSize: 13 }}
+                          minTickGap={0}
                         />
                         <YAxis
                           label={{
                             value: "Demand Quantity",
                             angle: -90,
-                            position: "left",
-                            offset: 0,
+                            position: "insideLeft",
+                            offset: 10,
                           }}
+                          tick={{ fontSize: 13 }}
                         />
                         <RechartsTooltip
                           contentStyle={{
@@ -620,7 +663,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                           }}
                         />
                         <Line
-                          type="monotone"
+                          type="linear"
                           dataKey="Historical"
                           stroke="#4caf50"
                           strokeWidth={2}
@@ -628,56 +671,184 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                           isAnimationActive={false}
                         />
                         <Line
-                          type="monotone"
+                          type="linear"
                           dataKey="Forecast"
                           stroke="#2196f3"
                           strokeWidth={2}
                           dot={false}
                           isAnimationActive={false}
                           strokeDasharray="6 3"
+                          connectNulls={true}
                         />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
               </div>
+              {isFullscreen && (
+                <FullscreenChartModal onClose={() => setIsFullscreen(false)}>
+                  <div className="w-full h-full flex flex-col items-center justify-center">
+                    <div className="w-full max-w-5xl">
+                      <h4 className="font-medium text-gray-700 mb-2">Forecast Chart (Fullscreen)</h4>
+                      <div className="bg-cream p-4 rounded-lg mb-4">
+                        <h5 className="font-medium text-primary mb-2">Understanding the Chart</h5>
+                        <ul className="text-sm space-y-2">
+                          <li>• Solid line: Your actual historical demand data</li>
+                          <li>• Dashed line: Predicted future demand</li>
+                          <li>• Each point represents demand for one period</li>
+                          <li>• Hover over points to see exact values</li>
+                        </ul>
+                      </div>
+                      <div className="h-[70vh] w-full min-w-[350px] mb-6" style={{overflow: 'visible'}}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart
+                            data={prepareChartData()}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <XAxis
+                              dataKey="name"
+                              label={{
+                                value: "Time Periods",
+                                position: "insideBottom",
+                                offset: -10,
+                              }}
+                              interval={0}
+                              tick={{ fontSize: 16 }}
+                              minTickGap={0}
+                            />
+                            <YAxis
+                              label={{
+                                value: "Demand Quantity",
+                                angle: -90,
+                                position: "insideLeft",
+                                offset: 10,
+                              }}
+                              tick={{ fontSize: 16 }}
+                            />
+                            <RechartsTooltip
+                              contentStyle={{
+                                backgroundColor: "white",
+                                borderRadius: "8px",
+                                border: "1px solid #e5e7eb",
+                              }}
+                              formatter={(value) => [`Quantity: ${value}`, ""]}
+                            />
+                            <Legend
+                              verticalAlign="top"
+                              height={36}
+                              formatter={(value) => {
+                                return value === "Historical"
+                                  ? "Past Data"
+                                  : "Future Prediction";
+                              }}
+                            />
+                            <Line
+                              type="linear"
+                              dataKey="Historical"
+                              stroke="#4caf50"
+                              strokeWidth={3}
+                              dot={false}
+                              isAnimationActive={false}
+                            />
+                            <Line
+                              type="linear"
+                              dataKey="Forecast"
+                              stroke="#2196f3"
+                              strokeWidth={3}
+                              dot={false}
+                              isAnimationActive={false}
+                              strokeDasharray="6 3"
+                              connectNulls={true}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </FullscreenChartModal>
+              )}
 
               {/* Data Table replaced with MAE and MAPE */}
               <div className="p-4">
                 <h4 className="font-medium text-gray-700 mb-3">
                   Forecast Accuracy Metrics
                 </h4>
-                <div className="overflow-x-auto">
-                  <table className="min-w-[300px] divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Metric
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Value
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      <tr>
-                        <td className="px-4 py-2 whitespace-nowrap">MAE</td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {results.metrics?.mae !== undefined
-                            ? results.metrics.mae.toFixed(2)
-                            : "-"}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-2 whitespace-nowrap">MAPE</td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {results.metrics?.mape !== undefined
-                            ? results.metrics.mape.toFixed(2) + "%"
-                            : "-"}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                {/* Forecast Accuracy Metrics as cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                  {/* MAE Card */}
+                  <div className="bg-cream rounded-lg p-4 flex flex-col items-start">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-gray-500">MAE</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          <p>Mean Absolute Error (MAE) measures the average magnitude of errors in your forecast, without considering their direction.</p>
+                          <p className="mt-2 text-xs">Formula: (1/n) Σ |Actual - Forecast|</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="font-medium text-primary text-lg">
+                      {results.accuracy?.mae !== undefined && !isNaN(results.accuracy.mae)
+                        ? <>{results.accuracy.mae.toFixed(2)}</>
+                        : <span className="text-gray-400">Not enough data</span>}
+                    </div>
+                  </div>
+                  {/* MAPE Card */}
+                  <div className="bg-cream rounded-lg p-4 flex flex-col items-start">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-gray-500">MAPE</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          <p>Mean Absolute Percentage Error (MAPE) measures the average absolute percent error between actual and forecasted values.</p>
+                          <p className="mt-2 text-xs">Formula: (1/n) Σ |(Actual - Forecast) / Actual| × 100%</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="font-medium text-primary text-lg">
+                      {results.accuracy?.mape !== undefined && !isNaN(results.accuracy.mape)
+                        ? <>{results.accuracy.mape.toFixed(2)}%</>
+                        : <span className="text-gray-400">Not enough data</span>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Interpretation Section */}
+              <div className="p-4 border-t border-gray-200">
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Forecast Interpretation
+                </h4>
+                <div className="text-sm text-gray-600">
+                  {(() => {
+                    if (!results) return null;
+                    const { forecasted, accuracy, productName } = results;
+                    const forecastValue = forecasted && forecasted.length > 0 ? forecasted[0].forecast : null;
+                    let interp = "";
+                    if (forecastValue !== null && !isNaN(forecastValue)) {
+                      interp += `The predicted demand for the next period for <b>${productName}</b> is <b>${forecastValue.toLocaleString(undefined, {maximumFractionDigits: 2})}</b>. `;
+                    }
+                    if (
+                      accuracy &&
+                      typeof accuracy.mape === 'number' && !isNaN(accuracy.mape) &&
+                      typeof accuracy.mae === 'number' && !isNaN(accuracy.mae)
+                    ) {
+                      interp += `The forecast model has a Mean Absolute Error (MAE) of <b>${accuracy.mae.toFixed(2)}</b> and a Mean Absolute Percentage Error (MAPE) of <b>${accuracy.mape.toFixed(2)}%</b>. `;
+                      if (accuracy.mape < 10) {
+                        interp += "This indicates a highly accurate forecast.";
+                      } else if (accuracy.mape < 20) {
+                        interp += "This indicates a reasonably accurate forecast.";
+                      } else {
+                        interp += "The forecast may have significant error; consider using more historical data or a different method.";
+                      }
+                    }
+                    return <span dangerouslySetInnerHTML={{__html: interp}} />;
+                  })()}
                 </div>
               </div>
 
