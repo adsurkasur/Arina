@@ -4,8 +4,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "postbuild": "echo 'Client build complete.'",
-    "vercel-build": "npm install && npm run build"
+    "postbuild": "echo 'Client build complete.'"
   },
   "devDependencies": {
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
