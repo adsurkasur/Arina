@@ -8,11 +8,19 @@ const resources = {
   id: { translation: id },
 };
 
+const getInitialLanguage = () => {
+  if (window && (window as any).__arinaUserLanguage) {
+    return (window as any).__arinaUserLanguage;
+  }
+  // Fallback
+  return "en";
+};
+
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en',
+    lng: getInitialLanguage(),
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
     react: { useSuspense: false },
