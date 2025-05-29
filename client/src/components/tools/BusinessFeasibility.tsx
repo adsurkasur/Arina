@@ -15,6 +15,7 @@ import {
   OperationalCost,
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 
 import {
   Card,
@@ -99,6 +100,7 @@ export default function BusinessFeasibility({
   const [isSaving, setIsSaving] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { refetch } = useAnalysisHistory();
 
   // Initialize form with default values
   const form = useForm<BusinessFeasibilityInput>({
@@ -221,6 +223,7 @@ export default function BusinessFeasibility({
         description:
           "Your business feasibility analysis has been saved successfully.",
       });
+      await refetch(); // Refresh analysis history after save
     } catch (error: any) {
       toast({
         title: "Error Saving Analysis",

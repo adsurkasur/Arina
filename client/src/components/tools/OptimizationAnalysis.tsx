@@ -16,6 +16,7 @@ import {
   OptimizationGoal
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -110,6 +111,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
   const [isSaving, setIsSaving] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { refetch } = useAnalysisHistory();
 
   // Initialize form with default values for profit maximization
   const form = useForm<OptimizationInput>({
@@ -243,6 +245,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
         title: "Analysis Saved",
         description: "Your optimization analysis has been saved successfully.",
       });
+      await refetch(); // Refresh analysis history after save
     } catch (error: any) {
       toast({
         title: "Error Saving Analysis",

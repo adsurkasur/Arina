@@ -1,5 +1,5 @@
 import * as React from "react";
-const { useState } = React;
+const { useState, useEffect } = React;
 import { format } from 'date-fns';
 import {
   BarChart,
@@ -98,7 +98,8 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
     isLoading, 
     error, 
     deleteAnalysis, 
-    isDeletingAnalysis 
+    isDeletingAnalysis, 
+    refetch 
   } = useAnalysisHistory();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -673,6 +674,10 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
     // If data is a string or other primitive, just display it
     return <p>{String(data)}</p>;
   };
+
+  useEffect(() => {
+    refetch(); // Always fetch latest history when this component mounts
+  }, [refetch]);
 
   if (error) {
     return (

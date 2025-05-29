@@ -19,6 +19,7 @@ import {
   HistoricalDemand,
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -77,6 +78,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
   const [isSaving, setIsSaving] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { refetch } = useAnalysisHistory();
 
   // Initialize form with default values
   const form = useForm<ForecastInput>({
@@ -166,6 +168,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
         title: "Forecast Saved",
         description: "Your demand forecast has been saved successfully.",
       });
+      await refetch(); // Refresh analysis history after save
     } catch (error: any) {
       toast({
         title: "Error Saving Forecast",
@@ -576,7 +579,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                     </ul>
                   </div>
 
-                  <div className="h-64 w-full">
+                  <div className="h-64 w-full overflow-x-auto min-w-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={prepareChartData()}
@@ -631,6 +634,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                           strokeWidth={2}
                           dot={false}
                           isAnimationActive={false}
+                          strokeDasharray="6 3"
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -638,40 +642,40 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                 </div>
               </div>
 
-              {/* Data Table */}
+              {/* Data Table replaced with MAE and MAPE */}
               <div className="p-4">
                 <h4 className="font-medium text-gray-700 mb-3">
-                  Forecast Data Table
+                  Forecast Accuracy Metrics
                 </h4>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
+                  <table className="min-w-[300px] divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Period
+                          Metric
                         </th>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Historical Demand
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Forecasted Demand
+                          Value
                         </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {results.chart.historical.map((item, index) => (
-                        <tr key={index}>
-                          <td className="px-4 py-2 whitespace-nowrap">
-                            {item.period}
-                          </td>
-                          <td className="px-4 py-2 whitespace-nowrap">
-                            {item.value}
-                          </td>
-                          <td className="px-4 py-2 whitespace-nowrap">
-                            {results.chart.forecast[index]?.value || "-"}
-                          </td>
-                        </tr>
-                      ))}
+                      <tr>
+                        <td className="px-4 py-2 whitespace-nowrap">MAE</td>
+                        <td className="px-4 py-2 whitespace-nowrap">
+                          {results.metrics?.mae !== undefined
+                            ? results.metrics.mae.toFixed(2)
+                            : "-"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-2 whitespace-nowrap">MAPE</td>
+                        <td className="px-4 py-2 whitespace-nowrap">
+                          {results.metrics?.mape !== undefined
+                            ? results.metrics.mape.toFixed(2) + "%"
+                            : "-"}
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
