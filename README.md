@@ -1,16 +1,17 @@
 # Arina-Gemini
 
-Arina-Gemini is a modern web application designed to provide advanced business analysis, recommendations, and forecasting tools. Built with a modular architecture, it leverages React (with Vite), TypeScript, Tailwind CSS, and a Node.js/Express backend. The project is structured for scalability and maintainability, supporting both client and server development.
+Arina-Gemini is a next-generation web application designed to empower businesses with advanced analysis, forecasting, and personalized recommendations. Built with a modular, scalable architecture, it leverages modern technologies including React (Vite), TypeScript, Tailwind CSS, and a robust Node.js/Express backend. The project is engineered for maintainability, extensibility, and high performance, supporting both rapid prototyping and production-grade deployments.
 
 ## Features
 
-- **Authentication**: Secure user authentication and profile management.
-- **Chat Interface**: Real-time chat with AI-powered responses and streaming effects.
-- **Business Tools**: Modules for business feasibility analysis, demand forecasting, and optimization analysis.
-- **Recommendation Engine**: Personalized recommendations and dashboards.
-- **Analysis History**: Track and review past analyses.
-- **Internationalization (i18n)**: Multi-language support (English, Indonesian).
-- **Modern UI**: Built with Tailwind CSS and reusable UI components.
+- **Authentication & User Management**: Secure authentication (Firebase) with user profile management and session handling.
+- **AI-Powered Chat Interface**: Real-time chat with Gemini AI integration, streaming responses, and natural language understanding.
+- **Business Analysis Tools**: Modules for feasibility analysis, demand forecasting, and optimization, tailored for business decision-making.
+- **Recommendation Engine**: Personalized dashboards and actionable recommendations based on user data and analysis history.
+- **Analysis History**: Persistent tracking and review of past analyses for auditability and learning.
+- **Internationalization (i18n)**: Multi-language support (English, Indonesian) with easy extensibility for additional locales.
+- **Modern UI/UX**: Responsive, accessible, and visually appealing interface using Tailwind CSS and reusable component library.
+- **Modular Architecture**: Clear separation of concerns between client, server, and shared code for easy maintenance and scaling.
 
 ## Project Structure
 
@@ -38,8 +39,8 @@ Arina-Gemini/
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v18+ recommended)
-- npm or yarn
+- **Node.js** (v18+ recommended)
+- **npm** or **yarn**
 
 ### Installation
 
@@ -54,32 +55,63 @@ Arina-Gemini/
    cd ../server && npm install
    ```
 
-### Running the App
+### Running the Application
 
-#### Development
-- **Client:**
+#### Development Mode
+- **Start the client:**
   ```bash
   cd client
   npm run dev
   ```
-- **Server:**
+- **Start the server:**
   ```bash
   cd server
   npm run dev
   ```
 
-#### Production
-- Build and serve the client, then start the server as per your deployment setup.
+#### Production Mode
+1. **Build the client:**
+   ```bash
+   cd client
+   npm run build
+   ```
+2. **Serve the client and start the server:**
+   - Deploy the `client/dist` folder using your preferred static hosting (Vercel, Netlify, etc.)
+   - Start the server:
+     ```bash
+     cd server
+     npm run start
+     ```
+   - Configure environment variables and reverse proxy as needed for your deployment.
+
+## Configuration
+
+- **Environment Variables:**
+  - Both `client` and `server` may require environment variables for API keys, database URIs, and third-party integrations. See `.env.example` files in respective folders for details.
+- **Database:**
+  - The backend uses Drizzle ORM and supports MongoDB (or other, as configured). Ensure your database is running and accessible.
+- **Authentication:**
+  - Firebase is used for authentication. Set up your Firebase project and update configuration files accordingly.
 
 ## Technologies Used
+
 - **Frontend:** React, TypeScript, Vite, Tailwind CSS
 - **Backend:** Node.js, Express, Drizzle ORM
-- **Database:** (MongoDB or other, as configured)
+- **Database:** MongoDB (or other, as configured)
 - **Authentication:** Firebase
-- **AI/ML:** Gemini integration
+- **AI/ML:** Gemini API integration
+- **Testing:** (Add your testing framework, e.g., Jest, React Testing Library)
+- **Deployment:** Vercel, Netlify, or custom server
 
 ## Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+Contributions are welcome! To get started:
+1. Fork the repository and create your branch (`git checkout -b feature/your-feature`)
+2. Commit your changes (`git commit -am 'Add new feature'`)
+3. Push to the branch (`git push origin feature/your-feature`)
+4. Open a pull request describing your changes
+
+For major changes, please open an issue first to discuss your proposal.
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.

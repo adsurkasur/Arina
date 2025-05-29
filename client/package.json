@@ -8,35 +8,14 @@
   },
   "devDependencies": {
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
-    "@tailwindcss/postcss": "^4.1.8",
-    "@types/node": "^22.15.24",
-    "@types/react": "^18.3.23",
-    "@types/react-dom": "^18.3.7",
-    "@vitejs/plugin-react": "^4.5.0",
-    "autoprefixer": "^10.4.21",
-    "concurrently": "^9.1.2",
-    "postcss": "^8.5.4",
-    "tailwindcss": "^4.1.8",
-    "typescript": "^5.8.3",
-    "vite": "^6.3.5",
-    "vite-plugin-node-polyfills": "^0.23.0"
+    "@types/react": "^18.2.73",
+    "@types/react-dom": "^18.2.18",
+    "concurrently": "^9.1.2"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.0.1",
-    "@tanstack/react-query": "^5.79.0",
-    "date-fns": "^4.1.0",
     "i18next": "^25.2.1",
-    "lucide-react": "^0.511.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-hook-form": "^7.56.4",
-    "react-i18next": "^15.5.2",
-    "react-markdown": "^10.1.0",
-    "recharts": "^2.15.3",
-    "rehype-raw": "^7.0.0",
-    "remark-gfm": "^4.0.1",
-    "uuid": "^11.1.0",
-    "wouter": "^3.7.1",
-    "zod": "^3.25.36"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^15.5.2"
   }
 }
