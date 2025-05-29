@@ -11,6 +11,8 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   photo_url: text("photo_url"),
   created_at: timestamp("created_at").defaultNow(),
+  dark_mode: boolean("dark_mode").default(false), // NEW: user dark mode preference
+  language: text("language").default("en"), // NEW: user language preference
 });
 
 export const usersRelations = relations(users, ({ many }) => ({

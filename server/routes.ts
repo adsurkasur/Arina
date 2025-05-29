@@ -48,6 +48,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PATCH endpoint to update user preferences
+  app.patch("/api/users/:id/preferences", async (req, res) => {
+    try {
+      const { dark_mode, language } = req.body;
+      const updated = await storage.updateUserPreferences(req.params.id, { dark_mode, language });
+      if (!updated) return res.status(404).json({ message: "User not found" });
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // API routes for chat conversations
   app.get("/api/conversations/:userId", async (req, res) => {
     try {

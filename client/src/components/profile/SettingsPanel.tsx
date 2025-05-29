@@ -4,17 +4,23 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { PanelContainer } from "@/components/ui/PanelContainer";
+import { useAuth } from "@/hooks/useAuth";
+import { updateUserPreferences } from "@/lib/mongodb";
 
 export default function SettingsPanel({ onClose }: { onClose: () => void }) {
+  const { user } = useAuth();
   const { darkMode, setDarkMode } = useTheme();
   const { i18n, t } = useTranslation();
 
-  const handleDarkModeToggle = () => {
+  const handleDarkModeToggle = async () => {
     setDarkMode(!darkMode);
+    if (user) await updateUserPreferences(user.id, { dark_mode: !darkMode });
   };
 
-  const handleLanguageChange = (e: any) => {
-    i18n.changeLanguage(e.target.value);
+  const handleLanguageChange = async (e: any) => {
+    const lang = e.target.value;
+    i18n.changeLanguage(lang);
+    if (user) await updateUserPreferences(user.id, { language: lang });
   };
 
   return (

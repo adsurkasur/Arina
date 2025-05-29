@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { getUserProfile } from "@/lib/mongodb";
 
 interface LanguageContextProps {
   language: string;
@@ -11,12 +13,22 @@ const LanguageContext = createContext<LanguageContextProps>({
 });
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
   const [language, setLanguageState] = useState("en");
 
   useEffect(() => {
-    const stored = localStorage.getItem("arina-language");
-    if (stored) setLanguageState(stored);
-  }, []);
+    async function loadUserLanguage() {
+      if (user) {
+        const { data } = await getUserProfile(user.id);
+        if (data && data.language) setLanguageState(data.language);
+      } else {
+        const stored = localStorage.getItem("arina-language");
+        if (stored) setLanguageState(stored);
+      }
+    }
+    loadUserLanguage();
+    // eslint-disable-next-line
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem("arina-language", language);

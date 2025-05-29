@@ -5,6 +5,8 @@ export interface User {
   email: string;
   name: string;
   photoURL?: string;
+  dark_mode?: boolean; // NEW: user dark mode preference
+  language?: string;   // NEW: user language preference
 }
 
 export interface ChatConversation {

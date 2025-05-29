@@ -37,6 +37,26 @@ export const getUserProfile = async (userId: string) => {
   }
 };
 
+// Update user preferences
+export const updateUserPreferences = async (
+  userId: string,
+  prefs: { dark_mode?: boolean; language?: string }
+) => {
+  try {
+    const response = await fetch(`/api/users/${userId}/preferences`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(prefs),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Failed to update preferences");
+    return { data, error: null };
+  } catch (error) {
+    console.error("Error updating user preferences:", error);
+    return { data: null, error };
+  }
+};
+
 // Chat history
 export const getChatHistory = async (userId: string) => {
   try {

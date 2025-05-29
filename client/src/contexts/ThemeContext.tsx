@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { getUserProfile } from "@/lib/mongodb";
 
 interface ThemeContextProps {
   darkMode: boolean;
@@ -11,12 +13,25 @@ const ThemeContext = createContext<ThemeContextProps>({
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
   const [darkMode, setDarkModeState] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("arina-dark-mode");
-    if (stored !== null) setDarkModeState(stored === "true");
-  }, []);
+    async function loadUserTheme() {
+      if (user) {
+        const { data } = await getUserProfile(user.id);
+        if (data && typeof data.dark_mode === "boolean") {
+          setDarkModeState(data.dark_mode);
+          document.documentElement.classList.toggle("dark", data.dark_mode);
+        }
+      } else {
+        const stored = localStorage.getItem("arina-dark-mode");
+        if (stored !== null) setDarkModeState(stored === "true");
+      }
+    }
+    loadUserTheme();
+    // eslint-disable-next-line
+  }, [user]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);

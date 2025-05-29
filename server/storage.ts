@@ -38,6 +38,8 @@ export class DatabaseStorage {
       name: user.name,
       photo_url: user.photo_url ?? null,
       created_at: user.created_at ?? null,
+      dark_mode: user.dark_mode ?? false, // NEW
+      language: user.language ?? "en",   // NEW
     };
   }
 
@@ -50,6 +52,8 @@ export class DatabaseStorage {
       name: user.name,
       photo_url: user.photo_url ?? null,
       created_at: user.created_at ?? null,
+      dark_mode: user.dark_mode ?? false, // NEW
+      language: user.language ?? "en",   // NEW
     };
   }
 
@@ -57,6 +61,8 @@ export class DatabaseStorage {
     const user = {
       ...userData,
       created_at: new Date(),
+      dark_mode: userData.dark_mode ?? false, // NEW
+      language: userData.language ?? "en",   // NEW
     };
     await getDb().collection("users").insertOne(user);
     return {
@@ -65,6 +71,29 @@ export class DatabaseStorage {
       name: user.name,
       photo_url: user.photo_url ?? null,
       created_at: user.created_at ?? null,
+      dark_mode: user.dark_mode ?? false, // NEW
+      language: user.language ?? "en",   // NEW
+    };
+  }
+
+  async updateUserPreferences(id: string, prefs: { dark_mode?: boolean; language?: string }): Promise<User | undefined> {
+    const updateData: any = {};
+    if (prefs.dark_mode !== undefined) updateData.dark_mode = prefs.dark_mode;
+    if (prefs.language) updateData.language = prefs.language;
+    const result = await getDb().collection("users").findOneAndUpdate(
+      { id },
+      { $set: updateData },
+      { returnDocument: "after" }
+    );
+    if (!result || !result.value) return undefined;
+    return {
+      id: result.value.id,
+      email: result.value.email,
+      name: result.value.name,
+      photo_url: result.value.photo_url ?? null,
+      created_at: result.value.created_at ?? null,
+      dark_mode: result.value.dark_mode ?? false,
+      language: result.value.language ?? "en",
     };
   }
 
