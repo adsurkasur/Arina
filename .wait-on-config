@@ -1,2 +1,0 @@
-// This script waits for the backend to be ready on port 5000 before starting the frontend
-'tcp:5000'
