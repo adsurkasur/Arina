@@ -56,6 +56,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChatConversation } from "@/types";
+import { useNotification } from "@/contexts/NotificationContext";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -84,6 +85,7 @@ export function Sidebar({
   const [newTitle, setNewTitle] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
+  const [debugPanelOpen, setDebugPanelOpen] = useState(false);
 
   // Handle toggling the sidebar on mobile
   const handleCloseSidebar = () => {
@@ -154,8 +156,12 @@ export function Sidebar({
         {/* Sidebar Header */}
         <div className="p-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold flex items-center font-sans">
-              <span className="mr-2"></span> ArinaAI
+            <h2
+              className="text-xl font-bold flex items-center font-sans cursor-pointer"
+              onClick={() => setDebugPanelOpen((v) => !v)}
+              title="Open Debugging Panel"
+            >
+              <span className="mr-2"></span> Arina
             </h2>
           </div>
         </div>
@@ -469,6 +475,20 @@ export function Sidebar({
               </DialogContent>
             </Dialog>
           </div>
+        </div>
+
+        {/* Debugging Side Panel */}
+        {/* <DebugPanel open={debugPanelOpen} onClose={() => setDebugPanelOpen(false)} /> */}
+        {/* Debug menu item: open DebugPanel as right panel */}
+        <div className="px-2 py-2">
+          <button
+            onClick={() => openTool("debug")}
+            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors mb-2"
+            title="Open Debugging Panel"
+          >
+            <PanelLeft className="h-5 w-5 mr-3" />
+            <span>Debugging</span>
+          </button>
         </div>
 
         {/* About Arina at bottom */}

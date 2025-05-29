@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import { PanelContainer } from "@/components/ui/PanelContainer";
 
 interface RecommendationsProps {
   onClose: () => void;
@@ -15,27 +16,7 @@ interface RecommendationsProps {
 
 export default function Recommendations({ onClose }: RecommendationsProps) {
   return (
-    <div className="flex flex-col h-full">
-      {/* Tool Header */}
-      <div className="border-b border-gray-200 p-4 flex justify-between items-center bg-white">
-        <h2 className="text-xl font-heading font-semibold text-primary flex items-center gap-2">
-          Smart Recommendations
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className="h-5 w-5 text-gray-500" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[300px]">
-              Get personalized recommendations based on your analysis history
-              and current agricultural trends.
-            </TooltipContent>
-          </Tooltip>
-        </h2>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
-      </div>
-
-      {/* Tool Content */}
+    <PanelContainer onClose={onClose} title="Smart Recommendations">
       <div className="flex-1 overflow-auto p-6">
         {/* Recommendations List Header */}
         <div className="flex items-center gap-2">
@@ -76,6 +57,6 @@ export default function Recommendations({ onClose }: RecommendationsProps) {
           </p>
         </div>
       </div>
-    </div>
+    </PanelContainer>
   );
 }

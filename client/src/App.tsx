@@ -8,6 +8,7 @@ import { queryClient } from "./lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import './i18n';
 
 // Pages
@@ -48,15 +49,17 @@ function App() {
       <LanguageProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
-            <Toaster />
-            <AuthModal />
-            <Switch>
-              <Route path="/login" component={Login} />
-              <Route path="/">
-                <ProtectedRoute component={Dashboard} />
-              </Route>
-              <Route component={NotFound} />
-            </Switch>
+            <NotificationProvider>
+              <Toaster />
+              <AuthModal />
+              <Switch>
+                <Route path="/login" component={Login} />
+                <Route path="/">
+                  <ProtectedRoute component={Dashboard} />
+                </Route>
+                <Route component={NotFound} />
+              </Switch>
+            </NotificationProvider>
           </TooltipProvider>
         </QueryClientProvider>
       </LanguageProvider>

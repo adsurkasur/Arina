@@ -17,14 +17,6 @@ import {
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -61,6 +53,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { PanelContainer } from "@/components/ui/PanelContainer";
 
 // Form validation schema
 const variableSchema = z.object({
@@ -110,11 +103,7 @@ const formSchema = z.object({
   objective: z.enum(["maximize", "minimize"]).optional(),
 });
 
-interface OptimizationAnalysisProps {
-  onClose: () => void;
-}
-
-export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisProps) {
+export default function OptimizationAnalysis({ onClose }: { onClose: () => void }) {
   const [activeTab, setActiveTab] = useState("variables");
   const [results, setResults] = useState<OptimizationResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -282,7 +271,6 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
   // Prepare chart data
   const prepareChartData = () => {
     if (!results) return [];
-
     return results.variables.map(variable => ({
       name: variable.name,
       value: variable.value
@@ -290,228 +278,241 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
   };
 
   return (
-    <Card className="w-full border-none shadow-none">
-      <CardHeader className="flex flex-row items-center justify-between bg-white">
-        <div>
-          <CardTitle className="text-xl font-heading font-semibold text-primary">
-            Optimization Analysis
-          </CardTitle>
-          <CardDescription>
-            Maximize profits, minimize costs, or perform goal programming.
-          </CardDescription>
-        </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
-      </CardHeader>
-
-      <CardContent className="overflow-y-auto max-h-[calc(100vh-12rem)] bg-white">
-        <div className="bg-cream rounded-lg p-4 mb-4">
-          <p className="text-sm text-gray-700">
-            Define your optimization problem by specifying variables, constraints, and objectives.
-          </p>
-        </div>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Settings */}
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      Name
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-gray-500" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          Provide a name for this optimization analysis (e.g., "Farm Optimization").
-                        </TooltipContent>
-                      </Tooltip>
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Farm Production Optimization" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      Objective
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-gray-500" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          Choose whether to maximize profit, minimize cost, or set multiple goals.
-                        </TooltipContent>
-                      </Tooltip>
-                    </FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        if (value !== "goal_programming") {
-                          form.setValue("goals", []);
-                        }
-                        if (value === "profit_max") {
-                          form.setValue("objective", "maximize");
-                        } else if (value === "cost_min") {
-                          form.setValue("objective", "minimize");
-                        }
-                      }}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select optimization type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="profit_max">Profit Maximization</SelectItem>
-                        <SelectItem value="cost_min">Cost Minimization</SelectItem>
-                        <SelectItem value="goal_programming">Goal Programming</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      {optimizationType === "profit_max" && "Maximize profits subject to constraints."}
-                      {optimizationType === "cost_min" && "Minimize costs while meeting requirements."}
-                      {optimizationType === "goal_programming" && "Set multiple objectives with priorities."}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {(optimizationType === "profit_max" || optimizationType === "cost_min") && (
+    <PanelContainer onClose={onClose} title="Optimization Analysis">
+      <div className="space-y-6">
+        {/* Section: Problem Definition */}
+        <div className="mb-4">
+          <h3 className="font-medium text-lg mb-2">Problem Definition</h3>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Basic Settings */}
+              <div className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="objective"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Objective</FormLabel>
+                      <FormLabel className="flex items-center gap-2">
+                        Name
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-500" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[300px]">
+                            Provide a name for this optimization analysis (e.g., "Farm Optimization").
+                          </TooltipContent>
+                        </Tooltip>
+                      </FormLabel>
                       <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex space-x-4"
-                        >
-                          <FormItem className="flex items-center space-x-2">
-                            <FormControl>
-                              <RadioGroupItem value="maximize" />
-                            </FormControl>
-                            <FormLabel className="font-normal">Maximize</FormLabel>
-                          </FormItem>
-                          <FormItem className="flex items-center space-x-2">
-                            <FormControl>
-                              <RadioGroupItem value="minimize" />
-                            </FormControl>
-                            <FormLabel className="font-normal">Minimize</FormLabel>
-                          </FormItem>
-                        </RadioGroup>
+                        <Input placeholder="Farm Production Optimization" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
-            </div>
 
-            {/* Tabs for Variables, Constraints, and Goals */}
-            <Tabs 
-              value={activeTab} 
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsList className="w-full">
-                <TabsTrigger value="variables" className="flex-1">Variables</TabsTrigger>
-                <TabsTrigger value="constraints" className="flex-1">Constraints</TabsTrigger>
-                {optimizationType === "goal_programming" && (
-                  <TabsTrigger value="goals" className="flex-1">Goals</TabsTrigger>
-                )}
-              </TabsList>
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        Objective
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-500" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[300px]">
+                            Choose whether to maximize profit, minimize cost, or set multiple goals.
+                          </TooltipContent>
+                        </Tooltip>
+                      </FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          if (value !== "goal_programming") {
+                            form.setValue("goals", []);
+                          }
+                          if (value === "profit_max") {
+                            form.setValue("objective", "maximize");
+                          } else if (value === "cost_min") {
+                            form.setValue("objective", "minimize");
+                          }
+                        }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select optimization type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="profit_max">Profit Maximization</SelectItem>
+                          <SelectItem value="cost_min">Cost Minimization</SelectItem>
+                          <SelectItem value="goal_programming">Goal Programming</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {optimizationType === "profit_max" && "Maximize profits subject to constraints."}
+                        {optimizationType === "cost_min" && "Minimize costs while meeting requirements."}
+                        {optimizationType === "goal_programming" && "Set multiple objectives with priorities."}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Variables Tab */}
-              <TabsContent value="variables" className="space-y-4 mt-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium">Define Variables</h3>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[300px]">
-                      Variables represent the quantities or resources to optimize (e.g., production quantities, resource allocations).
-                    </TooltipContent>
-                  </Tooltip>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      appendVariable({
-                        id: uuidv4(),
-                        name: `Variable ${variableFields.length + 1}`,
-                        lowerBound: 0,
-                        upperBound: 100,
-                        profit: optimizationType === "profit_max" ? 0 : undefined,
-                        cost: optimizationType === "cost_min" ? 0 : undefined,
-                      });
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Add Variable
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {variableFields.map((field, index) => (
-                    <div key={field.id} className="p-4 border border-gray-200 rounded-md">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name={`variables.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                Name
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="h-4 w-4 text-gray-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-[300px]">
-                                    Name of the variable to optimize (e.g., production quantity, resource allocation).
-                                  </TooltipContent>
-                                </Tooltip>
-                              </FormLabel>
+                {(optimizationType === "profit_max" || optimizationType === "cost_min") && (
+                  <FormField
+                    control={form.control}
+                    name="objective"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Objective</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            className="flex space-x-4"
+                          >
+                            <FormItem className="flex items-center space-x-2">
                               <FormControl>
-                                <Input placeholder="e.g., Rice production (tons)" {...field} />
+                                <RadioGroupItem value="maximize" />
                               </FormControl>
-                              <FormMessage />
+                              <FormLabel className="font-normal">Maximize</FormLabel>
                             </FormItem>
-                          )}
-                        />
+                            <FormItem className="flex items-center space-x-2">
+                              <FormControl>
+                                <RadioGroupItem value="minimize" />
+                              </FormControl>
+                              <FormLabel className="font-normal">Minimize</FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
 
-                        {optimizationType === "profit_max" && (
+              {/* Tabs for Variables, Constraints, and Goals */}
+              <Tabs 
+                value={activeTab} 
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
+                <TabsList className="w-full">
+                  <TabsTrigger value="variables" className="flex-1">Variables</TabsTrigger>
+                  <TabsTrigger value="constraints" className="flex-1">Constraints</TabsTrigger>
+                  {optimizationType === "goal_programming" && (
+                    <TabsTrigger value="goals" className="flex-1">Goals</TabsTrigger>
+                  )}
+                </TabsList>
+
+                {/* Variables Tab */}
+                <TabsContent value="variables" className="space-y-4 mt-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-medium">Define Variables</h3>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[300px]">
+                        Variables represent the quantities or resources to optimize (e.g., production quantities, resource allocations).
+                      </TooltipContent>
+                    </Tooltip>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        appendVariable({
+                          id: uuidv4(),
+                          name: `Variable ${variableFields.length + 1}`,
+                          lowerBound: 0,
+                          upperBound: 100,
+                          profit: optimizationType === "profit_max" ? 0 : undefined,
+                          cost: optimizationType === "cost_min" ? 0 : undefined,
+                        });
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-1" /> Add Variable
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {variableFields.map((field, index) => (
+                      <div key={field.id} className="p-4 border border-gray-200 rounded-md">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
-                            name={`variables.${index}.profit`}
+                            name={`variables.${index}.name`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="flex items-center gap-2">
-                                  Profit per Unit
+                                  Name
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Info className="h-4 w-4 text-gray-500" />
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-[300px]">
-                                      Enter the profit generated per unit of this variable.
+                                      Name of the variable to optimize (e.g., production quantity, resource allocation).
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g., Rice production (tons)" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {optimizationType === "profit_max" && (
+                            <FormField
+                              control={form.control}
+                              name={`variables.${index}.profit`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="flex items-center gap-2">
+                                    Profit per Unit
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-gray-500" />
+                                      </TooltipTrigger>
+                                      <TooltipContent className="max-w-[300px]">
+                                        Enter the profit generated per unit of this variable.
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      placeholder="0"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          )}
+
+                          <FormField
+                            control={form.control}
+                            name={`variables.${index}.lowerBound`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                  Lower Bound
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-4 w-4 text-gray-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-[300px]">
+                                      Minimum value this variable can take.
                                     </TooltipContent>
                                   </Tooltip>
                                 </FormLabel>
@@ -527,433 +528,403 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
                               </FormItem>
                             )}
                           />
-                        )}
 
-                        <FormField
-                          control={form.control}
-                          name={`variables.${index}.lowerBound`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                Lower Bound
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="h-4 w-4 text-gray-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-[300px]">
-                                    Minimum value this variable can take.
-                                  </TooltipContent>
-                                </Tooltip>
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="0"
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name={`variables.${index}.upperBound`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                Upper Bound
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="h-4 w-4 text-gray-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-[300px]">
-                                    Maximum value this variable can take.
-                                  </TooltipContent>
-                                </Tooltip>
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="100"
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-
-              {/* Constraints Tab */}
-              <TabsContent value="constraints" className="space-y-4 mt-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium">Define Constraints</h3>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[300px]">
-                      Constraints limit the optimization problem (e.g., resource availability, budget limits).
-                    </TooltipContent>
-                  </Tooltip>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addConstraint}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Add Constraint
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {constraintFields.map((field, index) => (
-                    <div key={field.id} className="p-4 border border-gray-200 rounded-md">
-                      <FormField
-                        control={form.control}
-                        name={`constraints.${index}.name`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                              Name
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Info className="h-4 w-4 text-gray-500" />
-                                </TooltipTrigger>
-                                <TooltipContent className="max-w-[300px]">
-                                  Name of the constraint (e.g., "Land Constraint").
-                                </TooltipContent>
-                              </Tooltip>
-                            </FormLabel>
-                            <FormControl>
-                              <Input placeholder="e.g., Land constraint" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="mt-3">
-                        <FormLabel className="flex items-center gap-2">
-                          Coefficients
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="h-4 w-4 text-gray-500" />
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-[300px]">
-                              Set the coefficient for each variable in this constraint.
-                            </TooltipContent>
-                          </Tooltip>
-                        </FormLabel>
-                        <FormDescription>How each variable contributes to this constraint.</FormDescription>
-
-                        {variables.map((variable, varIndex) => (
-                          <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
-                            <div className="col-span-4">
-                              <span className="text-sm">{variable.name}</span>
-                            </div>
-                            <div className="col-span-8">
-                              <FormField
-                                control={form.control}
-                                name={`constraints.${index}.variables.${varIndex}.coefficient`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        placeholder="0"
-                                        {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="flex items-end gap-4 mt-4">
-                        <FormField
-                          control={form.control}
-                          name={`constraints.${index}.sign`}
-                          render={({ field }) => (
-                            <FormItem className="w-32">
-                              <FormLabel className="flex items-center gap-2">
-                                Sign
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="h-4 w-4 text-gray-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-[300px]">
-                                    Choose the comparison operator for this constraint (≤, ≥, =).
-                                  </TooltipContent>
-                                </Tooltip>
-                              </FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
+                          <FormField
+                            control={form.control}
+                            name={`variables.${index}.upperBound`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                  Upper Bound
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-4 w-4 text-gray-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-[300px]">
+                                      Maximum value this variable can take.
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </FormLabel>
                                 <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Sign" />
-                                  </SelectTrigger>
+                                  <Input
+                                    type="number"
+                                    placeholder="100"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
                                 </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="<=">≤</SelectItem>
-                                  <SelectItem value=">=">≥</SelectItem>
-                                  <SelectItem value="=">=</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name={`constraints.${index}.rhs`}
-                          render={({ field }) => (
-                            <FormItem className="flex-grow">
-                              <FormLabel className="flex items-center gap-2">
-                                Right Hand Side
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="h-4 w-4 text-gray-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-[300px]">
-                                    Enter the right-hand side value for this constraint.
-                                  </TooltipContent>
-                                </Tooltip>
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="0"
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
+                    ))}
+                  </div>
+                </TabsContent>
 
-              {/* Goals Tab (for Goal Programming) */}
-              {optimizationType === "goal_programming" && (
-                <TabsContent value="goals" className="space-y-4 mt-4">
+                {/* Constraints Tab */}
+                <TabsContent value="constraints" className="space-y-4 mt-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">Define Goals</h3>
+                    <h3 className="text-lg font-medium">Define Constraints</h3>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-gray-500" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[300px]">
-                        Goals represent specific objectives to achieve, such as maximizing profit or minimizing costs.
+                        Constraints limit the optimization problem (e.g., resource availability, budget limits).
                       </TooltipContent>
                     </Tooltip>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={addGoal}
+                      onClick={addConstraint}
                     >
-                      <Plus className="h-4 w-4 mr-1" /> Add Goal
+                      <Plus className="h-4 w-4 mr-1" /> Add Constraint
                     </Button>
                   </div>
 
-                  {goalFields.length === 0 ? (
-                    <div className="p-8 text-center border border-dashed border-gray-300 rounded-md">
-                      <p className="text-gray-500">No goals defined yet. Click "Add Goal" to create one.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {goalFields.map((field, index) => (
-                        <div key={field.id} className="p-4 border border-gray-200 rounded-md">
-                          <div className="flex justify-between items-center mb-3">
-                            <h4 className="font-medium">Goal {index + 1}</h4>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeGoal(index)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
+                  <div className="space-y-4">
+                    {constraintFields.map((field, index) => (
+                      <div key={field.id} className="p-4 border border-gray-200 rounded-md">
+                        <FormField
+                          control={form.control}
+                          name={`constraints.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                Name
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-4 w-4 text-gray-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-[300px]">
+                                    Name of the constraint (e.g., "Land Constraint").
+                                  </TooltipContent>
+                                </Tooltip>
+                              </FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g., Land constraint" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                              control={form.control}
-                              name={`goals.${index}.name`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Goal Name</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="e.g., Maximize profit" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                        <div className="mt-3">
+                          <FormLabel className="flex items-center gap-2">
+                            Coefficients
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className="h-4 w-4 text-gray-500" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-[300px]">
+                                Set the coefficient for each variable in this constraint.
+                              </TooltipContent>
+                            </Tooltip>
+                          </FormLabel>
+                          <FormDescription>How each variable contributes to this constraint.</FormDescription>
 
-                            <FormField
-                              control={form.control}
-                              name={`goals.${index}.direction`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Direction</FormLabel>
-                                  <Select 
-                                    onValueChange={field.onChange} 
-                                    defaultValue={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Direction" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="max">Maximize</SelectItem>
-                                      <SelectItem value="min">Minimize</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`goals.${index}.target`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Target Value</FormLabel>
-                                  <FormControl>
-                                    <Input 
-                                      type="number" 
-                                      placeholder="0" 
-                                      {...field}
-                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                    />
-                                  </FormControl>
-                                  <FormDescription>Desired goal value</FormDescription>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`goals.${index}.priority`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Priority</FormLabel>
-                                  <FormControl>
-                                    <Input 
-                                      type="number" 
-                                      placeholder="1" 
-                                      min="1"
-                                      {...field}
-                                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                                    />
-                                  </FormControl>
-                                  <FormDescription>Higher values = higher priority</FormDescription>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div className="mt-3">
-                            <FormLabel>Goal Coefficients</FormLabel>
-                            <FormDescription>How each variable contributes to this goal</FormDescription>
-
-                            {variables.map((variable, varIndex) => (
-                              <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
-                                <div className="col-span-4">
-                                  <span className="text-sm">{variable.name}</span>
-                                </div>
-                                <div className="col-span-8">
-                                  <FormField
-                                    control={form.control}
-                                    name={`goals.${index}.variables.${varIndex}.coefficient`}
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormControl>
-                                          <Input 
-                                            type="number" 
-                                            placeholder="0" 
-                                            {...field}
-                                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                  <input 
-                                    type="hidden" 
-                                    {...form.register(`goals.${index}.variables.${varIndex}.variableId`)} 
-                                    value={varIndex.toString()} 
-                                  />
-                                </div>
+                          {variables.map((variable, varIndex) => (
+                            <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
+                              <div className="col-span-4">
+                                <span className="text-sm">{variable.name}</span>
                               </div>
-                            ))}
-                          </div>
+                              <div className="col-span-8">
+                                <FormField
+                                  control={form.control}
+                                  name={`constraints.${index}.variables.${varIndex}.coefficient`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          placeholder="0"
+                                          {...field}
+                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
+
+                        <div className="flex items-end gap-4 mt-4">
+                          <FormField
+                            control={form.control}
+                            name={`constraints.${index}.sign`}
+                            render={({ field }) => (
+                              <FormItem className="w-32">
+                                <FormLabel className="flex items-center gap-2">
+                                  Sign
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-4 w-4 text-gray-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-[300px]">
+                                      Choose the comparison operator for this constraint (≤, ≥, =).
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </FormLabel>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Sign" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="<=">≤</SelectItem>
+                                    <SelectItem value=">=">≥</SelectItem>
+                                    <SelectItem value="=">=</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`constraints.${index}.rhs`}
+                            render={({ field }) => (
+                              <FormItem className="flex-grow">
+                                <FormLabel className="flex items-center gap-2">
+                                  Right Hand Side
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-4 w-4 text-gray-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-[300px]">
+                                      Enter the right-hand side value for this constraint.
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="0"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </TabsContent>
-              )}
-            </Tabs>
 
-            {/* Optimization Buttons */}
-            <div className="flex justify-end space-x-3 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={resetForm}
-              >
-                Reset
-              </Button>
-              <Button
-                type="submit"
-                className="bg-primary hover:bg-primary/90"
-                disabled={isCalculating}
-              >
-                {isCalculating ? (
-                  <>
-                    <span className="animate-spin mr-2">◌</span>
-                    Optimizing...
-                  </>
-                ) : (
-                  <>
-                    <CalculatorIcon className="mr-2 h-4 w-4" />
-                    Run Optimization
-                  </>
+                {/* Goals Tab (for Goal Programming) */}
+                {optimizationType === "goal_programming" && (
+                  <TabsContent value="goals" className="space-y-4 mt-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-medium">Define Goals</h3>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          Goals represent specific objectives to achieve, such as maximizing profit or minimizing costs.
+                        </TooltipContent>
+                      </Tooltip>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addGoal}
+                      >
+                        <Plus className="h-4 w-4 mr-1" /> Add Goal
+                      </Button>
+                    </div>
+
+                    {goalFields.length === 0 ? (
+                      <div className="p-8 text-center border border-dashed border-gray-300 rounded-md">
+                        <p className="text-gray-500">No goals defined yet. Click "Add Goal" to create one.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {goalFields.map((field, index) => (
+                          <div key={field.id} className="p-4 border border-gray-200 rounded-md">
+                            <div className="flex justify-between items-center mb-3">
+                              <h4 className="font-medium">Goal {index + 1}</h4>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeGoal(index)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name={`goals.${index}.name`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Goal Name</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="e.g., Maximize profit" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`goals.${index}.direction`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Direction</FormLabel>
+                                    <Select 
+                                      onValueChange={field.onChange} 
+                                      defaultValue={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Direction" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="max">Maximize</SelectItem>
+                                        <SelectItem value="min">Minimize</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`goals.${index}.target`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Target Value</FormLabel>
+                                    <FormControl>
+                                      <Input 
+                                        type="number" 
+                                        placeholder="0" 
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>Desired goal value</FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`goals.${index}.priority`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Priority</FormLabel>
+                                    <FormControl>
+                                      <Input 
+                                        type="number" 
+                                        placeholder="1" 
+                                        min="1"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>Higher values = higher priority</FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="mt-3">
+                              <FormLabel>Goal Coefficients</FormLabel>
+                              <FormDescription>How each variable contributes to this goal</FormDescription>
+
+                              {variables.map((variable, varIndex) => (
+                                <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
+                                  <div className="col-span-4">
+                                    <span className="text-sm">{variable.name}</span>
+                                  </div>
+                                  <div className="col-span-8">
+                                    <FormField
+                                      control={form.control}
+                                      name={`goals.${index}.variables.${varIndex}.coefficient`}
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormControl>
+                                            <Input 
+                                              type="number" 
+                                              placeholder="0" 
+                                              {...field}
+                                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                            />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <input 
+                                      type="hidden" 
+                                      {...form.register(`goals.${index}.variables.${varIndex}.variableId`)} 
+                                      value={varIndex.toString()} 
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
                 )}
-              </Button>
-            </div>
-          </form>
-        </Form>
+              </Tabs>
 
+              {/* Optimization Buttons */}
+              <div className="flex justify-end space-x-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={resetForm}
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-primary hover:bg-primary/90"
+                  disabled={isCalculating}
+                >
+                  {isCalculating ? (
+                    <>
+                      <span className="animate-spin mr-2">◌</span>
+                      Optimizing...
+                    </>
+                  ) : (
+                    <>
+                      <CalculatorIcon className="mr-2 h-4 w-4" />
+                      Run Optimization
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
         {/* Results Section */}
         {results && (
           <div id="optimization-results" className="mt-6 border-t border-gray-200 pt-4">
@@ -1147,7 +1118,7 @@ export default function OptimizationAnalysis({ onClose }: OptimizationAnalysisPr
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </PanelContainer>
   );
 }

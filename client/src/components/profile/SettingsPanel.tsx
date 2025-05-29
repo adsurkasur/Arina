@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
+import { PanelContainer } from "@/components/ui/PanelContainer";
 
 export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   const { darkMode, setDarkMode } = useTheme();
@@ -18,19 +18,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="h-full w-full flex flex-col">
-      <div className="flex items-center justify-between px-6 pt-6 pb-2">
-        <h2 className="text-2xl font-semibold text-primary">
-          {t('settingsPanel.settings')}
-        </h2>
-        <button
-          className="text-gray-500 hover:text-gray-800 transition-colors"
-          onClick={onClose}
-          aria-label="Close settings"
-        >
-          <X className="h-6 w-6" />
-        </button>
-      </div>
+    <PanelContainer onClose={onClose} title={t('settingsPanel.settings')}>
       <div className="flex-1 p-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="mb-6">
@@ -56,6 +44,6 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       </div>
-    </div>
+    </PanelContainer>
   );
 }

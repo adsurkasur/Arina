@@ -12,6 +12,7 @@ import AnalysisHistory from "@/components/history/AnalysisHistory";
 import UserProfile from "@/components/profile/UserProfile";
 import SettingsPanel from "@/components/profile/SettingsPanel";
 import DashboardHome from "./DashboardHome";
+import { DebugPanel } from "@/components/ui/DebugPanel";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -46,6 +47,8 @@ export default function Dashboard() {
         return <AnalysisHistory onClose={handleCloseToolPanel} />;
       case "settings":
         return <SettingsPanel onClose={handleCloseToolPanel} />;
+      case "debug":
+        return <DebugPanel open={true} onClose={handleCloseToolPanel} />;
       case "help":
         return (
           <div className="p-4">

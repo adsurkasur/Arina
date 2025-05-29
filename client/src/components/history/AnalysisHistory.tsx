@@ -54,6 +54,7 @@ import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PanelContainer } from "@/components/ui/PanelContainer";
 
 interface AnalysisHistoryProps {
   onClose: () => void;
@@ -675,36 +676,17 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
 
   if (error) {
     return (
-      <div className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-primary">Analysis History</h2>
-          <button 
-            className="text-gray-500 hover:text-gray-800" 
-            onClick={onClose}
-          >
-            <XCircle className="h-6 w-6" />
-          </button>
-        </div>
+      <PanelContainer onClose={onClose} title="Analysis History">
         <div className="flex flex-col items-center justify-center h-64">
           <p className="text-red-500 mb-2">Failed to load analysis history</p>
           <Button onClick={() => window.location.reload()}>Retry</Button>
         </div>
-      </div>
+      </PanelContainer>
     );
   }
 
   return (
-    <div className="p-4 h-full flex flex-col bg-muted">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-primary">Analysis History</h2>
-        <button 
-          className="text-gray-500 hover:text-gray-800" 
-          onClick={onClose}
-        >
-          <XCircle className="h-6 w-6" />
-        </button>
-      </div>
-
+    <PanelContainer onClose={onClose} title="Analysis History">
       <div className="flex flex-col md:flex-row gap-3 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -731,7 +713,6 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           </SelectContent>
         </Select>
       </div>
-
       {isLoading ? (
         <div className="flex flex-col items-center justify-center flex-1">
           <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
@@ -812,6 +793,6 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           </Accordion>
         </ScrollArea>
       )}
-    </div>
+    </PanelContainer>
   );
 }

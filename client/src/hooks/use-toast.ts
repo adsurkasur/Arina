@@ -1,12 +1,13 @@
 import * as React from "react"
+import { useNotification, NOTIFICATION_DURATION } from "@/contexts/NotificationContext"
 
 import type {
   ToastActionElement,
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_LIMIT = 3; // Allow up to 3 stacked toasts
+const TOAST_REMOVE_DELAY = NOTIFICATION_DURATION; // Use unified duration
 
 type ToasterToast = ToastProps & {
   id: string
@@ -155,6 +156,7 @@ function toast({ ...props }: Toast) {
       ...props,
       id,
       open: true,
+      duration: NOTIFICATION_DURATION,
       onOpenChange: (open) => {
         if (!open) dismiss()
       },

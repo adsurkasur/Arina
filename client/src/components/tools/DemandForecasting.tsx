@@ -20,14 +20,6 @@ import {
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -58,6 +50,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { PanelContainer } from "@/components/ui/PanelContainer";
 
 // Form validation schema
 const formSchema = z.object({
@@ -78,11 +71,7 @@ const formSchema = z.object({
   periodLength: z.number().min(1).max(12),
 });
 
-interface DemandForecastingProps {
-  onClose: () => void;
-}
-
-export default function DemandForecasting({ onClose }: DemandForecastingProps) {
+export default function DemandForecasting({ onClose }: { onClose: () => void }) {
   const [results, setResults] = useState<ForecastResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -232,331 +221,331 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
   };
 
   return (
-    <Card className="w-full border-none shadow-none">
-      <CardHeader className="flex flex-row items-center justify-between bg-white">
-        <div>
-          <CardTitle className="text-xl font-heading font-semibold text-primary">
-            Demand Forecasting
-          </CardTitle>
-          <CardDescription>
-            Predict future demand using historical data and forecasting methods.
-          </CardDescription>
+    <PanelContainer onClose={onClose} title="Demand Forecasting">
+      <div className="space-y-6">
+        {/* Section: Forecast Info */}
+        <div className="mb-4">
+          <h3 className="font-medium text-lg mb-2">Forecast Information</h3>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+              {/* Product Name */}
+              <FormField
+                control={form.control as any}
+                name="productName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      Product Name
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          Enter the name of the product you want to forecast
+                          demand for.
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Rice" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
-      </CardHeader>
 
-      <CardContent className="overflow-y-auto max-h-[calc(100vh-12rem)] bg-white">
-        <div className="bg-cream rounded-lg p-4 mb-4">
-          <p className="text-sm text-gray-700">
-            Enter historical demand data and select a forecasting method to
-            predict future demand.
-          </p>
-        </div>
+        {/* Section: Historical Demand */}
+        <div className="mb-4">
+          <h3 className="font-medium text-lg mb-2">Historical Demand</h3>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-base font-medium text-gray-700">
+                  Historical Demand
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[300px]">
+                      Provide historical demand data for at least three periods to
+                      generate an accurate forecast.
+                    </TooltipContent>
+                  </Tooltip>
+                </label>
+                <p className="text-sm text-muted-foreground">
+                  Enter at least 3 periods of historical data
+                </p>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
-            {/* Product Name */}
-            <FormField
-              control={form.control as any}
-              name="productName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    Product Name
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px]">
-                        Enter the name of the product you want to forecast
-                        demand for.
-                      </TooltipContent>
-                    </Tooltip>
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Rice" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Historical Demand Section */}
-            <div className="space-y-2">
-              <FormLabel className="flex items-center gap-2">
-                Historical Demand
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-gray-500" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[300px]">
-                    Provide historical demand data for at least three periods to
-                    generate an accurate forecast.
-                  </TooltipContent>
-                </Tooltip>
-              </FormLabel>
-              <FormDescription>
-                Enter at least 3 periods of historical data
-              </FormDescription>
-
-              <div className="grid grid-cols-12 gap-2 mb-2">
-                <div className="col-span-5">
-                  <FormLabel className="text-xs flex items-center gap-2">
-                    Period
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px]">
-                        Specify the time period for the historical demand (e.g.,
-                        "January 2025").
-                      </TooltipContent>
-                    </Tooltip>
-                  </FormLabel>
-                </div>
-                <div className="col-span-5">
-                  <FormLabel className="text-xs flex items-center gap-2">
-                    Demand
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px]">
-                        Enter the demand quantity for the specified period.
-                      </TooltipContent>
-                    </Tooltip>
-                  </FormLabel>
-                </div>
-                <div className="col-span-2"></div>
-              </div>
-
-              {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-12 gap-2 items-center"
-                >
+                <div className="grid grid-cols-12 gap-2 mb-2">
                   <div className="col-span-5">
-                    <FormField
-                      control={form.control as any}
-                      name={`historicalDemand.${index}.period`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder="Period 1" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <label className="text-xs flex items-center gap-2 font-medium text-gray-700">
+                      Period
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          Specify the time period for the historical demand (e.g.,
+                          "January 2025").
+                        </TooltipContent>
+                      </Tooltip>
+                    </label>
                   </div>
                   <div className="col-span-5">
-                    <FormField
-                      control={form.control as any}
-                      name={`historicalDemand.${index}.demand`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder="0"
-                              type="number"
-                              step="1"
-                              min="0"
-                              onKeyDown={(e) => {
-                                if (e.key === "." || e.key === ",") {
-                                  e.preventDefault();
-                                }
-                              }}
-                              {...field}
-                              onChange={(e) => {
-                                const value =
-                                  e.target.value === ""
-                                    ? ""
-                                    : Math.floor(parseFloat(e.target.value));
-                                field.onChange(value);
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <label className="text-xs flex items-center gap-2 font-medium text-gray-700">
+                      Demand
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          Enter the demand quantity for the specified period.
+                        </TooltipContent>
+                      </Tooltip>
+                    </label>
                   </div>
-                  <div className="col-span-2 flex justify-end">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => remove(index)}
-                      className="text-red-500 hover:text-red-700"
-                      disabled={fields.length <= 3}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <div className="col-span-2"></div>
                 </div>
-              ))}
 
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  append({
-                    id: uuidv4(),
-                    period: `Period ${fields.length + 1}`,
-                    demand: 0,
-                  })
-                }
-                className="mt-2"
-              >
-                Add Period
-              </Button>
-            </div>
-
-            {/* Forecast Method */}
-            <FormField
-              control={form.control as any}
-              name="method"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    Forecast Method
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px]">
-                        Select the forecasting method to use: Simple Moving
-                        Average (SMA) or Exponential Smoothing.
-                      </TooltipContent>
-                    </Tooltip>
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
+                {fields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className="grid grid-cols-12 gap-2 items-center"
                   >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a method" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="sma">
-                        Simple Moving Average (SMA)
-                      </SelectItem>
-                      <SelectItem value="exponential">
-                        Exponential Smoothing
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    {method === "sma"
-                      ? "SMA calculates the average of the last n periods."
-                      : "Exponential smoothing gives more weight to recent observations."}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+                    <div className="col-span-5">
+                      <FormField
+                        control={form.control as any}
+                        name={`historicalDemand.${index}.period`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input placeholder="Period 1" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="col-span-5">
+                      <FormField
+                        control={form.control as any}
+                        name={`historicalDemand.${index}.demand`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="0"
+                                type="number"
+                                step="1"
+                                min="0"
+                                onKeyDown={(e) => {
+                                  if (e.key === "." || e.key === ",") {
+                                    e.preventDefault();
+                                  }
+                                }}
+                                {...field}
+                                onChange={(e) => {
+                                  const value =
+                                    e.target.value === ""
+                                      ? ""
+                                      : Math.floor(parseFloat(e.target.value));
+                                  field.onChange(value);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="col-span-2 flex justify-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => remove(index)}
+                        className="text-red-500 hover:text-red-700"
+                        disabled={fields.length <= 3}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    append({
+                      id: uuidv4(),
+                      period: `Period ${fields.length + 1}`,
+                      demand: 0,
+                    })
+                  }
+                  className="mt-2"
+                >
+                  Add Period
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+
+        {/* Section: Forecast Method */}
+        <div className="mb-4">
+          <h3 className="font-medium text-lg mb-2">Forecast Method</h3>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+              {/* Forecast Method */}
+              <FormField
+                control={form.control as any}
+                name="method"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      Forecast Method
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[300px]">
+                          Select the forecasting method to use: Simple Moving
+                          Average (SMA) or Exponential Smoothing.
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a method" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="sma">
+                          Simple Moving Average (SMA)
+                        </SelectItem>
+                        <SelectItem value="exponential">
+                          Exponential Smoothing
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      {method === "sma"
+                        ? "SMA calculates the average of the last n periods."
+                        : "Exponential smoothing gives more weight to recent observations."}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Method-specific parameters */}
+
+              {method === "exponential" && (
+                <FormField
+                  control={form.control as any}
+                  name="smoothingFactor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        Smoothing Factor (Alpha)
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-500" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[300px]">
+                            Alpha determines how much weight is given to recent
+                            observations (higher = more weight to recent data).
+                          </TooltipContent>
+                        </Tooltip>
+                      </FormLabel>
+                      <FormControl>
+                        <Slider
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          value={[field.value || 0.3]}
+                          onValueChange={(vals) => field.onChange(vals[0])}
+                          className="py-4"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
 
-            {/* Method-specific parameters */}
+              {method === "sma" && (
+                <FormField
+                  control={form.control as any}
+                  name="periodLength"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        Historical Periods for SMA
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-500" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[300px]">
+                            Number of historical periods to use for SMA
+                            calculation (e.g., SMA3 uses 3 periods).
+                          </TooltipContent>
+                        </Tooltip>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={2}
+                          max={12}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value) || 3)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </form>
+          </Form>
+        </div>
 
-            {method === "exponential" && (
-              <FormField
-                control={form.control as any}
-                name="smoothingFactor"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      Smoothing Factor (Alpha)
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-gray-500" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          Alpha determines how much weight is given to recent
-                          observations (higher = more weight to recent data).
-                        </TooltipContent>
-                      </Tooltip>
-                    </FormLabel>
-                    <FormControl>
-                      <Slider
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        value={[field.value || 0.3]}
-                        onValueChange={(vals) => field.onChange(vals[0])}
-                        className="py-4"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        {/* Section: Results/Actions */}
+        <div className="flex justify-end gap-3 mt-6">
+          {/* Forecast Buttons */}
+          <Button
+            type="submit"
+            className="bg-primary hover:bg-primary/90"
+            disabled={isCalculating}
+            onClick={form.handleSubmit(onSubmit as any)}
+          >
+            {isCalculating ? (
+              <>
+                <span className="animate-spin mr-2">◌</span>
+                Calculating...
+              </>
+            ) : (
+              <>
+                <CalculatorIcon className="mr-2 h-4 w-4" />
+                Generate Forecast
+              </>
             )}
-
-            {method === "sma" && (
-              <FormField
-                control={form.control as any}
-                name="periodLength"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      Historical Periods for SMA
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-gray-500" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          Number of historical periods to use for SMA
-                          calculation (e.g., SMA3 uses 3 periods).
-                        </TooltipContent>
-                      </Tooltip>
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={2}
-                        max={12}
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 3)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {/* Forecast Buttons */}
-            <div className="flex justify-end space-x-3 pt-2">
-              <Button type="button" variant="outline" onClick={resetForm}>
-                Reset
-              </Button>
-              <Button
-                type="submit"
-                className="bg-primary hover:bg-primary/90"
-                disabled={isCalculating}
-              >
-                {isCalculating ? (
-                  <>
-                    <span className="animate-spin mr-2">◌</span>
-                    Calculating...
-                  </>
-                ) : (
-                  <>
-                    <CalculatorIcon className="mr-2 h-4 w-4" />
-                    Generate Forecast
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
+          </Button>
+          <Button type="button" variant="outline" onClick={resetForm}>
+            Reset
+          </Button>
+        </div>
 
         {/* Results Section */}
         {results && (
@@ -716,7 +705,7 @@ export default function DemandForecasting({ onClose }: DemandForecastingProps) {
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </PanelContainer>
   );
 }

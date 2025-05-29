@@ -42,6 +42,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { PanelContainer } from "@/components/ui/PanelContainer";
 
 // Form validation schema
 const formSchema = z.object({
@@ -248,338 +249,331 @@ export default function BusinessFeasibility({
   };
 
   return (
-    <Card className="w-full border-none shadow-none">
-      <CardHeader className="flex flex-row items-center justify-between bg-white">
-        <div>
-          <CardTitle className="text-xl font-heading font-semibold text-primary">
-            Business Feasibility Analysis
-          </CardTitle>
-          <CardDescription>
-            Analyze profitability, break-even point, and ROI for your
-            agricultural business.
-          </CardDescription>
-        </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
-      </CardHeader>
-
-      <CardContent className="overflow-y-auto max-h-[calc(100vh-12rem)] bg-white">
-        <div className="bg-cream rounded-lg p-4 mb-4">
-          <p className="text-sm text-gray-700">
-            Enter your business parameters to analyze feasibility, calculate
-            break-even point, and determine profitability metrics.
-          </p>
-        </div>
-
+    <PanelContainer onClose={onClose} title="Business Feasibility">
+      <div className="space-y-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Business Name */}
-            <FormField
-              control={form.control}
-              name="businessName"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center gap-1">
-                    <FormLabel>Business Name</FormLabel>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-gray-500" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          <p>The name of your agricultural business venture</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Section: Business Info */}
+            <div className="mb-4">
+              <h3 className="font-medium text-lg mb-2">Business Information</h3>
+              <FormField
+                control={form.control}
+                name="businessName"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-1">
+                      <FormLabel>Business Name</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-500" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[300px]">
+                            <p>The name of your agricultural business venture</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <FormControl>
+                      <Input placeholder="Strawberry Farm" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Section: Investment Costs */}
+            <div className="mb-4">
+              <h3 className="font-medium text-lg mb-2">Investment Costs</h3>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Investment Costs
+                  </label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[300px]">
+                        <p>
+                          One-time expenses required to start the business, such as
+                          equipment, land, buildings, etc.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  One-time expenses to start the business
+                </p>
+
+                {investmentFields.map((field, index) => (
+                  <div key={field.id} className="flex items-center gap-2">
+                    <FormField
+                      control={form.control}
+                      name={`investmentCosts.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input placeholder="Item name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`investmentCosts.${index}.quantity`}
+                      render={({ field }) => (
+                        <FormItem className="w-24">
+                          <FormControl>
+                            <Input
+                              placeholder="Quantity"
+                              type="number"
+                              step="1"
+                              min="0"
+                              onWheel={(e) => e.currentTarget.blur()}
+                              onKeyDown={(e) => {
+                                if (e.key === "." || e.key === ",") {
+                                  e.preventDefault();
+                                }
+                              }}
+                              {...field}
+                              onChange={(e) => {
+                                const value =
+                                  e.target.value === ""
+                                    ? ""
+                                    : Math.floor(parseFloat(e.target.value));
+                                field.onChange(value);
+                                const price =
+                                  form.getValues(
+                                    `investmentCosts.${index}.price`,
+                                  ) || 0;
+                                form.setValue(
+                                  `investmentCosts.${index}.amount`,
+                                  Number(value) * Number(price),
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`investmentCosts.${index}.price`}
+                      render={({ field }) => (
+                        <FormItem className="w-32">
+                          <FormControl>
+                            <Input
+                              placeholder="Price"
+                              type="number"
+                              step="1"
+                              min="0"
+                              onWheel={(e) => e.currentTarget.blur()}
+                              onKeyDown={(e) => {
+                                if (e.key === "." || e.key === ",") {
+                                  e.preventDefault();
+                                }
+                              }}
+                              {...field}
+                              onChange={(e) => {
+                                const value =
+                                  e.target.value === ""
+                                    ? ""
+                                    : Math.floor(parseFloat(e.target.value));
+                                field.onChange(value);
+                                const quantity =
+                                  form.getValues(
+                                    `investmentCosts.${index}.quantity`,
+                                  ) || 0;
+                                form.setValue(
+                                  `investmentCosts.${index}.amount`,
+                                  Number(value) * Number(quantity),
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeInvestment(index)}
+                      className="text-red-500 hover:text-red-700"
+                      disabled={investmentFields.length <= 1}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <FormControl>
-                    <Input placeholder="Strawberry Farm" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                ))}
 
-            {/* Investment Costs Section */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-1">
-                <FormLabel>Investment Costs</FormLabel>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[300px]">
-                      <p>
-                        One-time expenses required to start the business, such
-                        as equipment, land, buildings, etc.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    appendInvestment({ id: uuidv4(), name: "", quantity: 0, price: 0, amount: 0 })
+                  }
+                  className="mt-2"
+                >
+                  Add Investment Cost
+                </Button>
               </div>
-              <FormDescription>
-                One-time expenses to start the business
-              </FormDescription>
-
-              {investmentFields.map((field, index) => (
-                <div key={field.id} className="flex items-center gap-2">
-                  <FormField
-                    control={form.control}
-                    name={`investmentCosts.${index}.name`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Input placeholder="Item name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`investmentCosts.${index}.quantity`}
-                    render={({ field }) => (
-                      <FormItem className="w-24">
-                        <FormControl>
-                          <Input
-                            placeholder="Quantity"
-                            type="number"
-                            step="1"
-                            min="0"
-                            onWheel={(e) => e.currentTarget.blur()}
-                            onKeyDown={(e) => {
-                              if (e.key === "." || e.key === ",") {
-                                e.preventDefault();
-                              }
-                            }}
-                            {...field}
-                            onChange={(e) => {
-                              const value =
-                                e.target.value === ""
-                                  ? ""
-                                  : Math.floor(parseFloat(e.target.value));
-                              field.onChange(value);
-                              const price =
-                                form.getValues(
-                                  `investmentCosts.${index}.price`,
-                                ) || 0;
-                              form.setValue(
-                                `investmentCosts.${index}.amount`,
-                                Number(value) * Number(price),
-                              );
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`investmentCosts.${index}.price`}
-                    render={({ field }) => (
-                      <FormItem className="w-32">
-                        <FormControl>
-                          <Input
-                            placeholder="Price"
-                            type="number"
-                            step="1"
-                            min="0"
-                            onWheel={(e) => e.currentTarget.blur()}
-                            onKeyDown={(e) => {
-                              if (e.key === "." || e.key === ",") {
-                                e.preventDefault();
-                              }
-                            }}
-                            {...field}
-                            onChange={(e) => {
-                              const value =
-                                e.target.value === ""
-                                  ? ""
-                                  : Math.floor(parseFloat(e.target.value));
-                              field.onChange(value);
-                              const quantity =
-                                form.getValues(
-                                  `investmentCosts.${index}.quantity`,
-                                ) || 0;
-                              form.setValue(
-                                `investmentCosts.${index}.amount`,
-                                Number(value) * Number(quantity),
-                              );
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeInvestment(index)}
-                    className="text-red-500 hover:text-red-700"
-                    disabled={investmentFields.length <= 1}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  appendInvestment({ id: uuidv4(), name: "", quantity: 0, price: 0, amount: 0 })
-                }
-                className="mt-2"
-              >
-                Add Investment Cost
-              </Button>
             </div>
 
-            {/* Operational Costs Section */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-1">
-                <FormLabel>Periodical Operational Costs</FormLabel>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[300px]">
-                      <p>
-                        Recurring expenses required to keep the business
-                        running, such as labor, utilities, raw materials, etc.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <FormDescription>Recurring periodical expenses</FormDescription>
-
-              {operationalFields.map((field, index) => (
-                <div key={field.id} className="flex items-center gap-2">
-                  <FormField
-                    control={form.control}
-                    name={`operationalCosts.${index}.name`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Input placeholder="Item name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`operationalCosts.${index}.quantity`}
-                    render={({ field }) => (
-                      <FormItem className="w-24">
-                        <FormControl>
-                          <Input
-                            placeholder="Quantity"
-                            type="number"
-                            step="1"
-                            min="0"
-                            onWheel={(e) => e.currentTarget.blur()}
-                            onKeyDown={(e) => {
-                              if (e.key === "." || e.key === ",") {
-                                e.preventDefault();
-                              }
-                            }}
-                            {...field}
-                            onChange={(e) => {
-                              const value =
-                                e.target.value === ""
-                                  ? ""
-                                  : Math.floor(parseFloat(e.target.value));
-                              field.onChange(value);
-                              const price =
-                                form.getValues(
-                                  `operationalCosts.${index}.price`,
-                                ) || 0;
-                              form.setValue(
-                                `operationalCosts.${index}.amount`,
-                                Number(value) * Number(price),
-                              );
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`operationalCosts.${index}.price`}
-                    render={({ field }) => (
-                      <FormItem className="w-32">
-                        <FormControl>
-                          <Input
-                            placeholder="Price"
-                            type="number"
-                            step="1"
-                            min="0"
-                            onWheel={(e) => e.currentTarget.blur()}
-                            onKeyDown={(e) => {
-                              if (e.key === "." || e.key === ",") {
-                                e.preventDefault();
-                              }
-                            }}
-                            {...field}
-                            onChange={(e) => {
-                              const value =
-                                e.target.value === ""
-                                  ? ""
-                                  : Math.floor(parseFloat(e.target.value));
-                              field.onChange(value);
-                              const quantity =
-                                form.getValues(
-                                  `operationalCosts.${index}.quantity`,
-                                ) || 0;
-                              form.setValue(
-                                `operationalCosts.${index}.amount`,
-                                Number(value) * Number(quantity),
-                              );
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeOperational(index)}
-                    className="text-red-500 hover:text-red-700"
-                    disabled={operationalFields.length <= 1}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+            {/* Section: Operational Costs */}
+            <div className="mb-4">
+              <h3 className="font-medium text-lg mb-2">Operational Costs</h3>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Periodical Operational Costs
+                  </label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[300px]">
+                        <p>
+                          Recurring expenses required to keep the business running, such
+                          as labor, utilities, raw materials, etc.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-              ))}
+                <p className="text-sm text-muted-foreground">
+                  Recurring periodical expenses
+                </p>
 
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  appendOperational({ id: uuidv4(), name: "", quantity: 0, price: 0, amount: 0 })
-                }
-                className="mt-2"
-              >
-                Add Operational Cost
-              </Button>
+                {operationalFields.map((field, index) => (
+                  <div key={field.id} className="flex items-center gap-2">
+                    <FormField
+                      control={form.control}
+                      name={`operationalCosts.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input placeholder="Item name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`operationalCosts.${index}.quantity`}
+                      render={({ field }) => (
+                        <FormItem className="w-24">
+                          <FormControl>
+                            <Input
+                              placeholder="Quantity"
+                              type="number"
+                              step="1"
+                              min="0"
+                              onWheel={(e) => e.currentTarget.blur()}
+                              onKeyDown={(e) => {
+                                if (e.key === "." || e.key === ",") {
+                                  e.preventDefault();
+                                }
+                              }}
+                              {...field}
+                              onChange={(e) => {
+                                const value =
+                                  e.target.value === ""
+                                    ? ""
+                                    : Math.floor(parseFloat(e.target.value));
+                                field.onChange(value);
+                                const price =
+                                  form.getValues(
+                                    `operationalCosts.${index}.price`,
+                                  ) || 0;
+                                form.setValue(
+                                  `operationalCosts.${index}.amount`,
+                                  Number(value) * Number(price),
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`operationalCosts.${index}.price`}
+                      render={({ field }) => (
+                        <FormItem className="w-32">
+                          <FormControl>
+                            <Input
+                              placeholder="Price"
+                              type="number"
+                              step="1"
+                              min="0"
+                              onWheel={(e) => e.currentTarget.blur()}
+                              onKeyDown={(e) => {
+                                if (e.key === "." || e.key === ",") {
+                                  e.preventDefault();
+                                }
+                              }}
+                              {...field}
+                              onChange={(e) => {
+                                const value =
+                                  e.target.value === ""
+                                    ? ""
+                                    : Math.floor(parseFloat(e.target.value));
+                                field.onChange(value);
+                                const quantity =
+                                  form.getValues(
+                                    `operationalCosts.${index}.quantity`,
+                                  ) || 0;
+                                form.setValue(
+                                  `operationalCosts.${index}.amount`,
+                                  Number(value) * Number(quantity),
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeOperational(index)}
+                      className="text-red-500 hover:text-red-700"
+                      disabled={operationalFields.length <= 1}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    appendOperational({ id: uuidv4(), name: "", quantity: 0, price: 0, amount: 0 })
+                  }
+                  className="mt-2"
+                >
+                  Add Operational Cost
+                </Button>
+              </div>
             </div>
 
-            {/* Production & Sales Information */}
+            {/* Section: Production & Sales Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -595,8 +589,8 @@ export default function BusinessFeasibility({
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
                             <p>
-                              The cost to produce one unit of your product,
-                              including direct materials and labor
+                              The cost to produce one unit of your product, including
+                              direct materials and labor
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -671,8 +665,8 @@ export default function BusinessFeasibility({
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
                             <p>
-                              Percentage added to the cost price to determine
-                              selling price
+                              Percentage added to the cost price to determine selling
+                              price
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -977,7 +971,7 @@ export default function BusinessFeasibility({
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </PanelContainer>
   );
 }

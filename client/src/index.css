@@ -181,10 +181,10 @@ body {
   }
 }
 .animate-featurepanel-in {
-  animation: featurepanel-in 0.45s linear both;
+  animation: featurepanel-in 0.45s cubic-bezier(0.77,0,0.175,1) both;
 }
 .animate-featurepanel-out {
-  animation: featurepanel-out 0.35s linear both;
+  animation: featurepanel-out 0.35s cubic-bezier(0.77,0,0.175,1) both;
 }
 @keyframes header-in {
   from {
