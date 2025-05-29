@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserProfile } from "@/lib/mongodb";
-import i18n from "@/i18n";
+import i18n, { initializeI18n } from "@/i18n";
 
 interface LanguageContextProps {
   language: string;
@@ -29,11 +29,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
         }
       }
       setLanguageState(lang);
-      i18n.changeLanguage(lang);
-      // Set global variable for i18n init
-      if (typeof window !== 'undefined') {
-        (window as any).__arinaUserLanguage = lang;
-      }
+      initializeI18n(lang); // Initialize i18n with the correct language
       setLoading(false);
     }
     loadUserLanguage();
@@ -43,9 +39,6 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   const setLanguage = (lang: string) => {
     setLanguageState(lang);
     i18n.changeLanguage(lang);
-    if (typeof window !== 'undefined') {
-      (window as any).__arinaUserLanguage = lang;
-    }
   };
 
   if (loading) return null;

@@ -3,27 +3,26 @@ import { initReactI18next } from 'react-i18next';
 import en from './en.json';
 import id from './id.json';
 
-const resources = {
+export const resources = {
   en: { translation: en },
   id: { translation: id },
 };
 
-const getInitialLanguage = () => {
-  if (window && (window as any).__arinaUserLanguage) {
-    return (window as any).__arinaUserLanguage;
+export const initializeI18n = (lng: string) => {
+  if (!i18n.isInitialized) {
+    i18n
+      .use(initReactI18next)
+      .init({
+        resources,
+        lng,
+        fallbackLng: 'en',
+        interpolation: { escapeValue: false },
+        react: { useSuspense: false },
+      });
+  } else {
+    i18n.changeLanguage(lng);
   }
-  // Fallback
-  return "en";
+  return i18n;
 };
-
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: getInitialLanguage(),
-    fallbackLng: 'en',
-    interpolation: { escapeValue: false },
-    react: { useSuspense: false },
-  });
 
 export default i18n;

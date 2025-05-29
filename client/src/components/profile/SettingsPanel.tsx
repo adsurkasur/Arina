@@ -5,22 +5,34 @@ import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { PanelContainer } from "@/components/ui/PanelContainer";
 import { useAuth } from "@/hooks/useAuth";
-import { updateUserPreferences } from "@/lib/mongodb";
+import { updateUserPreferences, getUserProfile } from "@/lib/mongodb";
 
 export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   const { user } = useAuth();
   const { darkMode, setDarkMode } = useTheme();
   const { i18n, t } = useTranslation();
+  const [loading, setLoading] = useState(false);
 
   const handleDarkModeToggle = async () => {
+    if (!user) return;
+    setLoading(true);
     setDarkMode(!darkMode);
-    if (user) await updateUserPreferences(user.id, { dark_mode: !darkMode });
+    await updateUserPreferences(user.id, { dark_mode: !darkMode });
+    // Refetch from DB to ensure state is synced
+    const { data } = await getUserProfile(user.id);
+    if (data && typeof data.dark_mode === "boolean") setDarkMode(data.dark_mode);
+    setLoading(false);
   };
 
   const handleLanguageChange = async (e: any) => {
     const lang = e.target.value;
     i18n.changeLanguage(lang);
-    if (user) await updateUserPreferences(user.id, { language: lang });
+    if (user) {
+      setLoading(true);
+      await updateUserPreferences(user.id, { language: lang });
+      // Optionally, force a reload or refetch user profile for full sync
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,8 +43,8 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
             <span className="block text-sm font-medium text-gray-700 mb-2">
               {t('settingsPanel.darkMode')}
             </span>
-            <Button variant={darkMode ? "default" : "outline"} onClick={handleDarkModeToggle}>
-              {darkMode ? t('settingsPanel.on') : t('settingsPanel.off')}
+            <Button variant={darkMode ? "default" : "outline"} onClick={handleDarkModeToggle} disabled={loading}>
+              {loading ? t('settingsPanel.loading') : darkMode ? t('settingsPanel.on') : t('settingsPanel.off')}
             </Button>
           </div>
           <div className="mb-2">
