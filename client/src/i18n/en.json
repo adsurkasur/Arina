@@ -102,6 +102,7 @@
   "dashboard.title": "Dashboard",
   "dashboard.overview": "Overview",
   "dashboard.recentActivity": "Recent Activity",
+  "dashboard.comingSoonLastAnalysisInfo": "Coming Soon Last Analysis Info",
   "dashboard.notifications": "Notifications",
   "dashboard.viewAll": "View All",
   "dashboard.noNotifications": "No notifications",
@@ -175,5 +176,13 @@
   "sidebar.chatHistory": "Chat History",
   "sidebar.noConversations": "No conversations yet.",
   "sidebar.debugging": "Debugging",
-  "sidebar.aboutArina": "About Arina"
+  "sidebar.aboutArina": "About Arina",
+  "notifications.title": "Notifications",
+  "notifications.noNotifications": "No notifications available.",
+  "notifications.markAllAsRead": "Mark all as read",
+  "dashboard.totalAnalyses": "Total Analyses",
+  "dashboard.comingSoonSummaryStats": "Coming Soon Summary Stats",
+  "dashboard.aiInsights": "AI Insights",
+  "dashboard.comingSoonSmartTips": "Coming Soon Smart Tips",
+  "dashboard.analysisHistory": "Analysis History"
 }

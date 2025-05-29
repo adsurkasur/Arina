@@ -1,5 +1,4 @@
 import React from "react";
-import { useNotification } from "@/contexts/NotificationContext";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { PanelContainer } from "@/components/ui/PanelContainer";
@@ -7,7 +6,6 @@ import { useMobile } from "@/hooks/use-mobile";
 import { useTranslation } from 'react-i18next';
 
 export const DebugPanel: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const { addNotification } = useNotification();
   const isMobile = useMobile();
   const { t } = useTranslation();
 
@@ -17,7 +15,6 @@ export const DebugPanel: React.FC<{ open: boolean; onClose: () => void }> = ({ o
       description: t('toast.normalDescription'),
       duration: 4000,
     });
-    addNotification({ title: "Normal Toast", description: "This is a normal toast notification.", type: "info" });
   };
 
   const handleErrorToast = () => {
@@ -27,7 +24,6 @@ export const DebugPanel: React.FC<{ open: boolean; onClose: () => void }> = ({ o
       variant: "destructive",
       duration: 4000,
     });
-    addNotification({ title: "Error Toast", description: "This is an error toast notification.", type: "error" });
   };
 
   return (

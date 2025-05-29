@@ -102,6 +102,7 @@
   "dashboard.title": "Dasbor",
   "dashboard.overview": "Ringkasan",
   "dashboard.recentActivity": "Aktivitas Terbaru",
+  "dashboard.comingSoonLastAnalysisInfo": "Info Analisis Terakhir Segera Hadir",
   "dashboard.notifications": "Notifikasi",
   "dashboard.viewAll": "Lihat Semua",
   "dashboard.noNotifications": "Tidak ada notifikasi",
@@ -175,5 +176,13 @@
   "sidebar.chatHistory": "Riwayat Chat",
   "sidebar.noConversations": "Belum ada percakapan.",
   "sidebar.debugging": "Debugging",
-  "sidebar.aboutArina": "Tentang Arina"
+  "sidebar.aboutArina": "Tentang Arina",
+  "notifications.title": "Notifikasi",
+  "notifications.noNotifications": "Tidak ada notifikasi yang tersedia.",
+  "notifications.markAllAsRead": "Tandai semua sudah dibaca",
+  "dashboard.totalAnalyses": "Total Analisis",
+  "dashboard.comingSoonSummaryStats": "Ringkasan Statistik Segera Hadir",
+  "dashboard.aiInsights": "Wawasan AI",
+  "dashboard.comingSoonSmartTips": "Tips Cerdas Segera Hadir",
+  "dashboard.analysisHistory": "Riwayat Analisis"
 }
