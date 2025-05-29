@@ -16,22 +16,22 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   const handleDarkModeToggle = async () => {
     if (!user) return;
     setLoading(true);
-    setDarkMode(!darkMode);
+    // Update database first, then update UI
     await updateUserPreferences(user.id, { dark_mode: !darkMode });
-    // Refetch from DB to ensure state is synced
-    const { data } = await getUserProfile(user.id);
-    if (data && typeof data.dark_mode === "boolean") setDarkMode(data.dark_mode);
+    setDarkMode(!darkMode);
     setLoading(false);
   };
 
   const handleLanguageChange = async (e: any) => {
     const lang = e.target.value;
-    i18n.changeLanguage(lang);
     if (user) {
       setLoading(true);
+      // Update database first, then update UI
       await updateUserPreferences(user.id, { language: lang });
-      // Optionally, force a reload or refetch user profile for full sync
+      i18n.changeLanguage(lang);
       setLoading(false);
+    } else {
+      i18n.changeLanguage(lang);
     }
   };
 
