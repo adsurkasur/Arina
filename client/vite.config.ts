@@ -23,7 +23,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:5000',
+      '/api': 'http://0.0.0.0:5000',
     },
     allowedHosts: [
       '0888c988-746b-4968-959f-a89b7399089d-00-u7s6usv146e5.worf.replit.dev'
