@@ -17,6 +17,7 @@ import {
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
+import { useTranslation } from '@/contexts/useTranslation';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -112,6 +113,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
   const { user } = useAuth();
   const { toast } = useToast();
   const { refetch } = useAnalysisHistory();
+  const { t } = useTranslation();
 
   // Initialize form with default values for profit maximization
   const form = useForm<OptimizationInput>({
@@ -281,11 +283,11 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
   };
 
   return (
-    <PanelContainer onClose={onClose} title="Optimization Analysis">
+    <PanelContainer onClose={onClose} title={t('tools.optimization.title')}>
       <div className="space-y-6">
         {/* Section: Problem Definition */}
         <div className="mb-4">
-          <h3 className="font-medium text-lg mb-2">Problem Definition</h3>
+          <h3 className="font-medium text-lg mb-2">{t('tools.optimization.problemDefinition')}</h3>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Basic Settings */}
@@ -296,18 +298,18 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        Name
+                        {t('tools.optimization.name')}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-gray-500" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
-                            Provide a name for this optimization analysis (e.g., "Farm Optimization").
+                            {t('tools.optimization.nameTooltip')}
                           </TooltipContent>
                         </Tooltip>
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="Farm Production Optimization" {...field} />
+                        <Input placeholder={t('tools.optimization.namePlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -320,13 +322,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        Objective
+                        {t('tools.optimization.objective')}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-gray-500" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-[300px]">
-                            Choose whether to maximize profit, minimize cost, or set multiple goals.
+                            {t('tools.optimization.objectiveTooltip')}
                           </TooltipContent>
                         </Tooltip>
                       </FormLabel>
@@ -346,19 +348,19 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select optimization type" />
+                            <SelectValue placeholder={t('tools.optimization.typePlaceholder')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="profit_max">Profit Maximization</SelectItem>
-                          <SelectItem value="cost_min">Cost Minimization</SelectItem>
-                          <SelectItem value="goal_programming">Goal Programming</SelectItem>
+                          <SelectItem value="profit_max">{t('tools.optimization.profitMax')}</SelectItem>
+                          <SelectItem value="cost_min">{t('tools.optimization.costMin')}</SelectItem>
+                          <SelectItem value="goal_programming">{t('tools.optimization.goalProgramming')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        {optimizationType === "profit_max" && "Maximize profits subject to constraints."}
-                        {optimizationType === "cost_min" && "Minimize costs while meeting requirements."}
-                        {optimizationType === "goal_programming" && "Set multiple objectives with priorities."}
+                        {optimizationType === "profit_max" && t('tools.optimization.profitMaxDesc')}
+                        {optimizationType === "cost_min" && t('tools.optimization.costMinDesc')}
+                        {optimizationType === "goal_programming" && t('tools.optimization.goalProgrammingDesc')}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -371,7 +373,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                     name="objective"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Objective</FormLabel>
+                        <FormLabel>{t('tools.optimization.objective')}</FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
@@ -382,13 +384,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                               <FormControl>
                                 <RadioGroupItem value="maximize" />
                               </FormControl>
-                              <FormLabel className="font-normal">Maximize</FormLabel>
+                              <FormLabel className="font-normal">{t('form.maximize')}</FormLabel>
                             </FormItem>
                             <FormItem className="flex items-center space-x-2">
                               <FormControl>
                                 <RadioGroupItem value="minimize" />
                               </FormControl>
-                              <FormLabel className="font-normal">Minimize</FormLabel>
+                              <FormLabel className="font-normal">{t('form.minimize')}</FormLabel>
                             </FormItem>
                           </RadioGroup>
                         </FormControl>
@@ -406,23 +408,23 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                 className="w-full"
               >
                 <TabsList className="w-full">
-                  <TabsTrigger value="variables" className="flex-1">Variables</TabsTrigger>
-                  <TabsTrigger value="constraints" className="flex-1">Constraints</TabsTrigger>
+                  <TabsTrigger value="variables" className="flex-1">{t('tools.optimization.variables')}</TabsTrigger>
+                  <TabsTrigger value="constraints" className="flex-1">{t('tools.optimization.constraints')}</TabsTrigger>
                   {optimizationType === "goal_programming" && (
-                    <TabsTrigger value="goals" className="flex-1">Goals</TabsTrigger>
+                    <TabsTrigger value="goals" className="flex-1">{t('tools.optimization.goals')}</TabsTrigger>
                   )}
                 </TabsList>
 
                 {/* Variables Tab */}
                 <TabsContent value="variables" className="space-y-4 mt-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">Define Variables</h3>
+                    <h3 className="text-lg font-medium">{t('tools.optimization.defineVariables')}</h3>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-gray-500" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[300px]">
-                        Variables represent the quantities or resources to optimize (e.g., production quantities, resource allocations).
+                        {t('tools.optimization.defineVariablesTooltip')}
                       </TooltipContent>
                     </Tooltip>
                     <Button
@@ -440,7 +442,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                         });
                       }}
                     >
-                      <Plus className="h-4 w-4 mr-1" /> Add Variable
+                      <Plus className="h-4 w-4 mr-1" /> {t('form.addVariable')}
                     </Button>
                   </div>
 
@@ -454,13 +456,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="flex items-center gap-2">
-                                  Name
+                                  {t('tools.optimization.variableName')}
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Info className="h-4 w-4 text-gray-500" />
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-[300px]">
-                                      Name of the variable to optimize (e.g., production quantity, resource allocation).
+                                      {t('tools.optimization.variableNameTooltip')}
                                     </TooltipContent>
                                   </Tooltip>
                                 </FormLabel>
@@ -479,13 +481,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel className="flex items-center gap-2">
-                                    Profit per Unit
+                                    {t('tools.optimization.profitPerUnit')}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <Info className="h-4 w-4 text-gray-500" />
                                       </TooltipTrigger>
                                       <TooltipContent className="max-w-[300px]">
-                                        Enter the profit generated per unit of this variable.
+                                        {t('tools.optimization.profitPerUnitTooltip')}
                                       </TooltipContent>
                                     </Tooltip>
                                   </FormLabel>
@@ -509,13 +511,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="flex items-center gap-2">
-                                  Lower Bound
+                                  {t('tools.optimization.lowerBound')}
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Info className="h-4 w-4 text-gray-500" />
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-[300px]">
-                                      Minimum value this variable can take.
+                                      {t('tools.optimization.lowerBoundTooltip')}
                                     </TooltipContent>
                                   </Tooltip>
                                 </FormLabel>
@@ -538,13 +540,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="flex items-center gap-2">
-                                  Upper Bound
+                                  {t('tools.optimization.upperBound')}
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Info className="h-4 w-4 text-gray-500" />
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-[300px]">
-                                      Maximum value this variable can take.
+                                      {t('tools.optimization.upperBoundTooltip')}
                                     </TooltipContent>
                                   </Tooltip>
                                 </FormLabel>
@@ -569,13 +571,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                 {/* Constraints Tab */}
                 <TabsContent value="constraints" className="space-y-4 mt-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">Define Constraints</h3>
+                    <h3 className="text-lg font-medium">{t('tools.optimization.defineConstraints')}</h3>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-gray-500" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[300px]">
-                        Constraints limit the optimization problem (e.g., resource availability, budget limits).
+                        {t('tools.optimization.defineConstraintsTooltip')}
                       </TooltipContent>
                     </Tooltip>
                     <Button
@@ -584,147 +586,158 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                       size="sm"
                       onClick={addConstraint}
                     >
-                      <Plus className="h-4 w-4 mr-1" /> Add Constraint
+                      <Plus className="h-4 w-4 mr-1" /> {t('form.addConstraint')}
                     </Button>
                   </div>
 
                   <div className="space-y-4">
-                    {constraintFields.map((field, index) => (
-                      <div key={field.id} className="p-4 border border-gray-200 rounded-md">
-                        <FormField
-                          control={form.control}
-                          name={`constraints.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                Name
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="h-4 w-4 text-gray-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-[300px]">
-                                    Name of the constraint (e.g., "Land Constraint").
-                                  </TooltipContent>
-                                </Tooltip>
-                              </FormLabel>
-                              <FormControl>
-                                <Input placeholder="e.g., Land constraint" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="mt-3">
-                          <FormLabel className="flex items-center gap-2">
-                            Coefficients
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Info className="h-4 w-4 text-gray-500" />
-                              </TooltipTrigger>
-                              <TooltipContent className="max-w-[300px]">
-                                Set the coefficient for each variable in this constraint.
-                              </TooltipContent>
-                            </Tooltip>
-                          </FormLabel>
-                          <FormDescription>How each variable contributes to this constraint.</FormDescription>
-
-                          {variables.map((variable, varIndex) => (
-                            <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
-                              <div className="col-span-4">
-                                <span className="text-sm">{variable.name}</span>
-                              </div>
-                              <div className="col-span-8">
-                                <FormField
-                                  control={form.control}
-                                  name={`constraints.${index}.variables.${varIndex}.coefficient`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          type="number"
-                                          placeholder="0"
-                                          {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="flex items-end gap-4 mt-4">
+                    {constraintFields.length === 0 ? (
+                      <div className="p-8 text-center border border-dashed border-gray-300 rounded-md">
+                        <p className="text-gray-500">{t('tools.optimization.noConstraints') || 'No constraints defined yet.'}</p>
+                      </div>
+                    ) : (
+                      constraintFields.map((field, index) => (
+                        <div key={field.id} className="p-4 border border-gray-200 rounded-md">
                           <FormField
                             control={form.control}
-                            name={`constraints.${index}.sign`}
+                            name={`constraints.${index}.name`}
                             render={({ field }) => (
-                              <FormItem className="w-32">
+                              <FormItem>
                                 <FormLabel className="flex items-center gap-2">
-                                  Sign
+                                  {t('tools.optimization.constraintName')}
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Info className="h-4 w-4 text-gray-500" />
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-[300px]">
-                                      Choose the comparison operator for this constraint (≤, ≥, =).
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Sign" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="<=">≤</SelectItem>
-                                    <SelectItem value=">=">≥</SelectItem>
-                                    <SelectItem value="=">=</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`constraints.${index}.rhs`}
-                            render={({ field }) => (
-                              <FormItem className="flex-grow">
-                                <FormLabel className="flex items-center gap-2">
-                                  Right Hand Side
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Info className="h-4 w-4 text-gray-500" />
-                                    </TooltipTrigger>
-                                    <TooltipContent className="max-w-[300px]">
-                                      Enter the right-hand side value for this constraint.
+                                      {t('tools.optimization.constraintNameTooltip')}
                                     </TooltipContent>
                                   </Tooltip>
                                 </FormLabel>
                                 <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="0"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                  />
+                                  <Input placeholder="e.g., Land constraint" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
+
+                          {/* Provide FormField context for the coefficients label/description block */}
+                          <FormField control={form.control} name={`constraints.${index}.name`} render={() => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2 mt-6">
+                                {t('tools.optimization.coefficients')}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-4 w-4 text-gray-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-[300px]">
+                                    {t('tools.optimization.coefficientsTooltip')}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </FormLabel>
+                              <FormDescription className="mb-3 mt-1">{t('tools.optimization.enterCoefficients')}</FormDescription>
+
+                              <div className="space-y-2">
+                                {variables.map((variable, varIndex) => (
+                                  <div key={varIndex} className="grid grid-cols-12 gap-2 items-center">
+                                    <div className="col-span-4">
+                                      <span className="text-sm">{variable.name}</span>
+                                    </div>
+                                    <div className="col-span-8">
+                                      <FormField
+                                        control={form.control}
+                                        name={`constraints.${index}.variables.${varIndex}.coefficient`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormControl>
+                                              <Input
+                                                type="number"
+                                                placeholder="0"
+                                                {...field}
+                                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                              />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </FormItem>
+                          )} />
+
+                          <div className="flex items-end gap-4 mt-4">
+                            <FormField
+                              control={form.control}
+                              name={`constraints.${index}.sign`}
+                              render={({ field }) => (
+                                <FormItem className="w-32">
+                                  <FormLabel className="flex items-center gap-2">
+                                    {t('tools.optimization.sign')}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-gray-500" />
+                                      </TooltipTrigger>
+                                      <TooltipContent className="max-w-[300px]">
+                                        {t('tools.optimization.signTooltip')}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Sign" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="<=">≤</SelectItem>
+                                      <SelectItem value=">=">≥</SelectItem>
+                                      <SelectItem value="=">=</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name={`constraints.${index}.rhs`}
+                              render={({ field }) => (
+                                <FormItem className="flex-grow">
+                                  <FormLabel className="flex items-center gap-2">
+                                    {t('tools.optimization.rightHandSide')}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-gray-500" />
+                                      </TooltipTrigger>
+                                      <TooltipContent className="max-w-[300px]">
+                                        {t('tools.optimization.rightHandSideTooltip')}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      placeholder="0"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </TabsContent>
 
@@ -732,13 +745,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                 {optimizationType === "goal_programming" && (
                   <TabsContent value="goals" className="space-y-4 mt-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-medium">Define Goals</h3>
+                      <h3 className="text-lg font-medium">{t('tools.optimization.defineGoals')}</h3>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-4 w-4 text-gray-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[300px]">
-                          Goals represent specific objectives to achieve, such as maximizing profit or minimizing costs.
+                          {t('tools.optimization.defineGoalsTooltip')}
                         </TooltipContent>
                       </Tooltip>
                       <Button
@@ -747,20 +760,20 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                         size="sm"
                         onClick={addGoal}
                       >
-                        <Plus className="h-4 w-4 mr-1" /> Add Goal
+                        <Plus className="h-4 w-4 mr-1" /> {t('form.addGoal')}
                       </Button>
                     </div>
 
                     {goalFields.length === 0 ? (
                       <div className="p-8 text-center border border-dashed border-gray-300 rounded-md">
-                        <p className="text-gray-500">No goals defined yet. Click "Add Goal" to create one.</p>
+                        <p className="text-gray-500">{t('tools.optimization.noGoals')}</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
                         {goalFields.map((field, index) => (
                           <div key={field.id} className="p-4 border border-gray-200 rounded-md">
                             <div className="flex justify-between items-center mb-3">
-                              <h4 className="font-medium">Goal {index + 1}</h4>
+                              <h4 className="font-medium">{t('tools.optimization.goal')} {index + 1}</h4>
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -778,7 +791,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                                 name={`goals.${index}.name`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Goal Name</FormLabel>
+                                    <FormLabel>{t('tools.optimization.goalName')}</FormLabel>
                                     <FormControl>
                                       <Input placeholder="e.g., Maximize profit" {...field} />
                                     </FormControl>
@@ -792,7 +805,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                                 name={`goals.${index}.direction`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Direction</FormLabel>
+                                    <FormLabel>{t('tools.optimization.direction')}</FormLabel>
                                     <Select 
                                       onValueChange={field.onChange} 
                                       defaultValue={field.value}
@@ -803,8 +816,8 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        <SelectItem value="max">Maximize</SelectItem>
-                                        <SelectItem value="min">Minimize</SelectItem>
+                                        <SelectItem value="max">{t('form.maximize')}</SelectItem>
+                                        <SelectItem value="min">{t('form.minimize')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -817,16 +830,25 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                                 name={`goals.${index}.target`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Target Value</FormLabel>
+                                    <FormLabel className="flex items-center gap-2">
+                                      {t('tools.optimization.targetValue')}
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Info className="h-4 w-4 text-gray-500" />
+                                        </TooltipTrigger>
+                                        <TooltipContent className="max-w-[300px]">
+                                          {t('tools.optimization.targetValueTooltip')}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input 
-                                        type="number" 
-                                        placeholder="0" 
+                                      <Input
+                                        type="number"
+                                        placeholder="0"
                                         {...field}
                                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                                       />
                                     </FormControl>
-                                    <FormDescription>Desired goal value</FormDescription>
                                     <FormMessage />
                                   </FormItem>
                                 )}
@@ -837,17 +859,26 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                                 name={`goals.${index}.priority`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Priority</FormLabel>
+                                    <FormLabel className="flex items-center gap-2">
+                                      {t('tools.optimization.priority')}
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Info className="h-4 w-4 text-gray-500" />
+                                        </TooltipTrigger>
+                                        <TooltipContent className="max-w-[300px]">
+                                          {t('tools.optimization.priorityTooltip')}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input 
-                                        type="number" 
-                                        placeholder="1" 
+                                      <Input
+                                        type="number"
+                                        placeholder="1"
                                         min="1"
                                         {...field}
                                         onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                                       />
                                     </FormControl>
-                                    <FormDescription>Higher values = higher priority</FormDescription>
                                     <FormMessage />
                                   </FormItem>
                                 )}
@@ -855,40 +886,44 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                             </div>
 
                             <div className="mt-3">
-                              <FormLabel>Goal Coefficients</FormLabel>
-                              <FormDescription>How each variable contributes to this goal</FormDescription>
+                              <FormField control={form.control} name={`goals.${index}.name`} render={() => (
+                                <FormItem>
+                                  <FormLabel>{t('tools.optimization.goalCoefficients')}</FormLabel>
+                                  <FormDescription>{t('tools.optimization.setCoefficients')}</FormDescription>
 
-                              {variables.map((variable, varIndex) => (
-                                <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
-                                  <div className="col-span-4">
-                                    <span className="text-sm">{variable.name}</span>
-                                  </div>
-                                  <div className="col-span-8">
-                                    <FormField
-                                      control={form.control}
-                                      name={`goals.${index}.variables.${varIndex}.coefficient`}
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormControl>
-                                            <Input 
-                                              type="number" 
-                                              placeholder="0" 
-                                              {...field}
-                                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                            />
-                                          </FormControl>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                    <input 
-                                      type="hidden" 
-                                      {...form.register(`goals.${index}.variables.${varIndex}.variableId`)} 
-                                      value={varIndex.toString()} 
-                                    />
-                                  </div>
-                                </div>
-                              ))}
+                                  {variables.map((variable, varIndex) => (
+                                    <div key={varIndex} className="grid grid-cols-12 gap-2 items-center mt-2">
+                                      <div className="col-span-4">
+                                        <span className="text-sm">{variable.name}</span>
+                                      </div>
+                                      <div className="col-span-8">
+                                        <FormField
+                                          control={form.control}
+                                          name={`goals.${index}.variables.${varIndex}.coefficient`}
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormControl>
+                                                <Input
+                                                  type="number"
+                                                  placeholder="0"
+                                                  {...field}
+                                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                                />
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                        <input
+                                          type="hidden"
+                                          {...form.register(`goals.${index}.variables.${varIndex}.variableId`)}
+                                          value={varIndex.toString()}
+                                        />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </FormItem>
+                              )} />
                             </div>
                           </div>
                         ))}
@@ -905,7 +940,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                   variant="outline"
                   onClick={resetForm}
                 >
-                  Reset
+                  {t('form.reset')}
                 </Button>
                 <Button
                   type="submit"
@@ -914,13 +949,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                 >
                   {isCalculating ? (
                     <>
-                      <span className="animate-spin mr-2">◌</span>
-                      Optimizing...
+                      <span className="animate-spin mr-2"></span>
+                      {t('tools.optimization.optimizing')}
                     </>
                   ) : (
                     <>
                       <CalculatorIcon className="mr-2 h-4 w-4" />
-                      Run Optimization
+                      {t('tools.optimization.runOptimization')}
                     </>
                   )}
                 </Button>
@@ -931,7 +966,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
         {/* Results Section */}
         {results && (
           <div id="optimization-results" className="mt-6 border-t border-gray-200 pt-4">
-            <h3 className="text-lg font-heading font-medium text-primary mb-3">Optimization Results</h3>
+            <h3 className="text-lg font-heading font-medium text-primary mb-3">{t('tools.optimization.results')}</h3>
 
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               {/* Feasibility Status */}
@@ -939,13 +974,13 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                 <div className="flex items-center">
                   <div className={`h-4 w-4 rounded-full mr-2 ${results.feasible ? "bg-green-500" : "bg-red-500"}`}></div>
                   <h4 className="font-medium text-lg">
-                    {results.feasible ? "Feasible Solution Found" : "No Feasible Solution"}
+                    {results.feasible ? t('tools.optimization.feasible') : t('tools.optimization.notFeasible')}
                   </h4>
                 </div>
                 {results.objectiveValue && (
                   <p className="mt-2">
                     <span className="font-medium">
-                      {optimizationType === "profit_max" ? "Total Profit: " : "Total Cost: "}
+                      {optimizationType === "profit_max" ? t('tools.optimization.totalProfit') : t('tools.optimization.totalCost')}
                     </span>
                     {results.objectiveValue.toLocaleString()}
                   </p>
@@ -955,7 +990,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
               {/* Solution Visualization */}
               {results.feasible && (
                 <div className="p-4">
-                  <h4 className="font-medium text-gray-700 mb-3">Decision Variables</h4>
+                  <h4 className="font-medium text-gray-700 mb-3">{t('tools.optimization.decisionVariables')}</h4>
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={prepareChartData()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -964,7 +999,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                         <YAxis />
                         <RechartsTooltip />
                         <Legend />
-                        <Bar dataKey="value" fill="#1F3A13" name="Optimal Value" />
+                        <Bar dataKey="value" fill="#1F3A13" name={t('tools.optimization.optimalValue')} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -974,16 +1009,16 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
               {/* Results Table */}
               {results.feasible && (
                 <div className="p-4 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-700 mb-3">Optimal Solution</h4>
+                  <h4 className="font-medium text-gray-700 mb-3">{t('tools.optimization.optimalSolution')}</h4>
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Variable
+                            {t('tools.optimization.variable')}
                           </th>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Value
+                            {t('tools.optimization.value')}
                           </th>
                         </tr>
                       </thead>
@@ -1007,19 +1042,19 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
               {/* Constraints Status */}
               {results.feasible && (
                 <div className="p-4 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-700 mb-3">Constraints Status</h4>
+                  <h4 className="font-medium text-gray-700 mb-3">{t('tools.optimization.constraintsStatus')}</h4>
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Constraint
+                            {t('tools.optimization.constraints')}
                           </th>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Slack
+                            {t('tools.optimization.slack')}
                           </th>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
+                            {t('tools.optimization.status')}
                           </th>
                         </tr>
                       </thead>
@@ -1034,7 +1069,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm">
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${constraint.satisfied ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                {constraint.satisfied ? 'Satisfied' : 'Not Satisfied'}
+                                {constraint.satisfied ? t('tools.optimization.satisfied') : t('tools.optimization.notSatisfied')}
                               </span>
                             </td>
                           </tr>
@@ -1048,19 +1083,19 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
               {/* Goal Achievement (for Goal Programming) */}
               {results.feasible && results.goals && results.goals.length > 0 && (
                 <div className="p-4 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-700 mb-3">Goal Achievement</h4>
+                  <h4 className="font-medium text-gray-700 mb-3">{t('tools.optimization.goalAchievement')}</h4>
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Goal
+                            {t('tools.optimization.goal')}
                           </th>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Achievement
+                            {t('tools.optimization.achievement')}
                           </th>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Deviation
+                            {t('tools.optimization.deviation')}
                           </th>
                         </tr>
                       </thead>
@@ -1086,7 +1121,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
 
               {/* Summary */}
               <div className="p-4 border-t border-gray-200">
-                <h4 className="font-medium text-gray-700 mb-2">Optimization Summary</h4>
+                <h4 className="font-medium text-gray-700 mb-2">{t('tools.optimization.summary')}</h4>
                 <pre className="text-sm text-gray-600 whitespace-pre-wrap font-mono bg-gray-50 p-3 rounded">
                   {results.summary}
                 </pre>
@@ -1099,7 +1134,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                   onClick={exportAsPDF}
                   className="text-gray-700"
                 >
-                  <FileDown className="mr-2 h-4 w-4" /> Export PDF
+                  <FileDown className="mr-2 h-4 w-4" /> {t('form.exportAsPDF')}
                 </Button>
                 <Button
                   onClick={saveAnalysis}
@@ -1109,11 +1144,11 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                   {isSaving ? (
                     <>
                       <span className="animate-spin mr-2">◌</span>
-                      Saving...
+                      {t('form.saving')}
                     </>
                   ) : (
                     <>
-                      <Save className="mr-2 h-4 w-4" /> Save Analysis
+                      <Save className="mr-2 h-4 w-4" /> {t('form.saveAnalysis')}
                     </>
                   )}
                 </Button>

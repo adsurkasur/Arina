@@ -26,6 +26,7 @@ interface AuthContextProps {
   ) => Promise<void>;
   logout: () => Promise<void>;
   checkAuthState: () => void;
+  userReady: boolean;
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -39,6 +40,7 @@ export const AuthContext = createContext<AuthContextProps>({
   registerWithEmailPassword: async () => {},
   logout: async () => {},
   checkAuthState: () => {},
+  userReady: false,
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -47,6 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [userReady, setUserReady] = useState(false);
   const { toast } = useToast();
   const [, navigate] = useLocation();
 
@@ -75,11 +78,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     checkAuthState();
   }, [checkAuthState]);
 
+  useEffect(() => {
+    setUserReady(false);
+    if (user) {
+      // Always upsert user in MongoDB after login
+      createUserProfile(user.id, user.email, user.name, user.photoURL).finally(() => setUserReady(true));
+    } else {
+      setUserReady(false);
+    }
+  }, [user]);
+
   const loginWithGoogle = async () => {
     try {
       // signInWithGoogle now returns a rejected promise, so we need to use getRedirectResult to get the user
       // For now, skip result.user logic and just show a success toast for demo purposes
       setShowAuthModal(false);
+      // Ensure user exists in MongoDB after Google login
+      if (user) {
+        await createUserProfile(user.id, user.email, user.name, user.photoURL);
+      }
       toast({
         title: "Success",
         description: "Signed in with Google (redirect flow)",
@@ -96,7 +113,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loginWithEmail = async (email: string, password: string) => {
     try {
-      await signInWithEmail(email, password);
+      const result = await signInWithEmail(email, password);
+      // Ensure user exists in MongoDB after email login
+      if (result && result.user) {
+        await createUserProfile(
+          result.user.uid,
+          result.user.email || email,
+          result.user.displayName || email.split("@")[0] || "User",
+          result.user.photoURL || undefined
+        );
+      }
       setShowAuthModal(false);
       toast({
         title: "Success",
@@ -168,6 +194,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         registerWithEmailPassword,
         logout,
         checkAuthState,
+        userReady,
       }}
     >
       {children}

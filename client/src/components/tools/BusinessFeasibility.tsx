@@ -254,20 +254,20 @@ export default function BusinessFeasibility({
   };
 
   return (
-    <PanelContainer onClose={onClose} title="Business Feasibility">
+    <PanelContainer onClose={onClose} title={t('tools.businessFeasibility.title')}>
       <div className="space-y-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Section: Business Info */}
             <div className="mb-4">
-              <h3 className="font-medium text-lg mb-2">Business Information</h3>
+              <h3 className="font-medium text-lg mb-2">{t('tools.businessFeasibility.infoTitle')}</h3>
               <FormField
                 control={form.control}
                 name="businessName"
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
-                      <FormLabel>Business Name</FormLabel>
+                      <FormLabel>{t('tools.businessFeasibility.businessName')}</FormLabel>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -280,7 +280,7 @@ export default function BusinessFeasibility({
                       </TooltipProvider>
                     </div>
                     <FormControl>
-                      <Input placeholder="Strawberry Farm" {...field} />
+                      <Input placeholder={t('tools.businessFeasibility.businessNamePlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -290,11 +290,11 @@ export default function BusinessFeasibility({
 
             {/* Section: Investment Costs */}
             <div className="mb-4">
-              <h3 className="font-medium text-lg mb-2">Investment Costs</h3>
+              <h3 className="font-medium text-lg mb-2">{t('tools.businessFeasibility.investmentCostsTitle')}</h3>
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   <label className="block text-sm font-medium text-gray-700">
-                    Investment Costs
+                    {t('tools.businessFeasibility.investmentCosts')}
                   </label>
                   <TooltipProvider>
                     <Tooltip>
@@ -310,7 +310,7 @@ export default function BusinessFeasibility({
                   </TooltipProvider>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  One-time expenses to start the business
+                  {t('tools.businessFeasibility.investmentCostsDesc')}
                 </p>
 
                 {investmentFields.map((field, index) => (
@@ -427,18 +427,18 @@ export default function BusinessFeasibility({
                   }
                   className="mt-2"
                 >
-                  Add Investment Cost
+                  {t('tools.businessFeasibility.addInvestmentCost')}
                 </Button>
               </div>
             </div>
 
             {/* Section: Operational Costs */}
             <div className="mb-4">
-              <h3 className="font-medium text-lg mb-2">Operational Costs</h3>
+              <h3 className="font-medium text-lg mb-2">{t('tools.businessFeasibility.operationalCostsTitle')}</h3>
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   <label className="block text-sm font-medium text-gray-700">
-                    Periodical Operational Costs
+                    {t('tools.businessFeasibility.operationalCosts')}
                   </label>
                   <TooltipProvider>
                     <Tooltip>
@@ -454,7 +454,7 @@ export default function BusinessFeasibility({
                   </TooltipProvider>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Recurring periodical expenses
+                  {t('tools.businessFeasibility.operationalCostsDesc')}
                 </p>
 
                 {operationalFields.map((field, index) => (
@@ -571,7 +571,7 @@ export default function BusinessFeasibility({
                   }
                   className="mt-2"
                 >
-                  Add Operational Cost
+                  {t('tools.businessFeasibility.addOperationalCost')}
                 </Button>
               </div>
             </div>
@@ -584,7 +584,7 @@ export default function BusinessFeasibility({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
-                      <FormLabel>Production Cost per Unit (Rp)</FormLabel>
+                      <FormLabel>{t('tools.businessFeasibility.productionCostPerUnit')}</FormLabel>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -626,7 +626,7 @@ export default function BusinessFeasibility({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
-                      <FormLabel>Sales Volume per Period</FormLabel>
+                      <FormLabel>{t('tools.businessFeasibility.monthlySalesVolume')}</FormLabel>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -692,7 +692,7 @@ export default function BusinessFeasibility({
             {/* Analysis Buttons */}
             <div className="flex justify-end space-x-3 pt-2">
               <Button type="button" variant="outline" onClick={resetForm}>
-                Reset
+                {t('form.reset')}
               </Button>
               <Button
                 type="submit"
@@ -701,13 +701,13 @@ export default function BusinessFeasibility({
               >
                 {isCalculating ? (
                   <>
-                    <span className="animate-spin mr-2">◌</span>
-                    Calculating...
+                    <span className="animate-spin mr-2"></span>
+                    {t('tools.businessFeasibility.calculating')}
                   </>
                 ) : (
                   <>
                     <CalculatorIcon className="mr-2 h-4 w-4" />
-                    Calculate
+                    {t('tools.businessFeasibility.calculate')}
                   </>
                 )}
               </Button>
@@ -719,7 +719,7 @@ export default function BusinessFeasibility({
         {results && (
           <div id="results" className="mt-6 border-t border-gray-200 pt-4">
             <h3 className="text-lg font-heading font-medium text-primary mb-3">
-              Analysis Results
+              {t('tools.businessFeasibility.analysisResults')}
             </h3>
 
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -732,7 +732,7 @@ export default function BusinessFeasibility({
                       <TooltipTrigger asChild>
                         <div>
                           <div className="text-xs text-gray-500">
-                            Unit Cost (HPP)
+                            {t('tools.businessFeasibility.unitCost')}
                           </div>
                           <div className="font-medium text-primary">
                             Rp {results.unitCost.toLocaleString()}
@@ -741,12 +741,10 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          Cost of producing one unit including direct materials,
-                          labor, and overhead.
+                          {t('tools.businessFeasibility.unitCostTooltip')}
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: (Total Operational Costs + Production Cost) ÷
-                          Sales Volume
+                          {t('tools.businessFeasibility.unitCostFormula')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -758,7 +756,7 @@ export default function BusinessFeasibility({
                       <TooltipTrigger asChild>
                         <div>
                           <div className="text-xs text-gray-500">
-                            Selling Price
+                            {t('tools.businessFeasibility.sellingPrice')}
                           </div>
                           <div className="font-medium text-primary">
                             Rp {results.sellingPrice.toLocaleString()}
@@ -767,12 +765,10 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The price at which each unit is sold to customers,
-                          calculated by adding the markup percentage to the unit
-                          cost.
+                          {t('tools.businessFeasibility.sellingPriceTooltip')}
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: Unit Cost × (1 + Markup%)
+                          {t('tools.businessFeasibility.sellingPriceFormula')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -784,22 +780,19 @@ export default function BusinessFeasibility({
                       <TooltipTrigger asChild>
                         <div>
                           <div className="text-xs text-gray-500">
-                            Break Even Point (Units)
+                            {t('tools.businessFeasibility.breakEvenUnits')}
                           </div>
                           <div className="font-medium text-primary">
-                            {Math.ceil(results.breakEvenUnits).toLocaleString()}{" "}
-                            units
+                            {Math.ceil(results.breakEvenUnits).toLocaleString()} {t('tools.businessFeasibility.units')}
                           </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The number of units that need to be sold to cover all
-                          costs, where total revenue equals total costs.
+                          {t('tools.businessFeasibility.breakEvenUnitsTooltip')}
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: Fixed Costs ÷ (Selling Price - Variable Cost
-                          per Unit)
+                          {t('tools.businessFeasibility.breakEvenUnitsFormula')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -811,7 +804,7 @@ export default function BusinessFeasibility({
                       <TooltipTrigger asChild>
                         <div>
                           <div className="text-xs text-gray-500">
-                            Break Even Point (Revenue)
+                            {t('tools.businessFeasibility.breakEvenAmount')}
                           </div>
                           <div className="font-medium text-primary">
                             Rp {results.breakEvenAmount.toLocaleString()}
@@ -820,12 +813,10 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The revenue amount needed to cover all costs,
-                          representing the point where no profit or loss is
-                          made.
+                          {t('tools.businessFeasibility.breakEvenAmountTooltip')}
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: Break Even Units × Selling Price
+                          {t('tools.businessFeasibility.breakEvenAmountFormula')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -837,7 +828,7 @@ export default function BusinessFeasibility({
                       <TooltipTrigger asChild>
                         <div>
                           <div className="text-xs text-gray-500">
-                            Monthly Net Profit
+                            {t('tools.businessFeasibility.monthlyNetProfit')}
                           </div>
                           <div className="font-medium text-primary">
                             Rp {results.monthlyNetProfit.toLocaleString()}
@@ -846,11 +837,10 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The profit generated each period after deducting all
-                          costs from revenue.
+                          {t('tools.businessFeasibility.monthlyNetProfitTooltip')}
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: (Sales Volume × Selling Price) - Total Costs
+                          {t('tools.businessFeasibility.monthlyNetProfitFormula')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -862,7 +852,7 @@ export default function BusinessFeasibility({
                       <TooltipTrigger asChild>
                         <div>
                           <div className="text-xs text-gray-500">
-                            Profit Margin
+                            {t('tools.businessFeasibility.profitMargin')}
                           </div>
                           <div className="font-medium text-primary">
                             {results.profitMargin.toFixed(1)}%
@@ -871,12 +861,10 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The percentage of revenue that represents profit,
-                          indicating how much of each rupiah of revenue is kept
-                          as profit.
+                          {t('tools.businessFeasibility.profitMarginTooltip')}
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: (Net Profit ÷ Revenue) × 100
+                          {t('tools.businessFeasibility.profitMarginFormula')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -888,20 +876,19 @@ export default function BusinessFeasibility({
                       <TooltipTrigger asChild>
                         <div>
                           <div className="text-xs text-gray-500">
-                            Payback Period
+                            {t('tools.businessFeasibility.paybackPeriod')}
                           </div>
                           <div className="font-medium text-primary">
-                            {results.paybackPeriod.toFixed(1)} years
+                            {results.paybackPeriod.toFixed(1)} {t('tools.businessFeasibility.years')}
                           </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          The time required to recover the initial investment
-                          through profit generation.
+                          {t('tools.businessFeasibility.paybackPeriodTooltip')}
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: Total Investment ÷ Annual Net Profit
+                          {t('tools.businessFeasibility.paybackPeriodFormula')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -912,7 +899,7 @@ export default function BusinessFeasibility({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
-                          <div className="text-xs text-gray-500">ROI</div>
+                          <div className="text-xs text-gray-500">{t('tools.businessFeasibility.roi')}</div>
                           <div className="font-medium text-primary">
                             {results.roi.toFixed(1)}%
                           </div>
@@ -920,11 +907,10 @@ export default function BusinessFeasibility({
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[300px]">
                         <p>
-                          Return on Investment - The percentage return earned on
-                          the initial investment annually.
+                          {t('tools.businessFeasibility.roiTooltip')}
                         </p>
                         <p className="mt-2 text-xs">
-                          Formula: (Annual Net Profit ÷ Total Investment) × 100
+                          {t('tools.businessFeasibility.roiFormula')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -935,7 +921,7 @@ export default function BusinessFeasibility({
               {/* Summary */}
               <div className="p-4 border-t border-gray-200">
                 <h4 className="font-medium text-gray-700 mb-2">
-                  Feasibility Summary
+                  {t('tools.businessFeasibility.summaryTitle')}
                 </h4>
                 <div
                   className="text-sm text-gray-600"
@@ -950,7 +936,7 @@ export default function BusinessFeasibility({
                   onClick={exportAsPDF}
                   className="text-gray-700"
                 >
-                  <FileDown className="mr-2 h-4 w-4" /> Export PDF
+                  <FileDown className="mr-2 h-4 w-4" /> {t('tools.businessFeasibility.exportPDF')}
                 </Button>
                 <Button
                   onClick={saveAnalysis}
@@ -959,12 +945,12 @@ export default function BusinessFeasibility({
                 >
                   {isSaving ? (
                     <>
-                      <span className="animate-spin mr-2">◌</span>
-                      Saving...
+                      <span className="animate-spin mr-2"></span>
+                      {t('tools.businessFeasibility.saving')}
                     </>
                   ) : (
                     <>
-                      <Save className="mr-2 h-4 w-4" /> Save Analysis
+                      <Save className="mr-2 h-4 w-4" /> {t('tools.businessFeasibility.saveAnalysis')}
                     </>
                   )}
                 </Button>

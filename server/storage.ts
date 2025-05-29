@@ -38,6 +38,8 @@ export class DatabaseStorage {
       name: user.name,
       photo_url: user.photo_url ?? null,
       created_at: user.created_at ?? null,
+      dark_mode: user.dark_mode ?? false, // NEW
+      language: user.language ?? "en",   // NEW
     };
   }
 
@@ -50,6 +52,8 @@ export class DatabaseStorage {
       name: user.name,
       photo_url: user.photo_url ?? null,
       created_at: user.created_at ?? null,
+      dark_mode: user.dark_mode ?? false, // NEW
+      language: user.language ?? "en",   // NEW
     };
   }
 
@@ -57,6 +61,8 @@ export class DatabaseStorage {
     const user = {
       ...userData,
       created_at: new Date(),
+      dark_mode: userData.dark_mode ?? false, // NEW
+      language: userData.language ?? "en",   // NEW
     };
     await getDb().collection("users").insertOne(user);
     return {
@@ -65,6 +71,33 @@ export class DatabaseStorage {
       name: user.name,
       photo_url: user.photo_url ?? null,
       created_at: user.created_at ?? null,
+      dark_mode: user.dark_mode ?? false, // NEW
+      language: user.language ?? "en",   // NEW
+    };
+  }
+
+  async updateUserPreferences(id: string, prefs: { dark_mode?: boolean; language?: string }): Promise<User | undefined> {
+    const updateData: any = {};
+    if (prefs.dark_mode !== undefined) updateData.dark_mode = prefs.dark_mode;
+    if (prefs.language) updateData.language = prefs.language;
+    if (Object.keys(updateData).length === 0) {
+      // No update fields provided, just return the user as-is
+      return this.getUser(id);
+    }
+    const result = await getDb().collection("users").findOneAndUpdate(
+      { id },
+      { $set: updateData },
+      { returnDocument: "after" }
+    );
+    if (!result || !result.value) return undefined;
+    return {
+      id: result.value.id,
+      email: result.value.email,
+      name: result.value.name,
+      photo_url: result.value.photo_url ?? null,
+      created_at: result.value.created_at ?? null,
+      dark_mode: result.value.dark_mode ?? false,
+      language: result.value.language ?? "en",
     };
   }
 
@@ -329,6 +362,28 @@ export class DatabaseStorage {
       console.error("Error deleting analysis result:", error);
       throw new Error("Failed to delete analysis result");
     }
+  }
+
+  // Update a user's id and all related collections to the new id
+  async updateUserId(oldId: string, newId: string): Promise<void> {
+    const db = getDb();
+    // Update user id in users collection
+    const userUpdateResult = await db.collection("users").updateOne({ id: oldId }, { $set: { id: newId } });
+    console.log(`[updateUserId] Updated user id from ${oldId} to ${newId}:`, userUpdateResult.modifiedCount);
+    // Update user_id in chat_conversations
+    const convUpdate = await db.collection("chat_conversations").updateMany({ user_id: oldId }, { $set: { user_id: newId } });
+    // Update user_id in analysis_results
+    const analysisUpdate = await db.collection("analysis_results").updateMany({ user_id: oldId }, { $set: { user_id: newId } });
+    // Update user_id in recommendation_sets
+    const recSetUpdate = await db.collection("recommendation_sets").updateMany({ user_id: oldId }, { $set: { user_id: newId } });
+    console.log(`[updateUserId] Updated related collections:`, {
+      convUpdate: convUpdate.modifiedCount,
+      analysisUpdate: analysisUpdate.modifiedCount,
+      recSetUpdate: recSetUpdate.modifiedCount
+    });
+    // Confirm user exists with new id
+    const user = await db.collection("users").findOne({ id: newId });
+    console.log(`[updateUserId] User with new id exists:`, !!user);
   }
 }
 

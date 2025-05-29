@@ -30,7 +30,7 @@ import {
   DollarSign,
   Calendar
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/contexts/useTranslation';
 
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { AnalysisResult } from '@shared/schema';
@@ -62,9 +62,9 @@ interface AnalysisHistoryProps {
 }
 
 const TYPE_LABELS = {
-  'business_feasibility': 'Business Feasibility',
-  'demand_forecast': 'Demand Forecasting',
-  'optimization': 'Optimization Analysis'
+  'business_feasibility': ['Business Feasibility', 'Kelayakan Bisnis'],
+  'demand_forecast': ['Demand Forecasting', 'Peramalan Permintaan'],
+  'optimization': ['Optimization Analysis', 'Analisis Optimasi']
 };
 
 const TYPE_ICONS = {
@@ -119,7 +119,8 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   });
 
   const getTypeLabel = (type: string) => {
-    return TYPE_LABELS[type as keyof typeof TYPE_LABELS] || type;
+    const label = TYPE_LABELS[type as keyof typeof TYPE_LABELS];
+    return label ? t(label[0], label[1]) : type;
   };
 
   const getTypeIcon = (type: string) => {
@@ -683,22 +684,22 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
 
   if (error) {
     return (
-      <PanelContainer onClose={onClose} title="Analysis History">
+      <PanelContainer onClose={onClose} title={t('tools.analysisHistory.title')}>
         <div className="flex flex-col items-center justify-center h-64">
-          <p className="text-red-500 mb-2">Failed to load analysis history</p>
-          <Button onClick={() => window.location.reload()}>Retry</Button>
+          <p className="text-red-500 mb-2">{t('tools.analysisHistory.loadError')}</p>
+          <Button onClick={() => window.location.reload()}>{t('form.retry')}</Button>
         </div>
       </PanelContainer>
     );
   }
 
   return (
-    <PanelContainer onClose={onClose} title="Analysis History">
+    <PanelContainer onClose={onClose} title={t('tools.analysisHistory.title')}>
       <div className="flex flex-col md:flex-row gap-3 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search analysis history..."
+            placeholder={t('tools.analysisHistory.searchPlaceholder')}
             value={searchQuery}
             // @ts-ignore
             onChange={e => setSearchQuery(e.target.value)}
@@ -710,29 +711,29 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
           onValueChange={setTypeFilter}
         >
           <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="All types" />
+            <SelectValue placeholder={t('tools.analysisHistory.allTypes')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
-            <SelectItem value="business_feasibility">Business Feasibility</SelectItem>
-            <SelectItem value="demand_forecast">Demand Forecasting</SelectItem>
-            <SelectItem value="optimization">Optimization Analysis</SelectItem>
+            <SelectItem value="all">{t('tools.analysisHistory.allTypes')}</SelectItem>
+            <SelectItem value="business_feasibility">{t('tools.analysisHistory.businessFeasibility')}</SelectItem>
+            <SelectItem value="demand_forecast">{t('tools.analysisHistory.demandForecasting')}</SelectItem>
+            <SelectItem value="optimization">{t('tools.analysisHistory.optimizationAnalysis')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center flex-1">
           <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-          <p>Loading analysis history...</p>
+          <p>{t('tools.analysisHistory.loading')}</p>
         </div>
       ) : filteredResults.length === 0 ? (
         <div className="flex flex-col items-center justify-center flex-1 text-center">
           <ClipboardList className="h-12 w-12 text-gray-400 mb-2" />
-          <h3 className="text-lg font-medium mb-1">No analysis results found</h3>
+          <h3 className="text-lg font-medium mb-1">{t('tools.analysisHistory.noResultsTitle')}</h3>
           <p className="text-muted-foreground max-w-md">
-            {analysisResults.length === 0 
-              ? "Start using the analysis tools to generate insights that will be saved here."
-              : "No results match your current filters. Try adjusting your search criteria."}
+            {filteredResults.length === 0
+              ? t('tools.analysisHistory.noResultsDesc')
+              : t('tools.analysisHistory.noResultsFilter')}
           </p>
         </div>
       ) : (

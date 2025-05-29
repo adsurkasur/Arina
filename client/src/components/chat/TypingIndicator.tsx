@@ -1,8 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Sprout } from "lucide-react";
+import { useTranslation } from "@/contexts/useTranslation";
 
 export default function TypingIndicator() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex mb-4 font-sans">
       <motion.div
@@ -35,7 +38,7 @@ export default function TypingIndicator() {
             },
           }}
         >
-          <div className="mr-2 text-xs text-gray-500">Arina is typing</div>
+          <div className="mr-2 text-xs text-gray-500">{t("chat.typing")}</div>
           <motion.span
             className="flex gap-1"
             initial={{ opacity: 0.5 }}

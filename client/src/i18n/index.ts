@@ -3,19 +3,26 @@ import { initReactI18next } from 'react-i18next';
 import en from './en.json';
 import id from './id.json';
 
-const resources = {
+export const resources = {
   en: { translation: en },
   id: { translation: id },
 };
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: 'en',
-    fallbackLng: 'en',
-    interpolation: { escapeValue: false },
-    react: { useSuspense: false },
-  });
+export const initializeI18n = (lng: string) => {
+  if (!i18n.isInitialized) {
+    i18n
+      .use(initReactI18next)
+      .init({
+        resources,
+        lng,
+        fallbackLng: 'en',
+        interpolation: { escapeValue: false },
+        react: { useSuspense: false },
+      });
+  } else {
+    i18n.changeLanguage(lng);
+  }
+  return i18n;
+};
 
 export default i18n;

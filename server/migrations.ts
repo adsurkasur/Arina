@@ -27,6 +27,8 @@ export async function migrate() {
               name: { bsonType: "string" },
               photo_url: { bsonType: ["string", "null"] },
               created_at: { bsonType: "date" },
+              dark_mode: { bsonType: ["bool", "null"] }, // NEW
+              language: { bsonType: ["string", "null"] }, // NEW
             },
           },
         },
