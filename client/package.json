@@ -9,13 +9,14 @@
   "devDependencies": {
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@types/react": "^18.2.73",
-    "@types/react-dom": "^18.2.18",
+    "@types/react-dom": "^18.2.19",
     "concurrently": "^9.1.2"
   },
   "dependencies": {
     "i18next": "^25.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-i18next": "^15.5.2"
+    "react-i18next": "^15.5.2",
+    "zod": "^3.25.5"
   }
 }
