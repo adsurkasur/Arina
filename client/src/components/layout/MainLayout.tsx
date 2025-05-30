@@ -35,6 +35,8 @@ export function MainLayout({
   const [panelAnimatingOut, setPanelAnimatingOut] = useState(false);
   // Track which panel was last open for correct animation out
   const [lastPanelType, setLastPanelType] = useState<"notification" | "tool" | null>(null);
+  // Cache the last non-undefined rightPanel for animation out
+  const [lastRightPanel, setLastRightPanel] = useState<JSX.Element | undefined>(undefined);
 
   // Watch showRightPanel and notifPanelOpen to control mount/unmount for animation
   React.useEffect(() => {
@@ -93,6 +95,12 @@ export function MainLayout({
     if (setActiveTool) setActiveTool("");
     setLastActiveTool(null);
   };
+
+  React.useEffect(() => {
+    if (rightPanel) {
+      setLastRightPanel(rightPanel);
+    }
+  }, [rightPanel]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
@@ -194,8 +202,8 @@ export function MainLayout({
               {((notifPanelOpen && !panelAnimatingOut) || (panelAnimatingOut && lastPanelType === "notification")) && (
                 <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} animatingOut={panelAnimatingOut} />
               )}
-              {rightPanel && ((showRightPanel && !panelAnimatingOut) || (panelAnimatingOut && lastPanelType === "tool")) && (
-                React.cloneElement(rightPanel as any, {
+              {((lastRightPanel && ((showRightPanel && !panelAnimatingOut) || (panelAnimatingOut && lastPanelType === "tool"))) &&
+                React.cloneElement((showRightPanel && !panelAnimatingOut ? rightPanel : lastRightPanel) as any, {
                   onClose: () => {
                     if (setShowRightPanel) setShowRightPanel(false);
                     if (setActiveTool) setActiveTool("");
