@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,19 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Sprout, Mail, Lock, User, Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { signInWithEmail } from "@/lib/firebase";
+
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
+function loadRecaptchaScript() {
+  if (!document.getElementById('recaptcha-script')) {
+    const script = document.createElement('script');
+    script.id = 'recaptcha-script';
+    script.src = 'https://www.google.com/recaptcha/enterprise.js?render=' + RECAPTCHA_SITE_KEY;
+    script.async = true;
+    document.body.appendChild(script);
+  }
+}
 
 export default function Login() {
   const { isAuthenticated, isLoading, loginWithEmail, registerWithEmailPassword, loginWithGoogle } = useAuth();
@@ -22,26 +35,96 @@ export default function Login() {
   const [name, setName] = useState("");
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
+  const recaptchaRef = useRef<string | null>(null);
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
+    // If already authenticated, redirect to dashboard
     if (isAuthenticated && !isLoading) {
       navigate("/");
     }
   }, [isAuthenticated, isLoading, navigate]);
 
+  useEffect(() => {
+    loadRecaptchaScript();
+    // If already authenticated, redirect to dashboard
+    if (isAuthenticated && !isLoading) {
+      navigate("/");
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  const executeRecaptcha = async (action: string) => {
+    // @ts-ignore
+    if (window.grecaptcha && RECAPTCHA_SITE_KEY) {
+      // @ts-ignore
+      return await window.grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, { action });
+    }
+    return null;
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!name || !email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    setFormLoading(true);
+    try {
+      const token = await executeRecaptcha("register");
+      if (!token) throw new Error("reCAPTCHA failed. Please try again.");
+      // Register
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, recaptchaToken: token })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Registration failed");
+      // Auto-login after registration
+      const loginToken = await executeRecaptcha("login");
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, recaptchaToken: loginToken })
+      });
+      const loginData = await loginRes.json();
+      if (!loginRes.ok) throw new Error(loginData.message || "Login failed");
+      // Also sign in with Firebase client SDK to update session
+      await signInWithEmail(email, password);
+      window.location.href = "/";
+    } catch (error: any) {
+      setError(error.message || "Failed to register. Please try again.");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
     if (!email || !password) {
       setError("Please fill in all fields");
       return;
     }
-    
+    setFormLoading(true);
     try {
-      setFormLoading(true);
-      await loginWithEmail(email, password);
+      const token = await executeRecaptcha("login");
+      if (!token) throw new Error("reCAPTCHA failed. Please try again.");
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, recaptchaToken: token })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
+      // Also sign in with Firebase client SDK to update session
+      await signInWithEmail(email, password);
+      window.location.href = "/";
     } catch (error: any) {
       setError(error.message || "Failed to login. Please check your credentials.");
     } finally {
@@ -49,30 +132,6 @@ export default function Login() {
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    
-    if (!name || !email || !password) {
-      setError("Please fill in all fields");
-      return;
-    }
-    
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
-    
-    try {
-      setFormLoading(true);
-      await registerWithEmailPassword(name, email, password);
-    } catch (error: any) {
-      setError(error.message || "Failed to register. Please try again.");
-    } finally {
-      setFormLoading(false);
-    }
-  };
-  
   const handleGoogleSignIn = async () => {
     setError("");
     try {
@@ -89,6 +148,7 @@ export default function Login() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <span className="ml-4 text-gray-500 text-lg">Checking authentication...</span>
       </div>
     );
   }

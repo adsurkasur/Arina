@@ -181,6 +181,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  if (isLoading || (user && !userReady)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <span className="ml-4 text-gray-500 text-lg">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider
       value={{

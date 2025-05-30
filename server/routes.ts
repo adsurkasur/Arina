@@ -3,6 +3,20 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage.js";
 import { recommendationService } from "./services/recommendation-service.js";
 import { z } from "zod";
+import axios from 'axios';
+
+// reCAPTCHA verification helper
+async function verifyRecaptcha(token: string): Promise<boolean> {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) throw new Error('reCAPTCHA secret key not set');
+  const url = 'https://www.google.com/recaptcha/api/siteverify';
+  const params = new URLSearchParams();
+  params.append('secret', secret);
+  params.append('response', token);
+  const res = await axios.post(url, params);
+  console.log('reCAPTCHA response:', res.data); // Log for debugging
+  return res.data.success && (res.data.score === undefined || res.data.score > 0.1);
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes for user management
@@ -282,6 +296,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    const { email, password, recaptchaToken } = req.body;
+    if (!email || !password || !recaptchaToken) {
+      return res.status(400).json({ message: 'Missing fields' });
+    }
+    try {
+      const valid = await verifyRecaptcha(recaptchaToken);
+      if (!valid) return res.status(403).json({ message: 'reCAPTCHA failed' });
+      // Authenticate user using Firebase Auth REST API
+      const firebaseApiKey = process.env.VITE_FIREBASE_API_KEY;
+      const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseApiKey}`;
+      const firebaseRes = await axios.post(url, {
+        email,
+        password,
+        returnSecureToken: true
+      });
+      const { idToken, localId, email: userEmail, displayName } = firebaseRes.data;
+      // Optionally, upsert user in MongoDB here
+      res.json({ success: true, idToken, user: { id: localId, email: userEmail, name: displayName } });
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.error) {
+        return res.status(401).json({ message: error.response.data.error.message });
+      }
+      return res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/auth/register', async (req, res) => {
+    const { name, email, password, recaptchaToken } = req.body;
+    if (!name || !email || !password || !recaptchaToken) {
+      return res.status(400).json({ message: 'Missing fields' });
+    }
+    try {
+      const valid = await verifyRecaptcha(recaptchaToken);
+      if (!valid) return res.status(403).json({ message: 'reCAPTCHA failed' });
+      // Register user using Firebase Auth REST API
+      const firebaseApiKey = process.env.VITE_FIREBASE_API_KEY;
+      const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebaseApiKey}`;
+      const firebaseRes = await axios.post(url, {
+        email,
+        password,
+        returnSecureToken: true
+      });
+      const { idToken, localId, email: userEmail } = firebaseRes.data;
+      // Optionally, upsert user in MongoDB here
+      // Set displayName
+      await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=${firebaseApiKey}`, {
+        idToken,
+        displayName: name,
+        returnSecureToken: false
+      });
+      res.json({ success: true, idToken, user: { id: localId, email: userEmail, name } });
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.error) {
+        return res.status(401).json({ message: error.response.data.error.message });
+      }
+      return res.status(500).json({ message: error.message });
     }
   });
 
