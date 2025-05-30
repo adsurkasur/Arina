@@ -148,6 +148,29 @@ export default function Login() {
     }
   };
 
+  const languageOptions = [
+    { code: "en", label: "EN", flag: "\uD83C\uDDFA\uD83C\uDDF8" }, // 🇺🇸
+    { code: "id", label: "ID", flag: "\uD83C\uDDEE\uD83C\uDDE9" }  // 🇮🇩
+  ];
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
+  const langBtnRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (langBtnRef.current && !langBtnRef.current.contains(event.target as Node)) {
+        setShowLangDropdown(false);
+      }
+    }
+    if (showLangDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showLangDropdown]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -160,18 +183,40 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Language Switcher */}
-        <div className="flex justify-end mb-2">
+        {/* Language Switcher Dropdown */}
+        <div className="flex justify-end mb-2 relative" ref={langBtnRef}>
           <button
-            className={`px-2 py-1 rounded text-xs font-medium mr-2 ${language === 'en' ? 'bg-primary text-white' : 'bg-gray-200'}`}
-            onClick={() => setLanguage('en')}
-            disabled={language === 'en'}
-          >EN</button>
-          <button
-            className={`px-2 py-1 rounded text-xs font-medium ${language === 'id' ? 'bg-primary text-white' : 'bg-gray-200'}`}
-            onClick={() => setLanguage('id')}
-            disabled={language === 'id'}
-          >ID</button>
+            className="px-2 py-1 rounded text-xs font-medium bg-gray-200 flex items-center gap-1 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
+            onClick={() => setShowLangDropdown((v) => !v)}
+            aria-haspopup="listbox"
+            aria-expanded={showLangDropdown}
+            type="button"
+          >
+            <span>{languageOptions.find(l => l.code === language)?.flag}</span>
+            <span>{languageOptions.find(l => l.code === language)?.label}</span>
+            <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          {showLangDropdown && (
+            <ul className="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow z-10" role="listbox">
+              {languageOptions.map(opt => (
+                <li key={opt.code}>
+                  <button
+                    className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition-colors duration-100
+                      ${language === opt.code ? 'bg-primary text-white font-semibold hover:bg-primary/80' : 'text-gray-900 hover:bg-gray-100 hover:text-gray-900'}
+                    `}
+                    onClick={() => { setLanguage(opt.code); setShowLangDropdown(false); }}
+                    disabled={language === opt.code}
+                    role="option"
+                    aria-selected={language === opt.code}
+                    style={language === opt.code ? { fontWeight: 600 } : {}}
+                  >
+                    <span>{opt.flag}</span>
+                    <span>{opt.label}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         
         <div className="text-center mb-6">
