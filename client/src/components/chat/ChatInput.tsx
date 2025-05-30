@@ -33,7 +33,7 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
           <textarea
             ref={inputRef}
             placeholder={t('chat.inputPlaceholder')}
-            className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-sans"
+            className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-1 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-sans"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             disabled={disabled}
@@ -49,11 +49,11 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
             type="submit"
             variant="ghost"
             size="icon"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-primary hover:bg-gray-100 p-2 rounded-full"
+            className="absolute right-2 top-1/3 transform -translate-y-1/2 text-primary hover:bg-gray-100 p-2 rounded-full"
             disabled={!message.trim() || disabled}
             aria-label={t('form.submit')}
           >
-            {t('form.send')}
+            <Send className="h-5 w-5" />
           </Button>
         </form>
         <div className="flex justify-center mt-2 text-xs text-gray-500 font-sans">
