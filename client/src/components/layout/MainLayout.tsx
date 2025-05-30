@@ -86,13 +86,13 @@ export function MainLayout({
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background dark:bg-background">
+    <div className="flex h-screen overflow-hidden bg-white">
       {/* Sidebar Toggle for Mobile */}
       {isMobile && !sidebarOpen && (
         <Button
           variant="ghost"
           size="icon"
-          className="fixed top-4 left-4 z-50 bg-card/80 dark:bg-card/80 shadow-sm rounded-md"
+          className="fixed top-4 left-4 z-50 bg-white/80 shadow-sm rounded-md"
           onClick={() => setSidebarOpen(true)}
         >
           <Menu className="h-5 w-5 text-primary" />
@@ -106,14 +106,14 @@ export function MainLayout({
       />
       <div
         className={cn(
-          "flex-1 flex flex-col transition-[margin] duration-[300ms] ease-in-out bg-background dark:bg-background",
+          "flex-1 flex flex-col transition-[margin] duration-[300ms] ease-in-out bg-white",
           isMobile ? "ml-0" : sidebarOpen ? "ml-64" : "ml-0",
           "w-full",
         )}
       >
         <header
           className={cn(
-            "bg-card dark:bg-card shadow-sm border-b border-border h-16 flex items-center px-4 sticky top-0 z-30 w-full left-0",
+            "bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-4 sticky top-0 z-30 w-full left-0",
           )}
         >
           {!isMobile && (
@@ -131,11 +131,11 @@ export function MainLayout({
           </h1>
           <div className="ml-auto flex items-center space-x-3">
             <Button variant="outline" size="icon" className="rounded-full">
-              <HelpCircle className="h-5 w-5 text-foreground/80" />
+              <HelpCircle className="h-5 w-5 text-gray-600" />
             </Button>
             <div className="relative">
               <Button variant="outline" size="icon" className="rounded-full" onClick={handleOpenNotifPanel}>
-                <Bell className="h-5 w-5 text-foreground/80" />
+                <Bell className="h-5 w-5 text-gray-600" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center font-bold border border-white">{unreadCount}</span>
                 )}
@@ -145,48 +145,52 @@ export function MainLayout({
             {user && <ProfileDropdown openTool={openTool} />}
           </div>
         </header>
-        <div className="flex-1 flex flex-col h-full bg-background dark:bg-background">
-          {/* Render children (e.g., WelcomeBanner, chat, etc.) */}
-          {children}
-        </div>
-        {/* Right Panel (Notification or Tool) - always render container for animation, only render content when open */}
-        {panelVisible && !isMobile && (
-          <div
-            className={cn(
-              "absolute top-0 right-0 h-full transition-transform duration-500 ease-in-out flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-card dark:bg-card border-l border-border shadow-2xl",
-              (showNotificationPanel || showToolPanel) && !panelAnimatingOut
-                ? "translate-x-0 animate-featurepanel-in"
-                : "translate-x-full animate-featurepanel-out"
-            )}
-            style={{
-              height: "100%",
-              maxHeight: "100vh",
-            }}
-          >
-            {/* Only render content if open, but keep container for close animation */}
-            {((showNotificationPanel && !panelAnimatingOut) || (panelAnimatingOut && notifPanelOpen)) && (
-              <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} />
-            )}
-            {((showToolPanel && !panelAnimatingOut) || (panelAnimatingOut && showRightPanel && rightPanel)) && showToolPanel && rightPanel && React.cloneElement(rightPanel as any, {
-              onClose: () => {
-                if (setShowRightPanel) setShowRightPanel(false);
-                if (setActiveTool) setActiveTool("");
-                setLastActiveTool(null);
-              },
-            })}
+        <div className="flex-1 flex overflow-hidden relative">
+          <div className="flex-1 flex flex-col h-full bg-white/90">
+            {children}
           </div>
-        )}
-        {/* Mobile overlays */}
-        {showNotificationPanel && isMobile && (
-          <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} />
-        )}
-        {showToolPanel && isMobile && rightPanel && React.cloneElement(rightPanel as any, {
-          onClose: () => {
-            if (setShowRightPanel) setShowRightPanel(false);
-            if (setActiveTool) setActiveTool("");
-            setLastActiveTool(null);
-          },
-        })}
+          {/* Right Panel (Notification or Tool) - always render container for animation, only render content when open */}
+          {panelVisible && !isMobile && (
+            <div
+              className={cn(
+                "absolute top-0 right-0 h-full transition-transform duration-500 ease-in-out flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40",
+                (showNotificationPanel || showToolPanel) && !panelAnimatingOut
+                  ? "translate-x-0 animate-featurepanel-in"
+                  : "translate-x-full animate-featurepanel-out"
+              )}
+              style={{
+                height: "100%",
+                maxHeight: "100vh",
+                background: "none",
+                border: "none",
+                boxShadow: "none",
+              }}
+            >
+              {/* Only render content if open, but keep container for close animation */}
+              {((showNotificationPanel && !panelAnimatingOut) || (panelAnimatingOut && notifPanelOpen)) && (
+                <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} />
+              )}
+              {((showToolPanel && !panelAnimatingOut) || (panelAnimatingOut && showRightPanel && rightPanel)) && showToolPanel && rightPanel && React.cloneElement(rightPanel as any, {
+                onClose: () => {
+                  if (setShowRightPanel) setShowRightPanel(false);
+                  if (setActiveTool) setActiveTool("");
+                  setLastActiveTool(null);
+                },
+              })}
+            </div>
+          )}
+          {/* Mobile overlays */}
+          {showNotificationPanel && isMobile && (
+            <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} />
+          )}
+          {showToolPanel && isMobile && rightPanel && React.cloneElement(rightPanel as any, {
+            onClose: () => {
+              if (setShowRightPanel) setShowRightPanel(false);
+              if (setActiveTool) setActiveTool("");
+              setLastActiveTool(null);
+            },
+          })}
+        </div>
       </div>
     </div>
   );

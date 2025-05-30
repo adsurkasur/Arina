@@ -31,11 +31,11 @@ body {
 :root {
   --background: 60 44% 96%;           /* #F9F9EF (cream) */
   --foreground: 38 33% 6%;            /* #18130A (very dark brown/green) */
-  --primary: 98 48% 16%;              /* #1F3A13 (Arina green) */
+  --primary: 98 48% 16%;              /* #1F3A13 (dark green) */
   --primary-foreground: 60 44% 96%;   /* #F9F9EF (cream, for contrast) */
   --accent: 94 30% 37%;               /* #4B7B3F (accent green) */
   --accent-foreground: 60 44% 96%;    /* #F9F9EF (cream) */
-  --card: 60 10% 98%;                 /* #F3F4F6 (very light gray, for cards) */
+  --card: 60 44% 96%;                 /* #F9F9EF (cream) */
   --card-foreground: 38 33% 6%;       /* #18130A */
   --popover: 60 44% 96%;              /* #F9F9EF */
   --popover-foreground: 38 33% 6%;    /* #18130A */
@@ -60,31 +60,31 @@ body {
 
 /* Optional: dark mode (if you use it) */
 .dark {
-  --background: 210 17% 12%;           /* #1A1C1F (calm dark gray/black) */
-  --foreground: 60 44% 96%;            /* #F9F9EF (cream, much brighter for readability) */
-  --primary: 98 48% 16%;               /* #1F3A13 (Arina green, vibrant) */
-  --primary-foreground: 60 44% 96%;    /* #F9F9EF (cream) */
-  --accent: 94 30% 37%;                /* #4B7B3F (accent green) */
-  --accent-foreground: 60 44% 96%;     /* #F9F9EF (cream) */
-  --card: 210 15% 16%;                 /* #232528 (dark gray for cards) */
-  --card-foreground: 60 44% 96%;       /* #F9F9EF (cream) */
-  --popover: 210 15% 16%;              /* #232528 */
-  --popover-foreground: 60 44% 96%;    /* #F9F9EF */
-  --secondary: 94 30% 37%;             /* #4B7B3F (accent green) */
-  --secondary-foreground: 60 44% 96%;  /* #F9F9EF */
-  --muted: 210 17% 18%;                /* #23272A (muted dark gray) */
-  --muted-foreground: 120 10% 90%;     /* #F4FFE0 (very light greenish for muted text) */
-  --destructive: 0 85% 60%;            /* #EF4444 */
-  --destructive-foreground: 60 44% 96%;/* #F9F9EF */
-  --border: 120 6% 24%;                /* #2C2F2B (very dark green/gray border) */
-  --input: 120 6% 24%;                 /* #2C2F2B */
-  --ring: 94 30% 37%;                  /* #4B7B3F */
-  --sidebar-background: 98 48% 16%;    /* #1F3A13 (Arina green) */
-  --sidebar-foreground: 60 44% 96%;    /* #F9F9EF */
-  --sidebar-accent: 94 30% 37%;        /* #4B7B3F */
+  --background: 98 48% 16%;           /* #1F3A13 */
+  --foreground: 60 44% 96%;           /* #F9F9EF */
+  --primary: 60 44% 96%;              /* #F9F9EF */
+  --primary-foreground: 98 48% 16%;   /* #1F3A13 */
+  --accent: 94 30% 37%;               /* #4B7B3F */
+  --accent-foreground: 98 48% 16%;    /* #1F3A13 */
+  --card: 98 48% 16%;                 /* #1F3A13 */
+  --card-foreground: 60 44% 96%;      /* #F9F9EF */
+  --popover: 98 48% 16%;              /* #1F3A13 */
+  --popover-foreground: 60 44% 96%;   /* #F9F9EF */
+  --secondary: 94 30% 37%;            /* #4B7B3F */
+  --secondary-foreground: 98 48% 16%; /* #1F3A13 */
+  --muted: 98 48% 16%;                /* #1F3A13 */
+  --muted-foreground: 60 44% 96%;     /* #F9F9EF */
+  --destructive: 0 85% 60%;           /* #EF4444 */
+  --destructive-foreground: 60 44% 96%; /* #F9F9EF */
+  --border: 94 30% 37%;               /* #4B7B3F */
+  --input: 94 30% 37%;                /* #4B7B3F */
+  --ring: 60 44% 96%;                 /* #F9F9EF */
+  --sidebar-background: 98 48% 16%;   /* #1F3A13 */
+  --sidebar-foreground: 60 44% 96%;   /* #F9F9EF */
+  --sidebar-accent: 94 30% 37%;       /* #4B7B3F */
   --sidebar-accent-foreground: 60 44% 96%; /* #F9F9EF */
-  --sidebar-border: 120 6% 24%;        /* #2C2F2B */
-  --sidebar-ring: 98 48% 16%;          /* #1F3A13 */
+  --sidebar-border: 94 30% 80%;       /* #D6E5C3 */
+  --sidebar-ring: 98 48% 16%;         /* #1F3A13 */
 }
 
 /* Custom styles for the app */

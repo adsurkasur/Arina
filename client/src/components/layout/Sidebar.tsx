@@ -149,13 +149,14 @@ export function Sidebar({
       )}
       {/* Sidebar */}
       <div className={cn(
-        // Use semantic bg/text and dark mode classes
-        "fixed inset-y-0 left-0 z-50 w-64 bg-background text-foreground dark:bg-background dark:text-foreground transform transition-transform duration-[300ms] ease-in-out flex flex-col shadow-2xl border-r border-border",
-        isOpen ? "translate-x-0" : "-translate-x-full",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-[300ms] ease-in-out flex flex-col shadow-2xl",
+        isOpen
+          ? "translate-x-0"
+          : "-translate-x-full",
       )}
       >
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-border">
+        <div className="p-4">
           <div className="flex justify-between items-center">
             <h2
               className="text-xl font-bold flex items-center font-sans cursor-pointer"
@@ -173,7 +174,7 @@ export function Sidebar({
           <div className="px-2 py-2">
             <button
               onClick={() => openTool("dashboard")}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors mb-2"
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
             >
               <BarChart3 className="h-5 w-5 mr-3" />
               <span>{t('sidebar.dashboard')}</span>
@@ -186,7 +187,7 @@ export function Sidebar({
               onOpenChange={setAnalysisToolsOpen}
               className="w-full"
             >
-              <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors font-sans">
+              <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
                 <div className="flex items-center">
                   <span className="mr-2">{t('sidebar.analysisTools')}</span>
                 </div>
@@ -207,7 +208,7 @@ export function Sidebar({
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => openTool("businessFeasibility")}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors"
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <Calculator className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.businessFeasibility')}</span>
@@ -215,7 +216,7 @@ export function Sidebar({
                         </TooltipTrigger>
                         <TooltipContent
                           side="right"
-                          className="bg-card text-foreground max-w-[300px] p-3 font-body border border-border"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
                             {t('sidebar.businessFeasibilityDescription')}
@@ -229,7 +230,7 @@ export function Sidebar({
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => openTool("demandForecasting")}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors"
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <ChartBar className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.demandForecasting')}</span>
@@ -237,7 +238,7 @@ export function Sidebar({
                         </TooltipTrigger>
                         <TooltipContent
                           side="right"
-                          className="bg-card text-foreground max-w-[300px] p-3 font-body border border-border"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
                             {t('sidebar.demandForecastingDescription')}
@@ -251,7 +252,7 @@ export function Sidebar({
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => openTool("optimizationAnalysis")}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors"
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <BarChart3 className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.optimizationAnalysis')}</span>
@@ -259,7 +260,7 @@ export function Sidebar({
                         </TooltipTrigger>
                         <TooltipContent
                           side="right"
-                          className="bg-card text-foreground max-w-[300px] p-3 font-body border border-border"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
                             {t('sidebar.optimizationAnalysisDescription')}
@@ -273,7 +274,7 @@ export function Sidebar({
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => openTool("recommendations")}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors"
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <Lightbulb className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.smartRecommendations')}</span>
@@ -281,7 +282,7 @@ export function Sidebar({
                         </TooltipTrigger>
                         <TooltipContent
                           side="right"
-                          className="bg-card text-foreground max-w-[300px] p-3 font-body border border-border"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
                             {t('sidebar.smartRecommendationsDescription')}
@@ -295,7 +296,7 @@ export function Sidebar({
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => openTool("analysisHistory")}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors"
+                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <ClipboardList className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.analysisHistory')}</span>
@@ -303,7 +304,7 @@ export function Sidebar({
                         </TooltipTrigger>
                         <TooltipContent
                           side="right"
-                          className="bg-card text-foreground max-w-[300px] p-3 font-body border border-border"
+                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
                         >
                           <p className="text-sm">
                             {t('sidebar.analysisHistoryDescription')}
@@ -320,7 +321,7 @@ export function Sidebar({
           {/* Chat History Section */}
           <div className="px-2 py-2">
             <div className="flex items-center justify-between px-3 py-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-white/50">
                 {t('sidebar.chatHistory')}
               </h3>
               <button
@@ -329,7 +330,7 @@ export function Sidebar({
                   if (openTool) openTool(""); // Ensure dashboard is closed
                   if (isMobile) setIsOpen(false);
                 }}
-                className="h-6 w-6 flex items-center justify-center rounded-full bg-accent/20 dark:bg-accent/30 hover:bg-accent/40 dark:hover:bg-accent/50 transition-colors"
+                className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
                 aria-label={t('sidebar.newChat')}
               >
                 <Plus className="h-3 w-3" />
@@ -349,9 +350,9 @@ export function Sidebar({
                         if (openTool) openTool(""); // Ensure dashboard is closed
                         if (isMobile) setIsOpen(false);
                       }}
-                      className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors"
+                      className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                     >
-                      <MessageSquare className="h-4 w-4 mr-3 text-foreground" />
+                      <MessageSquare className="h-4 w-4 mr-3 text-white/70" />
                       <span className="truncate mr-6">
                         {conversation.title}
                       </span>
@@ -359,10 +360,10 @@ export function Sidebar({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
-                          className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-accent/20 dark:hover:bg-accent/30"
+                          className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-white/20"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <MoreVertical className="h-4 w-4 text-foreground" />
+                          <MoreVertical className="h-4 w-4 text-white/70" />
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -385,7 +386,7 @@ export function Sidebar({
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-muted-foreground px-3 py-2">
+                <p className="text-xs text-white/50 px-3 py-2">
                   {t('sidebar.noConversations')}
                 </p>
               )}
@@ -467,7 +468,7 @@ export function Sidebar({
         <div className="px-2 py-2">
           <button
             onClick={() => openTool("debug")}
-            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors mb-2"
+            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors mb-2"
             title="Open Debugging Panel"
           >
             <PanelLeft className="h-5 w-5 mr-3" />
@@ -479,7 +480,7 @@ export function Sidebar({
         <div className="mt-auto px-3 pb-4">
           <Dialog>
             <DialogTrigger asChild>
-              <button className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors">
+              <button className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
                 <Info className="h-5 w-5 mr-3" />
                 <span>{t('sidebar.aboutArina')}</span>
               </button>
