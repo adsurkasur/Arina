@@ -181,8 +181,8 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-mute flex items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-[0.5rem] border-2 border-gray-300 shadow-lg bg-white px-6 py-8" style={{ boxShadow: '0 4px 32px 0 rgba(0,0,0,0.04)' }}>
         {/* Language Switcher Dropdown */}
         <div className="flex justify-end mb-2 relative" ref={langBtnRef}>
           <button
