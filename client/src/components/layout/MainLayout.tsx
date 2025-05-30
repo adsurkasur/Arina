@@ -66,12 +66,17 @@ export function MainLayout({
     }
   };
 
-  // Open notification panel and close any tool panel
+  // Open or close notification panel when icon is pressed
   const handleOpenNotifPanel = () => {
-    setNotifPanelOpen(true);
-    if (setShowRightPanel) setShowRightPanel(false);
-    if (setActiveTool) setActiveTool("");
-    setLastActiveTool(null);
+    setNotifPanelOpen((prev) => {
+      const next = !prev;
+      if (next) {
+        if (setShowRightPanel) setShowRightPanel(false);
+        if (setActiveTool) setActiveTool("");
+        setLastActiveTool(null);
+      }
+      return next;
+    });
   };
 
   const showNotificationPanel = notifPanelOpen;
