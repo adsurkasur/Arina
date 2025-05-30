@@ -39,12 +39,6 @@ export default function DashboardHome() {
           <div className="flex-1 flex flex-col gap-6">
             <WelcomeBanner />
             <DashboardOverview />
-            <div className="flex-1 flex flex-col">
-              <h3 className="text-xl font-semibold text-primary mb-4">{t('dashboard.analysisHistory')}</h3>
-              <div className="flex-1 bg-white rounded-lg shadow p-2 min-h-0">
-                <AnalysisHistory onClose={() => {}} />
-              </div>
-            </div>
           </div>
         </div>
       </div>

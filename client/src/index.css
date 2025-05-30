@@ -205,3 +205,16 @@ body {
 .animate-header {
   transition: margin-left 0.45s linear;
 }
+
+/* Add a more readable hover effect for the suggestion buttons in WelcomeBanner */
+.bg-cream-dark {
+  background-color: #EFEFE5 !important;
+}
+
+.button-suggestion {
+  @apply w-full justify-start text-left text-gray-800 bg-cream border-0 transition-colors;
+}
+.button-suggestion:hover, .button-suggestion:focus-visible {
+  background-color: #4B7B3F !important; /* accent green */
+  color: #F9F9EF !important; /* cream text */
+}
