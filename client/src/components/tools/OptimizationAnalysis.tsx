@@ -448,7 +448,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
 
                   <div className="space-y-4">
                     {variableFields.map((field, index) => (
-                      <div key={field.id} className="p-4 border border-gray-200 rounded-md">
+                      <div key={field.id} className="p-4 border border-border rounded-md">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
@@ -597,7 +597,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                       </div>
                     ) : (
                       constraintFields.map((field, index) => (
-                        <div key={field.id} className="p-4 border border-gray-200 rounded-md">
+                        <div key={field.id} className="p-4 border border-border rounded-md">
                           <FormField
                             control={form.control}
                             name={`constraints.${index}.name`}
@@ -771,7 +771,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
                     ) : (
                       <div className="space-y-4">
                         {goalFields.map((field, index) => (
-                          <div key={field.id} className="p-4 border border-gray-200 rounded-md">
+                          <div key={field.id} className="p-4 border border-border rounded-md">
                             <div className="flex justify-between items-center mb-3">
                               <h4 className="font-medium">{t('tools.optimization.goal')} {index + 1}</h4>
                               <Button
@@ -965,12 +965,12 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
         </div>
         {/* Results Section */}
         {results && (
-          <div id="optimization-results" className="mt-6 border-t border-gray-200 pt-4">
+          <div id="optimization-results" className="mt-6 border-t border-border pt-4">
             <h3 className="text-lg font-heading font-medium text-primary mb-3">{t('tools.optimization.results')}</h3>
 
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="bg-card dark:bg-card rounded-lg border border-border overflow-hidden">
               {/* Feasibility Status */}
-              <div className="p-4 bg-gray-50 border-b border-gray-200">
+              <div className="p-4 bg-muted border-b border-border">
                 <div className="flex items-center">
                   <div className={`h-4 w-4 rounded-full mr-2 ${results.feasible ? "bg-green-500" : "bg-red-500"}`}></div>
                   <h4 className="font-medium text-lg">
@@ -990,7 +990,7 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
               {/* Solution Visualization */}
               {results.feasible && (
                 <div className="p-4">
-                  <h4 className="font-medium text-gray-700 mb-3">{t('tools.optimization.decisionVariables')}</h4>
+                  <h4 className="font-medium text-foreground mb-3">{t('tools.optimization.decisionVariables')}</h4>
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={prepareChartData()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -1008,27 +1008,27 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
 
               {/* Results Table */}
               {results.feasible && (
-                <div className="p-4 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-700 mb-3">{t('tools.optimization.optimalSolution')}</h4>
+                <div className="p-4 border-t border-border">
+                  <h4 className="font-medium text-foreground mb-3">{t('tools.optimization.optimalSolution')}</h4>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-border">
+                      <thead className="bg-muted">
                         <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {t('tools.optimization.variable')}
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {t('tools.optimization.value')}
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-card divide-y divide-border">
                         {results.variables.map((variable, idx) => (
                           <tr key={idx}>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-foreground">
                               {variable.name}
                             </td>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-muted-foreground">
                               {variable.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                             </td>
                           </tr>
@@ -1041,30 +1041,30 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
 
               {/* Constraints Status */}
               {results.feasible && (
-                <div className="p-4 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-700 mb-3">{t('tools.optimization.constraintsStatus')}</h4>
+                <div className="p-4 border-t border-border">
+                  <h4 className="font-medium text-foreground mb-3">{t('tools.optimization.constraintsStatus')}</h4>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-border">
+                      <thead className="bg-muted">
                         <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {t('tools.optimization.constraints')}
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {t('tools.optimization.slack')}
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {t('tools.optimization.status')}
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-card divide-y divide-border">
                         {results.constraints.map((constraint, idx) => (
                           <tr key={idx}>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-foreground">
                               {constraint.name}
                             </td>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-muted-foreground">
                               {constraint.slack.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm">
@@ -1082,33 +1082,33 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
 
               {/* Goal Achievement (for Goal Programming) */}
               {results.feasible && results.goals && results.goals.length > 0 && (
-                <div className="p-4 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-700 mb-3">{t('tools.optimization.goalAchievement')}</h4>
+                <div className="p-4 border-t border-border">
+                  <h4 className="font-medium text-foreground mb-3">{t('tools.optimization.goalAchievement')}</h4>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-border">
+                      <thead className="bg-muted">
                         <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {t('tools.optimization.goal')}
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {t('tools.optimization.achievement')}
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {t('tools.optimization.deviation')}
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-card divide-y divide-border">
                         {results.goals.map((goal, idx) => (
                           <tr key={idx}>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-foreground">
                               {goal.name}
                             </td>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-muted-foreground">
                               {goal.achievement.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                             </td>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-muted-foreground">
                               {goal.deviation.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                             </td>
                           </tr>
@@ -1120,19 +1120,19 @@ export default function OptimizationAnalysis({ onClose }: { onClose: () => void 
               )}
 
               {/* Summary */}
-              <div className="p-4 border-t border-gray-200">
-                <h4 className="font-medium text-gray-700 mb-2">{t('tools.optimization.summary')}</h4>
-                <pre className="text-sm text-gray-600 whitespace-pre-wrap font-mono bg-gray-50 p-3 rounded">
+              <div className="p-4 border-t border-border">
+                <h4 className="font-medium text-foreground mb-2">{t('tools.optimization.summary')}</h4>
+                <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-muted p-3 rounded">
                   {results.summary}
                 </pre>
               </div>
 
               {/* Buttons */}
-              <div className="p-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
+              <div className="p-4 border-t border-border bg-muted flex justify-end space-x-3">
                 <Button
                   variant="outline"
                   onClick={exportAsPDF}
-                  className="text-gray-700"
+                  className="text-foreground"
                 >
                   <FileDown className="mr-2 h-4 w-4" /> {t('form.exportAsPDF')}
                 </Button>

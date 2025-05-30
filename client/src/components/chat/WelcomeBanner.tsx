@@ -13,36 +13,36 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
     <>
       {/* Welcome Message */}
       <div className="flex justify-center mb-6 font-sans">
-        <div className="bg-cream rounded-lg p-6 shadow-md max-w-2xl w-full">
+        <div className="bg-card dark:bg-card rounded-lg p-6 shadow-md max-w-2xl w-full">
           <h2 className="text-2xl font-semibold text-primary mb-4">{t('chat.welcomeTitle')}</h2>
-          <p className="mb-4">{t('chat.welcomeDesc')}</p>
+          <p className="mb-4 text-foreground/90">{t('chat.welcomeDesc')}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="bg-cream p-3 rounded-lg flex items-start">
+            <div className="bg-muted dark:bg-muted p-3 rounded-lg flex items-start">
               <LineChart className="text-primary mt-1 mr-2 h-5 w-5" />
               <div>
                 <h3 className="font-medium text-primary">{t('chat.businessFeasibility')}</h3>
-                <p className="text-sm">{t('chat.businessFeasibilityDesc')}</p>
+                <p className="text-sm text-foreground/80">{t('chat.businessFeasibilityDesc')}</p>
               </div>
             </div>
-            <div className="bg-cream p-3 rounded-lg flex items-start">
+            <div className="bg-muted dark:bg-muted p-3 rounded-lg flex items-start">
               <BarChart3 className="text-primary mt-1 mr-2 h-5 w-5" />
               <div>
                 <h3 className="font-medium text-primary">{t('chat.demandForecasting')}</h3>
-                <p className="text-sm">{t('chat.demandForecastingDesc')}</p>
+                <p className="text-sm text-foreground/80">{t('chat.demandForecastingDesc')}</p>
               </div>
             </div>
-            <div className="bg-cream p-3 rounded-lg flex items-start">
+            <div className="bg-muted dark:bg-muted p-3 rounded-lg flex items-start">
               <PieChart className="text-primary mt-1 mr-2 h-5 w-5" />
               <div>
                 <h3 className="font-medium text-primary">{t('chat.optimizationAnalysis')}</h3>
-                <p className="text-sm">{t('chat.optimizationAnalysisDesc')}</p>
+                <p className="text-sm text-foreground/80">{t('chat.optimizationAnalysisDesc')}</p>
               </div>
             </div>
-            <div className="bg-cream p-3 rounded-lg flex items-start">
+            <div className="bg-muted dark:bg-muted p-3 rounded-lg flex items-start">
               <Brain className="text-primary mt-1 mr-2 h-5 w-5" />
               <div>
                 <h3 className="font-medium text-primary">{t('chat.aiAssistance')}</h3>
-                <p className="text-sm">{t('chat.aiAssistanceDesc')}</p>
+                <p className="text-sm text-foreground/80">{t('chat.aiAssistanceDesc')}</p>
               </div>
             </div>
           </div>
@@ -74,29 +74,29 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
 
       {/* Getting Started Prompt */}
       <div className="flex justify-center mb-6 font-sans">
-        <div className="bg-white rounded-lg p-6 shadow-md max-w-2xl w-full">
+        <div className="bg-card dark:bg-card rounded-lg p-6 shadow-md max-w-2xl w-full">
           <h3 className="font-heading font-medium text-primary text-lg mb-2">{t('chat.gettingStarted')}</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-foreground/80 mb-4">
             {t('chat.gettingStartedDesc')}
           </p>
           <div className="space-y-2">
             <Button 
               variant="outline" 
-              className="button-suggestion"
+              className="button-suggestion border-primary text-primary hover:bg-primary hover:text-primary-foreground"
               onClick={() => onToolSelect && onToolSelect('businessFeasibility')}
             >
               {t('chat.example.businessFeasibility')}
             </Button>
             <Button 
               variant="outline" 
-              className="button-suggestion"
+              className="button-suggestion border-primary text-primary hover:bg-primary hover:text-primary-foreground"
               onClick={() => onToolSelect && onToolSelect('demandForecasting')}
             >
               {t('chat.example.demandForecasting')}
             </Button>
             <Button 
               variant="outline" 
-              className="button-suggestion"
+              className="button-suggestion border-primary text-primary hover:bg-primary hover:text-primary-foreground"
               onClick={() => onToolSelect && onToolSelect('optimizationAnalysis')}
             >
               {t('chat.example.optimizationAnalysis')}

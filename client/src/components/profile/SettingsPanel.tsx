@@ -38,9 +38,9 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   return (
     <PanelContainer onClose={onClose} title={t('settingsPanel.settings')}>
       <div className="flex-1 p-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-card dark:bg-card rounded-lg shadow-md p-6 text-foreground dark:text-foreground border border-border">
           <div className="mb-6">
-            <span className="block text-sm font-medium text-gray-700 mb-2">
+            <span className="block text-sm font-medium text-foreground mb-2">
               {t('settingsPanel.darkMode')}
             </span>
             <Button variant={darkMode ? "default" : "outline"} onClick={handleDarkModeToggle} disabled={loading}>
@@ -48,11 +48,11 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
             </Button>
           </div>
           <div className="mb-2">
-            <span className="block text-sm font-medium text-gray-700 mb-2">
+            <span className="block text-sm font-medium text-foreground mb-2">
               {t('settingsPanel.language')}
             </span>
             <select
-              className="border rounded px-2 py-1"
+              className="border border-border bg-background text-foreground rounded px-2 py-1 dark:bg-background dark:text-foreground"
               value={i18n.language}
               onChange={handleLanguageChange}
             >
