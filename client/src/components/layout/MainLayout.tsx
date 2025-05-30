@@ -53,6 +53,8 @@ export function MainLayout({
   // Toggle tool panel: if already open with same tool, close it; else open new tool
   const openTool = (tool: string) => {
     if (!setActiveTool || !setShowRightPanel) return;
+    // Always close notification panel when opening a tool
+    setNotifPanelOpen(false);
     if (lastActiveTool === tool && showRightPanel) {
       setShowRightPanel(false);
       setActiveTool("");
@@ -62,6 +64,14 @@ export function MainLayout({
       setShowRightPanel(!!tool && tool !== "dashboard");
       setLastActiveTool(tool);
     }
+  };
+
+  // Open notification panel and close any tool panel
+  const handleOpenNotifPanel = () => {
+    setNotifPanelOpen(true);
+    if (setShowRightPanel) setShowRightPanel(false);
+    if (setActiveTool) setActiveTool("");
+    setLastActiveTool(null);
   };
 
   const showNotificationPanel = notifPanelOpen;
@@ -124,7 +134,7 @@ export function MainLayout({
               <HelpCircle className="h-5 w-5 text-gray-600" />
             </Button>
             <div className="relative">
-              <Button variant="outline" size="icon" className="rounded-full" onClick={() => setNotifPanelOpen((v) => !v)}>
+              <Button variant="outline" size="icon" className="rounded-full" onClick={handleOpenNotifPanel}>
                 <Bell className="h-5 w-5 text-gray-600" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center font-bold border border-white">{unreadCount}</span>
