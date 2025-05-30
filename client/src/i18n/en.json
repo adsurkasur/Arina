@@ -441,5 +441,9 @@
   "login.google": "Sign in with Google",
   "login.checkingAuth": "Checking authentication...",
   "form.send": "Send",
-  "chat.assistantDescription": "Arina is an AI assistant that can browse the web and integrate with your business tools to provide insights and recommendations."
+  "chat.assistantDescription": "Arina is an AI assistant that can browse the web and integrate with your business tools to provide insights and recommendations.",
+  "chat.emptyConversation": "No conversations yet. Start a new chat to get insights and recommendations.",
+  "help.title": "Help & Support",
+  "help.description": "If you need assistance or have any questions, please contact our support team.",
+  "help.emailLabel": "Email"
 }

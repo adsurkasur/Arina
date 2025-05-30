@@ -33,19 +33,24 @@ export function MainLayout({
   // Animation: keep panel mounted for close animation
   const [panelVisible, setPanelVisible] = useState(false);
   const [panelAnimatingOut, setPanelAnimatingOut] = useState(false);
+  // Track which panel was last open for correct animation out
+  const [lastPanelType, setLastPanelType] = useState<"notification" | "tool" | null>(null);
 
   // Watch showRightPanel and notifPanelOpen to control mount/unmount for animation
   React.useEffect(() => {
     if (showRightPanel || notifPanelOpen) {
       setPanelVisible(true);
       setPanelAnimatingOut(false);
+      if (notifPanelOpen) setLastPanelType("notification");
+      else if (showRightPanel) setLastPanelType("tool");
     } else if (panelVisible) {
       setPanelAnimatingOut(true);
-      // Unmount after animation duration (match .35s in CSS)
+      // Unmount after animation duration (match .35s in CSS, or .5s for featurepanel-out)
       const timeout = setTimeout(() => {
         setPanelVisible(false);
         setPanelAnimatingOut(false);
-      }, 350);
+        setLastPanelType(null);
+      }, 500); // match duration-500 in className
       return () => clearTimeout(timeout);
     }
   }, [showRightPanel, notifPanelOpen]);
@@ -53,8 +58,7 @@ export function MainLayout({
   // Toggle tool panel: if already open with same tool, close it; else open new tool
   const openTool = (tool: string) => {
     if (!setActiveTool || !setShowRightPanel) return;
-    // Always close notification panel when opening a tool
-    setNotifPanelOpen(false);
+    if (notifPanelOpen) setNotifPanelOpen(false);
     if (lastActiveTool === tool && showRightPanel) {
       setShowRightPanel(false);
       setActiveTool("");
@@ -135,7 +139,23 @@ export function MainLayout({
             Arina
           </h1>
           <div className="ml-auto flex items-center space-x-3">
-            <Button variant="outline" size="icon" className="rounded-full">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-full"
+              onClick={() => {
+                if (notifPanelOpen) setNotifPanelOpen(false);
+                if (lastActiveTool === 'help' && showRightPanel) {
+                  if (setShowRightPanel) setShowRightPanel(false);
+                  if (setActiveTool) setActiveTool("");
+                  setLastActiveTool(null);
+                } else {
+                  if (setActiveTool) setActiveTool('help');
+                  if (setShowRightPanel) setShowRightPanel(true);
+                  setLastActiveTool('help');
+                }
+              }}
+            >
               <HelpCircle className="h-5 w-5 text-gray-600" />
             </Button>
             <div className="relative">
@@ -158,10 +178,8 @@ export function MainLayout({
           {panelVisible && !isMobile && (
             <div
               className={cn(
-                "absolute top-0 right-0 h-full transition-transform duration-500 ease-in-out flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40",
-                (showNotificationPanel || showToolPanel) && !panelAnimatingOut
-                  ? "translate-x-0 animate-featurepanel-in"
-                  : "translate-x-full animate-featurepanel-out"
+                "absolute top-0 right-0 h-full flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white shadow-2xl",
+                panelAnimatingOut ? "animate-featurepanel-out" : "animate-featurepanel-in"
               )}
               style={{
                 height: "100%",
@@ -169,19 +187,23 @@ export function MainLayout({
                 background: "none",
                 border: "none",
                 boxShadow: "none",
+                pointerEvents: panelAnimatingOut ? "none" : undefined,
               }}
             >
-              {/* Only render content if open, but keep container for close animation */}
-              {((showNotificationPanel && !panelAnimatingOut) || (panelAnimatingOut && notifPanelOpen)) && (
-                <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} />
+              {/* Only render the correct panel during animation out */}
+              {((notifPanelOpen && !panelAnimatingOut) || (panelAnimatingOut && lastPanelType === "notification")) && (
+                <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} animatingOut={panelAnimatingOut} />
               )}
-              {((showToolPanel && !panelAnimatingOut) || (panelAnimatingOut && showRightPanel && rightPanel)) && showToolPanel && rightPanel && React.cloneElement(rightPanel as any, {
-                onClose: () => {
-                  if (setShowRightPanel) setShowRightPanel(false);
-                  if (setActiveTool) setActiveTool("");
-                  setLastActiveTool(null);
-                },
-              })}
+              {rightPanel && ((showRightPanel && !panelAnimatingOut) || (panelAnimatingOut && lastPanelType === "tool")) && (
+                React.cloneElement(rightPanel as any, {
+                  onClose: () => {
+                    if (setShowRightPanel) setShowRightPanel(false);
+                    if (setActiveTool) setActiveTool("");
+                    setLastActiveTool(null);
+                  },
+                  animatingOut: panelAnimatingOut,
+                })
+              )}
             </div>
           )}
           {/* Mobile overlays */}

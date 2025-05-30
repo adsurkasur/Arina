@@ -1,12 +1,19 @@
 import { cn } from "@/lib/theme";
 
 // Panel container for right side panels (tools, history, etc.)
-export const PanelContainer: React.FC<{ children: React.ReactNode; onClose?: () => void; title?: string; fixed?: boolean }> = ({ children, onClose, title, fixed }) => (
+export const PanelContainer: React.FC<{
+  children: React.ReactNode;
+  onClose?: () => void;
+  title?: string;
+  fixed?: boolean;
+  animatingOut?: boolean;
+}> = ({ children, onClose, title, fixed, animatingOut }) => (
   <div
     className={cn(
       fixed
-        ? "fixed top-0 right-0 w-full max-w-md h-full bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out animate-featurepanel-in flex flex-col min-w-[320px] z-[200]"
-        : "h-full w-full max-w-md bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out animate-featurepanel-in flex flex-col min-w-[320px]"
+        ? "fixed top-0 right-0 w-full max-w-md h-full bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px] z-[200]"
+        : "h-full w-full max-w-md bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px]",
+      animatingOut ? "animate-featurepanel-out" : "animate-featurepanel-in"
     )}
     style={fixed ? {} : { position: "relative", zIndex: "auto" }}
   >

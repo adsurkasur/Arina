@@ -89,10 +89,12 @@ const formSchema = z.object({
 
 interface BusinessFeasibilityProps {
   onClose: () => void;
+  animatingOut?: boolean;
 }
 
 export default function BusinessFeasibility({
   onClose,
+  animatingOut,
 }: BusinessFeasibilityProps) {
   const [results, setResults] = useState<BusinessFeasibilityResult | null>(
     null,
@@ -254,7 +256,7 @@ export default function BusinessFeasibility({
   };
 
   return (
-    <PanelContainer onClose={onClose} title={t('tools.businessFeasibility.title')}>
+    <PanelContainer onClose={onClose} title={t('tools.businessFeasibility.title')} animatingOut={animatingOut}>
       <div className="space-y-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

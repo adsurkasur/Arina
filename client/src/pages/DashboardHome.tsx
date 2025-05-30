@@ -1,6 +1,4 @@
-import React from "react";
 import WelcomeBanner from "@/components/chat/WelcomeBanner";
-import AnalysisHistory from "@/components/history/AnalysisHistory";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from 'react-i18next';
 
@@ -33,7 +31,7 @@ export default function DashboardHome() {
   const { t } = useTranslation();
 
   return (
-    <div className="w-full h-full flex flex-col px-0 md:px-0 py-0 overflow-auto bg-white">
+    <div className="w-full h-full flex flex-col px-0 md:px-0 py-0 overflow-auto bg-muted">
       <div className="flex flex-col flex-1 min-h-0">
         <div className="flex-1 flex flex-col md:flex-row gap-8 p-6 md:p-10">
           <div className="flex-1 flex flex-col gap-6">
