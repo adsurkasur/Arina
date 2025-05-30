@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
+
 export default defineConfig({
   plugins: [
     react(),
@@ -23,7 +24,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://0.0.0.0:5000',
+      '/api': 'http://139.59.98.33:5000',
     },
     allowedHosts: [
       '0888c988-746b-4968-959f-a89b7399089d-00-u7s6usv146e5.worf.replit.dev'
