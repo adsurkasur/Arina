@@ -57,7 +57,7 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
           </Button>
         </form>
         <div className="flex justify-center mt-2 text-xs text-gray-500 font-sans">
-          <span>{t('chat.assistantDescription')}</span>
+          <span className="text-center">{t('chat.assistantDescription')}</span>
         </div>
       </div>
     </div>
