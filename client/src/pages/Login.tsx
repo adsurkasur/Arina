@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { Sprout, Mail, Lock, User, Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { signInWithEmail } from "@/lib/firebase";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
@@ -26,6 +28,8 @@ function loadRecaptchaScript() {
 export default function Login() {
   const { isAuthenticated, isLoading, loginWithEmail, registerWithEmailPassword, loginWithGoogle } = useAuth();
   const [, navigate] = useLocation();
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState("login");
   const [googleLoading, setGoogleLoading] = useState(false);
   
@@ -66,17 +70,17 @@ export default function Login() {
     e.preventDefault();
     setError("");
     if (!name || !email || !password) {
-      setError("Please fill in all fields");
+      setError(t('error.fillAllFields', 'Please fill in all fields'));
       return;
     }
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t('error.passwordLength', 'Password must be at least 6 characters'));
       return;
     }
     setFormLoading(true);
     try {
       const token = await executeRecaptcha("register");
-      if (!token) throw new Error("reCAPTCHA failed. Please try again.");
+      if (!token) throw new Error(t('error.recaptchaFailed', 'reCAPTCHA failed. Please try again.'));
       // Register
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -84,7 +88,7 @@ export default function Login() {
         body: JSON.stringify({ name, email, password, recaptchaToken: token })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Registration failed");
+      if (!res.ok) throw new Error(data.message || t('error.registrationFailed', 'Registration failed'));
       // Auto-login after registration
       const loginToken = await executeRecaptcha("login");
       const loginRes = await fetch("/api/auth/login", {
@@ -93,12 +97,12 @@ export default function Login() {
         body: JSON.stringify({ email, password, recaptchaToken: loginToken })
       });
       const loginData = await loginRes.json();
-      if (!loginRes.ok) throw new Error(loginData.message || "Login failed");
+      if (!loginRes.ok) throw new Error(loginData.message || t('error.loginFailed', 'Login failed'));
       // Also sign in with Firebase client SDK to update session
       await signInWithEmail(email, password);
       window.location.href = "/";
     } catch (error: any) {
-      setError(error.message || "Failed to register. Please try again.");
+      setError(error.message || t('error.registerTryAgain', 'Failed to register. Please try again.'));
     } finally {
       setFormLoading(false);
     }
@@ -108,25 +112,25 @@ export default function Login() {
     e.preventDefault();
     setError("");
     if (!email || !password) {
-      setError("Please fill in all fields");
+      setError(t('error.fillAllFields', 'Please fill in all fields'));
       return;
     }
     setFormLoading(true);
     try {
       const token = await executeRecaptcha("login");
-      if (!token) throw new Error("reCAPTCHA failed. Please try again.");
+      if (!token) throw new Error(t('error.recaptchaFailed', 'reCAPTCHA failed. Please try again.'));
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, recaptchaToken: token })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
+      if (!res.ok) throw new Error(data.message || t('error.loginFailed', 'Login failed'));
       // Also sign in with Firebase client SDK to update session
       await signInWithEmail(email, password);
       window.location.href = "/";
     } catch (error: any) {
-      setError(error.message || "Failed to login. Please check your credentials.");
+      setError(error.message || t('error.loginCredentials', 'Failed to login. Please check your credentials.'));
     } finally {
       setFormLoading(false);
     }
@@ -138,7 +142,7 @@ export default function Login() {
       setGoogleLoading(true);
       await loginWithGoogle();
     } catch (error: any) {
-      setError(error.message || "Failed to sign in with Google. Please try again.");
+      setError(error.message || t('error.googleSignIn', 'Failed to sign in with Google. Please try again.'));
     } finally {
       setGoogleLoading(false);
     }
@@ -148,7 +152,7 @@ export default function Login() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        <span className="ml-4 text-gray-500 text-lg">Checking authentication...</span>
+        <span className="ml-4 text-gray-500 text-lg">{t('login.checkingAuth', 'Checking authentication...')}</span>
       </div>
     );
   }
@@ -156,47 +160,55 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Language Switcher */}
+        <div className="flex justify-end mb-2">
+          <button
+            className={`px-2 py-1 rounded text-xs font-medium mr-2 ${language === 'en' ? 'bg-primary text-white' : 'bg-gray-200'}`}
+            onClick={() => setLanguage('en')}
+            disabled={language === 'en'}
+          >EN</button>
+          <button
+            className={`px-2 py-1 rounded text-xs font-medium ${language === 'id' ? 'bg-primary text-white' : 'bg-gray-200'}`}
+            onClick={() => setLanguage('id')}
+            disabled={language === 'id'}
+          >ID</button>
+        </div>
+        
         <div className="text-center mb-6">
           <div className="inline-flex justify-center items-center bg-primary text-white p-3 rounded-full mb-4">
             <Sprout className="h-8 w-8" />
           </div>
           
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">
-            Welcome back
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Sign in to continue to Arina
-          </p>
+          <h1 className="text-2xl font-bold mb-2">{t('login.title', 'Sign in to Arina')}</h1>
+          <p className="text-gray-500">{t('login.subtitle', 'Your AI-powered agricultural business assistant')}</p>
         </div>
         
         <Card className="border shadow-sm">
           <CardHeader className="pb-4">
             <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="register">Register</TabsTrigger>
+                <TabsTrigger value="login">{t('login.tabLogin')}</TabsTrigger>
+                <TabsTrigger value="register">{t('login.tabRegister')}</TabsTrigger>
               </TabsList>
             </Tabs>
           </CardHeader>
-          
           <CardContent>
             {error && (
               <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
                 {error}
               </div>
             )}
-            
             {activeTab === "login" ? (
               <form onSubmit={handleLogin}>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('login.labelEmail')}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                       <Input
                         id="email"
                         type="email"
-                        placeholder="your.email@example.com"
+                        placeholder={t('login.placeholderEmail')}
                         className="pl-10"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -204,9 +216,8 @@ export default function Login() {
                       />
                     </div>
                   </div>
-                  
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t('login.labelPassword')}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                       <Input
@@ -220,44 +231,42 @@ export default function Login() {
                       />
                     </div>
                   </div>
-                  
                   <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
                     {formLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Logging in...
+                        {t('login.buttonLogin')}
                       </>
                     ) : (
-                      "Log in"
+                      t('login.buttonLogin')
                     )}
                   </Button>
-                  
                   <div className="relative my-3">
                     <div className="absolute inset-0 flex items-center">
                       <Separator className="w-full" />
                     </div>
                     <div className="relative flex justify-center">
                       <span className="bg-background px-2 text-xs text-gray-500">
-                        OR
+                        {t('login.or')}
                       </span>
                     </div>
                   </div>
-                  
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     className="w-full border-gray-300 flex gap-2 items-center justify-center"
                     onClick={handleGoogleSignIn}
-                    disabled={googleLoading}>
+                    disabled={googleLoading}
+                  >
                     {googleLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Connecting to Google...
+                        {t('login.google')}
                       </>
                     ) : (
                       <>
                         <FcGoogle className="h-5 w-5" />
-                        <span>Sign in with Google</span>
+                        <span>{t('login.google')}</span>
                       </>
                     )}
                   </Button>
@@ -267,13 +276,13 @@ export default function Login() {
               <form onSubmit={handleRegister}>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="name">{t('login.labelName')}</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                       <Input
                         id="name"
                         type="text"
-                        placeholder="Your Name"
+                        placeholder={t('login.placeholderName')}
                         className="pl-10"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -281,15 +290,14 @@ export default function Login() {
                       />
                     </div>
                   </div>
-                  
                   <div className="space-y-2">
-                    <Label htmlFor="register-email">Email</Label>
+                    <Label htmlFor="email">{t('login.labelEmail')}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                       <Input
-                        id="register-email"
+                        id="email"
                         type="email"
-                        placeholder="your.email@example.com"
+                        placeholder={t('login.placeholderEmail')}
                         className="pl-10"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -297,13 +305,12 @@ export default function Login() {
                       />
                     </div>
                   </div>
-                  
                   <div className="space-y-2">
-                    <Label htmlFor="register-password">Password</Label>
+                    <Label htmlFor="password">{t('login.labelPassword')}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                       <Input
-                        id="register-password"
+                        id="password"
                         type="password"
                         placeholder="••••••••"
                         className="pl-10"
@@ -313,44 +320,42 @@ export default function Login() {
                       />
                     </div>
                   </div>
-                  
                   <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
                     {formLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating account...
+                        {t('login.buttonRegister')}
                       </>
                     ) : (
-                      "Create Account"
+                      t('login.buttonRegister')
                     )}
                   </Button>
-                  
                   <div className="relative my-3">
                     <div className="absolute inset-0 flex items-center">
                       <Separator className="w-full" />
                     </div>
                     <div className="relative flex justify-center">
                       <span className="bg-background px-2 text-xs text-gray-500">
-                        OR
+                        {t('login.or')}
                       </span>
                     </div>
                   </div>
-                  
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     className="w-full border-gray-300 flex gap-2 items-center justify-center"
                     onClick={handleGoogleSignIn}
-                    disabled={googleLoading}>
+                    disabled={googleLoading}
+                  >
                     {googleLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Connecting to Google...
+                        {t('login.google')}
                       </>
                     ) : (
                       <>
                         <FcGoogle className="h-5 w-5" />
-                        <span>Sign up with Google</span>
+                        <span>{t('login.google')}</span>
                       </>
                     )}
                   </Button>
@@ -358,30 +363,10 @@ export default function Login() {
               </form>
             )}
           </CardContent>
-          
-          <CardFooter className="flex justify-center pb-4 pt-2">
-            <p className="text-sm text-gray-500">
-              {activeTab === "login" ? (
-                <>
-                  Don't have an account?{" "}
-                  <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("register")}>
-                    Sign up
-                  </Button>
-                </>
-              ) : (
-                <>
-                  Already have an account?{" "}
-                  <Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("login")}>
-                    Log in
-                  </Button>
-                </>
-              )}
-            </p>
-          </CardFooter>
         </Card>
         
         <p className="text-center text-gray-500 text-xs mt-6">
-          &copy; {new Date().getFullYear()} Arina. All rights reserved.
+          &copy; {new Date().getFullYear()} Arina. {t('common.allRightsReserved', 'All rights reserved.')}
         </p>
       </div>
     </div>

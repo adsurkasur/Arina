@@ -30,7 +30,7 @@ import {
   DollarSign,
   Calendar
 } from 'lucide-react';
-import { useTranslation } from '@/contexts/useTranslation';
+import { useTranslation } from 'react-i18next';
 
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { AnalysisResult } from '@shared/schema';

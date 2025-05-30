@@ -1,3 +1,6 @@
+import { initializeI18n } from "@/i18n";
+initializeI18n("en");
+
 import React, { useEffect, useState, useContext } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
@@ -7,7 +10,6 @@ import { ChatProvider } from "@/contexts/ChatContext";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { getUserProfile } from "@/lib/mongodb";
-import { initializeI18n } from "@/i18n";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
@@ -45,15 +47,19 @@ function RootApp() {
       if (!cancelled) {
         setLanguage(lang);
         setDarkMode(dark);
-        initializeI18n(lang);
         document.documentElement.classList.toggle("dark", dark);
         setSettingsLoaded(true);
       }
     }
-    if (userReady) {
-      loadSettings();
+    if (user) {
+      if (userReady) {
+        loadSettings();
+      } else {
+        setSettingsLoaded(false);
+      }
     } else {
-      setSettingsLoaded(false);
+      // No user, so allow login screen to show
+      setSettingsLoaded(true);
     }
     return () => { cancelled = true; };
   }, [userReady, user]);

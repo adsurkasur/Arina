@@ -50,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userReady, setUserReady] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
   const { toast } = useToast();
   const [, navigate] = useLocation();
 
@@ -80,9 +81,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     setUserReady(false);
+    setProfileError(null);
     if (user) {
-      // Always upsert user in MongoDB after login
-      createUserProfile(user.id, user.email, user.name, user.photoURL).finally(() => setUserReady(true));
+      createUserProfile(user.id, user.email, user.name, user.photoURL)
+        .then((res) => {
+          if (res.error) setProfileError((res.error as Error)?.message || 'Failed to create user profile');
+        })
+        .catch((err) => {
+          setProfileError((err as Error)?.message || 'Failed to create user profile');
+        })
+        .finally(() => setUserReady(true));
     } else {
       setUserReady(false);
     }
@@ -181,7 +189,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // Only block with spinner if user is authenticated and userReady is false
   if (isLoading || (user && !userReady)) {
+    if (profileError && user) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+          <div className="text-red-500 text-lg mb-2">{profileError}</div>
+          <button
+            className="px-4 py-2 bg-primary text-white rounded"
+            onClick={() => {
+              setProfileError(null);
+              setUserReady(false);
+              createUserProfile(user.id, user.email, user.name, user.photoURL)
+                .then((res) => {
+                  if (res.error) setProfileError((res.error as Error)?.message || 'Failed to create user profile');
+                  else setProfileError(null);
+                })
+                .catch((err) => setProfileError((err as Error)?.message || 'Failed to create user profile'))
+                .finally(() => setUserReady(true));
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+    // If not authenticated, do not block the app (let login screen show)
+    if (!user) return <>{children}</>;
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>

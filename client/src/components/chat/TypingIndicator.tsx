@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Sprout } from "lucide-react";
-import { useTranslation } from "@/contexts/useTranslation";
+import { useTranslation } from "react-i18next";
 
 export default function TypingIndicator() {
   const { t } = useTranslation();

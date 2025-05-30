@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, Settings, LogOut, HelpCircle } from "lucide-react";
-import { useTranslation } from "@/contexts/useTranslation";
+import { useTranslation } from "react-i18next";
 
 interface ProfileDropdownProps {
   openTool: (tool: string) => void;
@@ -20,17 +20,7 @@ interface ProfileDropdownProps {
 export function ProfileDropdown({ openTool }: ProfileDropdownProps) {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const { t, language } = useTranslation();
-
-  // Debug: log translation for verification
-  console.log("ProfileDropdown language:", language);
-  console.log("t(sidebar.profile):", t("sidebar.profile"));
-
-  // Force re-render on language change
-  const [, setLangTick] = useState(0);
-  React.useEffect(() => {
-    setLangTick((tick) => tick + 1);
-  }, [language]);
+  const { t, i18n } = useTranslation();
 
   const handleOpenDashboard = (dashboardType: string) => {
     openTool(dashboardType);

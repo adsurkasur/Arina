@@ -17,7 +17,7 @@ import {
 } from "@/types/analysis";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
-import { useTranslation } from '@/contexts/useTranslation';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from "@/components/ui/button";
 import {
