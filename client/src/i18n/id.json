@@ -278,7 +278,6 @@
   "sidebar.chatHistory": "Riwayat Chat",
   "sidebar.noConversations": "Belum ada percakapan.",
   "sidebar.debugging": "Debugging",
-  "sidebar.aboutArina": "Tentang Arina",
   "notifications.title": "Notifikasi",
   "notifications.noNotifications": "Tidak ada notifikasi.",
   "notifications.markAllAsRead": "Tandai semua sudah dibaca",
@@ -444,12 +443,9 @@
   "login.google": "Masuk dengan Google",
   "login.checkingAuth": "Memeriksa autentikasi...",
   "form.send": "Kirim",
-  "chat.assistantDescription": "Arina adalah asisten AI yang dapat menjelajah web dan terintegrasi dengan alat bisnis Anda untuk memberikan wawasan dan rekomendasi.",
-  "chat.emptyConversation": "Belum ada percakapan. Mulai chat baru untuk mendapatkan wawasan dan rekomendasi.",
   "help.title": "Bantuan & Dukungan",
   "help.description": "Jika Anda membutuhkan bantuan atau memiliki pertanyaan, silakan hubungi tim dukungan kami.",
-  "help.emailLabel": "Email"
-  "tools.optimization.targetValueTooltip": "Atur nilai target untuk tujuan ini, yang mewakili hasil yang ingin Anda capai.",
+  "help.emailLabel": "Email",
   "dashboard.weather": "Cuaca",
   "dashboard.welcome": "Selamat Datang",
   "dashboard.farmLocation": "Lokasi Kebun"
