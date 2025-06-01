@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "http://139.59.98.33:5000/api/$1"
+      "destination": "https://arina-server-production.up.railway.app/api/$1"
     }
   ]
 }

@@ -18,7 +18,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         // Ubah ke localhost jika backend running local
-        target: 'http://localhost:5000',
+        target: 'https://arina-server-production.up.railway.app/',
         // Atau gunakan environment variable
         // target: process.env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
