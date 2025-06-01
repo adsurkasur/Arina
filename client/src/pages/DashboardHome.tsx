@@ -163,7 +163,7 @@ const WeatherWidget = React.memo(() => {
         <CardTitle className="text-lg flex items-center justify-between">
           <span className="flex items-center">
             <Cloud className="mr-2 h-5 w-5" />
-            Cuaca
+            Cuaca {weatherData?.location || 'Jakarta'}
           </span>
           <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8">
             <RefreshCw className="h-4 w-4" />
@@ -173,7 +173,7 @@ const WeatherWidget = React.memo(() => {
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-2xl font-bold">{weatherData?.temperature || '25'}°C</p>
+            <p className="text-2xl font-bold">{weatherData?.temperature || '30'}°C</p>
             <p className="text-sm opacity-90">{weatherData?.condition || 'Cerah'}</p>
           </div>
           <WeatherIcon className="h-10 w-10" />
@@ -496,7 +496,7 @@ export const OpenStreetMap: React.FC<{ height?: string; className?: string }> = 
       }
 
       // Default ke Jakarta
-      const defaultLatLng = [-6.2088, 106.8456];
+      const defaultLatLng: [number, number] = [-6.2088, 106.8456];
 
       // Inisialisasi map
       map = L.map(mapRef.current!).setView(defaultLatLng, 13);
@@ -510,7 +510,7 @@ export const OpenStreetMap: React.FC<{ height?: string; className?: string }> = 
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           pos => {
-            const latlng = [pos.coords.latitude, pos.coords.longitude];
+            const latlng: [number, number] = [pos.coords.latitude, pos.coords.longitude];
             map.setView(latlng, 15);
             marker = L.marker(latlng).addTo(map)
               .bindPopup("Lokasi Anda Sekarang").openPopup();

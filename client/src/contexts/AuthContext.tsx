@@ -98,18 +98,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loginWithGoogle = async () => {
     try {
-      // signInWithGoogle now returns a rejected promise, so we need to use getRedirectResult to get the user
-      // For now, skip result.user logic and just show a success toast for demo purposes
-      setShowAuthModal(false);
-      // Ensure user exists in MongoDB after Google login
-      if (user) {
-        await createUserProfile(user.id, user.email, user.name, user.photoURL);
+      const result = await signInWithGoogle();
+      if (result && result.user) {
+        // Create profile in Supabase if it doesn't exist
+        await createUserProfile(
+          result.user.uid,
+          result.user.email || "",
+          result.user.displayName || result.user.email?.split("@")[0] || "User",
+          result.user.photoURL || undefined,
+        );
+
+        setShowAuthModal(false);
+        toast({
+          title: "Success",
+          description: "Signed in with Google successfully",
+        });
+        navigate("/");
       }
-      toast({
-        title: "Success",
-        description: "Signed in with Google (redirect flow)",
-      });
-      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error signing in with Google",
