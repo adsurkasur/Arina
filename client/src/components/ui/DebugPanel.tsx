@@ -5,7 +5,7 @@ import { PanelContainer } from "@/components/ui/PanelContainer";
 import { useMobile } from "@/hooks/use-mobile";
 import { useTranslation } from 'react-i18next';
 
-export const DebugPanel: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
+export const DebugPanel: React.FC<{ open: boolean; onClose: () => void; animatingOut?: boolean }> = ({ open, onClose, animatingOut }) => {
   const isMobile = useMobile();
   const { t } = useTranslation();
 
@@ -27,7 +27,7 @@ export const DebugPanel: React.FC<{ open: boolean; onClose: () => void }> = ({ o
   };
 
   return (
-    <PanelContainer onClose={onClose} title={t('debugPanel.title')}>
+    <PanelContainer onClose={onClose} title={t('debugPanel.title')} animatingOut={animatingOut}>
       <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
         <div>
           <h3 className="font-medium mb-2">{t('debugPanel.toastNotification')}</h3>

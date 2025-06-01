@@ -1,21 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
-
 
 export default defineConfig({
-  plugins: [
-    react(),
-    nodePolyfills({
-      protocolImports: true,
-    }),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "src"),
-      "@shared": path.resolve(import.meta.dirname, "../shared"),
-      "@assets": path.resolve(import.meta.dirname, "../attached_assets"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   build: {
@@ -23,14 +14,27 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    port: 3000,
     proxy: {
-      '/api': 'http://139.59.98.33:5000',
-    },
-    allowedHosts: [
-      '0888c988-746b-4968-959f-a89b7399089d-00-u7s6usv146e5.worf.replit.dev'
-    ],
-  },
-  optimizeDeps: {
-    exclude: ["mongodb"],
-  },
-});
+      '/api': {
+        // Ubah ke localhost jika backend running local
+        target: 'http://localhost:5000',
+        // Atau gunakan environment variable
+        // target: process.env.VITE_API_URL || 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          });
+        },
+      }
+    }
+  }
+})

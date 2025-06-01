@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { getUserProfile } from "@/lib/mongodb";
+import React, { createContext, useContext } from "react";
 
 interface ThemeContextProps {
   darkMode: boolean;
@@ -12,40 +10,18 @@ const ThemeContext = createContext<ThemeContextProps>({
   setDarkMode: () => {},
 });
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, userReady } = useAuth();
-  const [darkMode, setDarkModeState] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  // Always load from database
-  useEffect(() => {
-    async function loadUserTheme() {
-      setLoading(true);
-      if (user && userReady) {
-        const { data } = await getUserProfile(user.id);
-        if (data && typeof data.dark_mode === "boolean") {
-          setDarkModeState(data.dark_mode);
-          if (data.dark_mode) {
-            document.documentElement.classList.add("dark");
-          } else {
-            document.documentElement.classList.remove("dark");
-          }
-        }
-      }
-      setLoading(false);
-    }
-    loadUserTheme();
-    // eslint-disable-next-line
-  }, [user, userReady]);
-
-  useEffect(() => {
+export const ThemeProvider = ({
+  children,
+  darkMode,
+  setDarkMode,
+}: {
+  children: React.ReactNode;
+  darkMode: boolean;
+  setDarkMode: (value: boolean) => void;
+}) => {
+  React.useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
-
-  // Only update state, not localStorage
-  const setDarkMode = (value: boolean) => setDarkModeState(value);
-
-  if (loading) return null;
 
   return (
     <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
