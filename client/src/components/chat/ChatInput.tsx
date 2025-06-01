@@ -27,17 +27,17 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
   };
   
   return (
-    <div className="border-t border-gray-200 bg-white p-4 font-sans">
-      <div className="max-w-2xl mx-auto">
+    <div className="border-t border-gray-200 bg-white p-2 font-sans">
+      <div className="max-w-lg mx-auto">
         <form onSubmit={handleSubmit} className="relative">
           <textarea
             ref={inputRef}
             placeholder={t('chat.inputPlaceholder')}
-            className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-1 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-sans"
+            className="w-full border border-gray-300 rounded-lg pl-3 pr-10 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-sans"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             disabled={disabled}
-            rows={3}
+            rows={2}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -49,14 +49,14 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
             type="submit"
             variant="ghost"
             size="icon"
-            className="absolute right-2 top-1/3 transform -translate-y-1/2 text-primary hover:bg-gray-100 p-2 rounded-full"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:bg-gray-100 p-2 rounded-full"
             disabled={!message.trim() || disabled}
             aria-label={t('form.submit')}
           >
             <Send className="h-5 w-5" />
           </Button>
         </form>
-        <div className="flex justify-center mt-2 text-xs text-gray-500 font-sans">
+        <div className="flex justify-center mt-1 text-xs text-gray-500 font-sans">
           <span className="text-center">{t('chat.assistantDescription')}</span>
         </div>
       </div>

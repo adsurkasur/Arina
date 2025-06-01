@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import {
   LayoutDashboard, Lightbulb, History, Activity, MapPin, Maximize, Bell, Calendar,
   Cloud, Thermometer, Droplets, Wind, Sun, RefreshCw, Navigation, Layers, Satellite,
@@ -233,9 +233,17 @@ const FarmLocationWidget = React.memo(() => {
       </CardHeader>
       <CardContent className="flex-1 flex flex-col space-y-3">
         {/* Map Area */}
-        <div className="relative flex-1 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
-          <div className="text-center">
-            <MapPin className="h-12 w-12 text-green-600 mx-auto animate-bounce mb-2" />
+        <div className="relative flex-1 bg-gradient-to-br from-green-100 to-green-200 rounded-xl overflow-hidden flex flex-col">
+          {/* Peta */}
+          <div className="absolute inset-0">
+            <OpenStreetMap className="w-full h-full" height="100%" />
+          </div>
+          {/* Overlay Pin di tengah peta */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <MapPin className="h-12 w-12 text-green-600 animate-bounce drop-shadow-lg" />
+          </div>
+          {/* Info lahan di bawah peta */}
+          <div className="absolute bottom-0 left-0 w-full bg-white/80 py-2 px-4 rounded-b-xl text-center border-t border-green-100 z-10">
             <p className="font-semibold text-green-800">Lahan Pertanian</p>
             <p className="text-sm text-green-600">2.5 Hektar</p>
           </div>
@@ -468,6 +476,74 @@ const RecentActivityWidget = React.memo(({ analysisResults }: { analysisResults:
     </Card>
   );
 });
+
+// Komponen OpenStreetMap
+export const OpenStreetMap: React.FC<{ height?: string; className?: string }> = ({
+  height = "200px",
+  className = "",
+}) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let map: any;
+    let marker: any;
+
+    // Dynamic import agar SSR aman
+    import("leaflet").then(L => {
+      // Hapus map sebelumnya jika ada
+      if (mapRef.current && (mapRef.current as any)._leaflet_id) {
+        (mapRef.current as any)._leaflet_id = null;
+      }
+
+      // Default ke Jakarta
+      const defaultLatLng = [-6.2088, 106.8456];
+
+      // Inisialisasi map
+      map = L.map(mapRef.current!).setView(defaultLatLng, 13);
+
+      L.tileLayer("https://a.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '© OpenStreetMap contributors',
+        crossOrigin: true,
+      }).addTo(map);
+
+      // Ambil lokasi sekarang
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const latlng = [pos.coords.latitude, pos.coords.longitude];
+            map.setView(latlng, 15);
+            marker = L.marker(latlng).addTo(map)
+              .bindPopup("Lokasi Anda Sekarang").openPopup();
+          },
+          () => {
+            // Jika gagal, tetap di default
+            marker = L.marker(defaultLatLng).addTo(map)
+              .bindPopup("Lokasi Default (Jakarta)").openPopup();
+          }
+        );
+      } else {
+        marker = L.marker(defaultLatLng).addTo(map)
+          .bindPopup("Lokasi Default (Jakarta)").openPopup();
+      }
+    });
+
+    // Cleanup
+    return () => {
+      if (mapRef.current && mapRef.current.innerHTML) {
+        mapRef.current.innerHTML = "";
+      }
+      if (map && map.remove) map.remove();
+    };
+  }, []);
+
+  return (
+    <div
+      ref={mapRef}
+      className={className}
+      style={{ width: "100%", height, borderRadius: 12, overflow: "hidden" }}
+    />
+  );
+};
 
 // Main Dashboard Component
 export default function DashboardHome() {
