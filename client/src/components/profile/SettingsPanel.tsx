@@ -7,7 +7,7 @@ import { PanelContainer } from "@/components/ui/PanelContainer";
 import { useAuth } from "@/hooks/useAuth";
 import { updateUserPreferences, getUserProfile } from "@/lib/mongodb";
 
-export default function SettingsPanel({ onClose }: { onClose: () => void }) {
+export default function SettingsPanel({ onClose, animatingOut }: { onClose: () => void; animatingOut?: boolean }) {
   const { user } = useAuth();
   const { darkMode, setDarkMode } = useTheme();
   const { i18n, t } = useTranslation();
@@ -36,7 +36,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <PanelContainer onClose={onClose} title={t('settingsPanel.settings')}>
+    <PanelContainer onClose={onClose} title={t('settingsPanel.settings')} animatingOut={animatingOut}>
       <div className="flex-1 p-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="mb-6">

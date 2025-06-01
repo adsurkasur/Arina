@@ -489,23 +489,18 @@ export default function DashboardHome() {
   );
 
   return (
-    <div className="w-full h-full flex flex-col bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b p-6 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Selamat datang, {userName}! 👋
-            </h1>
-            <p className="text-gray-600 mt-1">{currentDate}</p>
-          </div>
-          <div className="flex space-x-3">
-            <Button variant="outline" size="icon" className="h-10 w-10">
-              <Bell className="h-5 w-5" />
-            </Button>
-            <Button variant="outline" size="icon" className="h-10 w-10">
-              <Calendar className="h-5 w-5" />
-            </Button>
+    <div className="w-full h-full flex flex-col px-0 md:px-0 py-0 overflow-auto bg-white">
+      <div className="flex flex-col flex-1 min-h-0">
+        <div className="flex-1 flex flex-col md:flex-row gap-8 p-6 md:p-10">
+          <div className="flex-1 flex flex-col gap-6">
+            <WelcomeBanner />
+            <DashboardOverview />
+            <div className="flex-1 flex flex-col">
+              <h3 className="text-xl font-semibold text-primary mb-4">{t('dashboard.analysisHistory')}</h3>
+              <div className="flex-1 bg-white rounded-lg shadow p-2 min-h-0">
+                <AnalysisHistory onClose={() => {}} />
+              </div>
+            </div>
           </div>
         </div>
       </div>

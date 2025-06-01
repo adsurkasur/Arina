@@ -4,13 +4,13 @@ import { PanelContainer } from "@/components/ui/PanelContainer";
 import { useMobile } from "@/hooks/use-mobile";
 import { useTranslation } from 'react-i18next';
 
-export const NotificationSidePanel: React.FC<{ onClose: () => void; open: boolean }> = ({ onClose, open }) => {
+export const NotificationSidePanel: React.FC<{ onClose: () => void; open: boolean; animatingOut?: boolean }> = ({ onClose, open, animatingOut }) => {
   const { notifications, markAllAsRead } = useNotification();
   const isMobile = useMobile();
   const { t } = useTranslation();
 
   return (
-    <PanelContainer onClose={onClose} title={t("notifications.title")} fixed={isMobile && open}>
+    <PanelContainer onClose={onClose} title={t("notifications.title")} fixed={isMobile && open} animatingOut={animatingOut}>
       <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
         {notifications.length === 0 ? (
           <div className="text-gray-400 text-center mt-8">{t("notifications.empty")}</div>

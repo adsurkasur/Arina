@@ -10,16 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  User,
-  Settings,
-  CreditCard,
-  BarChart2,
-  LogOut,
-  HelpCircle,
-  FileText,
-  Activity,
-} from "lucide-react";
+import { User, Settings, LogOut, HelpCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ProfileDropdownProps {
   openTool: (tool: string) => void;
@@ -28,6 +20,7 @@ interface ProfileDropdownProps {
 export function ProfileDropdown({ openTool }: ProfileDropdownProps) {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const { t, i18n } = useTranslation();
 
   const handleOpenDashboard = (dashboardType: string) => {
     openTool(dashboardType);
@@ -64,49 +57,26 @@ export function ProfileDropdown({ openTool }: ProfileDropdownProps) {
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => handleOpenDashboard("userProfile")}>
             <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <span>{t("sidebar.profile")}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleOpenDashboard("businessFeasibility")}
-          >
-            <BarChart2 className="mr-2 h-4 w-4" />
-            <span>Feasibility Analysis</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleOpenDashboard("demandForecasting")}
-          >
-            <Activity className="mr-2 h-4 w-4" />
-            <span>Demand Forecasting</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleOpenDashboard("optimizationAnalysis")}
-          >
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>Optimization Tools</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleOpenDashboard("recommendations")}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            <span>Recommendations</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => handleOpenDashboard("settings")}> {/* Opens SettingsPanel */}
+          <DropdownMenuItem onClick={() => handleOpenDashboard("settings")}>
+            {/* Opens SettingsPanel */}
             <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <span>{t("sidebar.settings")}</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handleOpenDashboard("help")}>
             <HelpCircle className="mr-2 h-4 w-4" />
-            <span>Help & Support</span>
+            <span>{t("sidebar.helpSupport")}</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="text-red-600 focus:text-red-700"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>{t("sidebar.signOut")}</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sign out</span>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

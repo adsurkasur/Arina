@@ -1,10 +1,7 @@
 import React from "react";
-import { useEffect } from "react";
 import { Switch, Route, Redirect } from "wouter";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { queryClient } from "./lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -23,11 +20,7 @@ function ProtectedRoute({ component: Component }: { component: any }) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-cream">
-        <div className="text-primary">Loading...</div>
-      </div>
-    );
+    return <UniversalLoadingScreen />;
   }
 
   if (!isAuthenticated) {
@@ -37,33 +30,28 @@ function ProtectedRoute({ component: Component }: { component: any }) {
   return <Component />;
 }
 
-function App() {
-  const { checkAuthState } = useAuth();
-
-  useEffect(() => {
-    checkAuthState();
-  }, [checkAuthState]);
-
+function UniversalLoadingScreen() {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <NotificationProvider>
-              <Toaster />
-              <AuthModal />
-              <Switch>
-                <Route path="/login" component={Login} />
-                <Route path="/">
-                  <ProtectedRoute component={Dashboard} />
-                </Route>
-                <Route component={NotFound} />
-              </Switch>
-            </NotificationProvider>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <span className="ml-4 text-gray-500 text-lg">Loading...</span>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <Toaster />
+      <AuthModal />
+      <Switch>
+        <Route path="/login" component={Login} />
+        <Route path="/">
+          <ProtectedRoute component={Dashboard} />
+        </Route>
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 

@@ -103,6 +103,23 @@ Arina-Gemini/
 - **Testing:** (Add your testing framework, e.g., Jest, React Testing Library)
 - **Deployment:** Vercel, Netlify, or custom server
 
+## Production API Routing (Vercel)
+
+- The file `client/vercel.json` rewrites all `/api/*` requests to your backend server in production.
+- If you deploy your backend to a new URL or environment, update the `destination` field in `vercel.json` accordingly:
+
+```
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://your-backend-url/api/$1"
+    }
+  ]
+}
+```
+- No changes are needed in `vite.config.ts` for production API routing. The `server.proxy` setting is only used for local development.
+
 ## Contributing
 
 Contributions are welcome! To get started:

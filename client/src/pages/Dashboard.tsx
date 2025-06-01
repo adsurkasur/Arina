@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useMobile } from "@/hooks/use-mobile";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -13,12 +12,14 @@ import UserProfile from "@/components/profile/UserProfile";
 import SettingsPanel from "@/components/profile/SettingsPanel";
 import DashboardHome from "./DashboardHome";
 import { DebugPanel } from "@/components/ui/DebugPanel";
+import HelpPanel from "@/components/ui/HelpPanel";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const isMobile = useMobile();
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const [showRightPanel, setShowRightPanel] = useState(false);
+  const [lastToolPanel, setLastToolPanel] = useState<JSX.Element | undefined>(undefined);
 
   // Close the active tool panel
   const handleCloseToolPanel = () => {
@@ -50,35 +51,27 @@ export default function Dashboard() {
       case "debug":
         return <DebugPanel open={true} onClose={handleCloseToolPanel} />;
       case "help":
-        return (
-          <div className="p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold text-primary">Help & Support</h2>
-              <button 
-                className="text-gray-500 hover:text-gray-800" 
-                onClick={handleCloseToolPanel}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="space-y-4">
-              <p>Need help with Arina? Contact our support team or browse our documentation.</p>
-              <p>Email: <a href="mailto:support@arina.ai" className="text-primary underline">support@arina.ai</a></p>
-            </div>
-          </div>
-        );
+        return <HelpPanel onClose={handleCloseToolPanel} />;
       default:
         return undefined;
     }
   };
 
-  const handleSetActiveTool = (tool: string) => setActiveTool(tool as string);
+  // Track the last tool panel for animation out
+  const currentToolPanel = renderActiveTool();
+  // Fix: useEffect to update lastToolPanel
+  useEffect(() => {
+    if (currentToolPanel && currentToolPanel !== lastToolPanel) {
+      setLastToolPanel(currentToolPanel);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentToolPanel]);
 
   // Only show dashboard if explicitly opened via sidebar
   const showDashboardHome = activeTool === "dashboard";
 
   // Prevent right panel from opening for dashboard
-  const dashboardRightPanel = showDashboardHome ? undefined : renderActiveTool();
+  const dashboardRightPanel = showDashboardHome ? undefined : (currentToolPanel || lastToolPanel);
   const dashboardShowRightPanel = showDashboardHome ? false : showRightPanel;
 
   return (
@@ -86,7 +79,7 @@ export default function Dashboard() {
       rightPanel={dashboardRightPanel}
       showRightPanel={dashboardShowRightPanel}
       setShowRightPanel={setShowRightPanel}
-      setActiveTool={handleSetActiveTool}
+      setActiveTool={setActiveTool}
     >
       {showDashboardHome ? <DashboardHome /> : <ChatInterface />}
     </MainLayout>

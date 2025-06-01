@@ -30,10 +30,9 @@ import {
   DollarSign,
   Calendar
 } from 'lucide-react';
-import { useTranslation } from '@/contexts/useTranslation';
+import { useTranslation } from 'react-i18next';
 
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
-import { AnalysisResult } from '@shared/schema';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,6 +58,7 @@ import { PanelContainer } from "@/components/ui/PanelContainer";
 
 interface AnalysisHistoryProps {
   onClose: () => void;
+  animatingOut?: boolean;
 }
 
 const TYPE_LABELS = {
@@ -92,7 +92,7 @@ const PIE_COLORS = [
   CHART_COLORS.lightGreen
 ];
 
-export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
+export default function AnalysisHistory({ onClose, animatingOut }: AnalysisHistoryProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { 
@@ -694,7 +694,7 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   }
 
   return (
-    <PanelContainer onClose={onClose} title={t('tools.analysisHistory.title')}>
+    <PanelContainer onClose={onClose} title={t('tools.analysisHistory.title')} animatingOut={animatingOut}>
       <div className="flex flex-col md:flex-row gap-3 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

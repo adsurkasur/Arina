@@ -9,6 +9,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    outDir: path.resolve(import.meta.dirname, "dist/"),
+    emptyOutDir: true,
+  },
   server: {
     port: 3000,
     proxy: {
