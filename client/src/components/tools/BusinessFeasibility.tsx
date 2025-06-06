@@ -340,17 +340,28 @@ export default function BusinessFeasibility({
                               type="number"
                               step="1"
                               min="0"
+                              max={Math.pow(2, 63) - 1}
                               onWheel={(e) => e.currentTarget.blur()}
                               onKeyDown={(e) => {
                                 if (e.key === "." || e.key === ",") {
                                   e.preventDefault();
+                                }
+                                if (!isNaN(parseFloat(e.key))) {
+                                  // check if the input value is a 0
+                                  // ts-ignore-next-line
+                                  const input = e.target as HTMLInputElement;
+                                  if (input.value === "0" && e.key !== "0") {
+                                    input.value = e.key; // replace 0 with the pressed key
+                                    e.preventDefault(); // prevent default behavior
+                                    field.onChange(parseFloat(e.key)); // update the field value
+                                  }
                                 }
                               }}
                               {...field}
                               onChange={(e) => {
                                 const value =
                                   e.target.value === ""
-                                    ? ""
+                                    ? 0
                                     : Math.floor(parseFloat(e.target.value));
                                 field.onChange(value);
                                 const price =
@@ -384,12 +395,22 @@ export default function BusinessFeasibility({
                                 if (e.key === "." || e.key === ",") {
                                   e.preventDefault();
                                 }
+                                if (!isNaN(parseFloat(e.key))) {
+                                  // check if the input value is a 0
+                                  // ts-ignore-next-line
+                                  const input = e.target as HTMLInputElement;
+                                  if (input.value === "0" && e.key !== "0") {
+                                    input.value = e.key; // replace 0 with the pressed key
+                                    e.preventDefault(); // prevent default behavior
+                                    field.onChange(parseFloat(e.key)); // update the field value
+                                  }
+                                }
                               }}
                               {...field}
                               onChange={(e) => {
                                 const value =
                                   e.target.value === ""
-                                    ? ""
+                                    ? 0
                                     : Math.floor(parseFloat(e.target.value));
                                 field.onChange(value);
                                 const quantity =
@@ -484,17 +505,29 @@ export default function BusinessFeasibility({
                               type="number"
                               step="1"
                               min="0"
+                              max={Math.pow(2, 63) - 1}
                               onWheel={(e) => e.currentTarget.blur()}
                               onKeyDown={(e) => {
                                 if (e.key === "." || e.key === ",") {
                                   e.preventDefault();
+
+                                }
+                                if (!isNaN(parseFloat(e.key))) {
+                                  // check if the input value is a 0
+                                  // ts-ignore-next-line
+                                  const input = e.target as HTMLInputElement;
+                                  if (input.value === "0" && e.key !== "0") {
+                                    input.value = e.key; // replace 0 with the pressed key
+                                    e.preventDefault(); // prevent default behavior
+                                    field.onChange(parseFloat(e.key)); // update the field value
+                                  }
                                 }
                               }}
                               {...field}
                               onChange={(e) => {
                                 const value =
                                   e.target.value === ""
-                                    ? ""
+                                    ? 0
                                     : Math.floor(parseFloat(e.target.value));
                                 field.onChange(value);
                                 const price =
@@ -528,12 +561,22 @@ export default function BusinessFeasibility({
                                 if (e.key === "." || e.key === ",") {
                                   e.preventDefault();
                                 }
+                                if (!isNaN(parseFloat(e.key))) {
+                                  // check if the input value is a 0
+                                  // ts-ignore-next-line
+                                  const input = e.target as HTMLInputElement;
+                                  if (input.value === "0" && e.key !== "0") {
+                                    input.value = e.key; // replace 0 with the pressed key
+                                    e.preventDefault(); // prevent default behavior
+                                    field.onChange(parseFloat(e.key)); // update the field value
+                                  }
+                                }
                               }}
                               {...field}
                               onChange={(e) => {
                                 const value =
                                   e.target.value === ""
-                                    ? ""
+                                    ? 0
                                     : Math.floor(parseFloat(e.target.value));
                                 field.onChange(value);
                                 const quantity =
@@ -606,10 +649,21 @@ export default function BusinessFeasibility({
                         type="number"
                         step="1"
                         min="0"
+                        max={Math.pow(2, 63) - 1}
                         onKeyDown={(e) => {
                           if (e.key === "." || e.key === ",") {
                             e.preventDefault();
                           }
+                          if (!isNaN(parseFloat(e.key))) {
+                              // check if the input value is a 0
+                              // ts-ignore-next-line
+                              const input = e.target as HTMLInputElement;
+                              if (input.value === "0" && e.key !== "0") {
+                                input.value = e.key; // replace 0 with the pressed key
+                                e.preventDefault(); // prevent default behavior
+                                field.onChange(parseFloat(e.key)); // update the field value
+                              }
+                            }
                         }}
                         {...field}
                         onChange={(e) =>
@@ -645,6 +699,21 @@ export default function BusinessFeasibility({
                         placeholder="0"
                         type="number"
                         {...field}
+                        onKeyDown={(e) => {
+                          if (e.key === "." || e.key === ",") {
+                            e.preventDefault();
+                          }
+                          if (!isNaN(parseFloat(e.key))) {
+                            // check if the input value is a 0
+                            // ts-ignore-next-line
+                            const input = e.target as HTMLInputElement;
+                            if (input.value === "0" && e.key !== "0") {
+                              input.value = e.key; // replace 0 with the pressed key
+                              e.preventDefault(); // prevent default behavior
+                              field.onChange(parseFloat(e.key)); // update the field value
+                            }
+                          }
+                        }}
                         onChange={(e) =>
                           field.onChange(parseInt(e.target.value) || 0)
                         }
@@ -679,6 +748,21 @@ export default function BusinessFeasibility({
                       <Input
                         placeholder="0"
                         type="number"
+                        onKeyDown={(e) => {
+                          if (e.key === "." || e.key === ",") {
+                            e.preventDefault();
+                          }
+                          if (!isNaN(parseFloat(e.key))) {
+                            // check if the input value is a 0
+                            // ts-ignore-next-line
+                            const input = e.target as HTMLInputElement;
+                            if (input.value === "0" && e.key !== "0") {
+                              input.value = e.key; // replace 0 with the pressed key
+                              e.preventDefault(); // prevent default behavior
+                              field.onChange(parseFloat(e.key)); // update the field value
+                            }
+                          }
+                        }}
                         {...field}
                         onChange={(e) =>
                           field.onChange(parseInt(e.target.value) || 0)

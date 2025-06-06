@@ -251,6 +251,8 @@
   "chat.title": "Welcome to Arina!",
   "chat.welcomeMessage": "Your AI-powered agricultural business assistant. Start a conversation to get insights and recommendations.",
   "chat.startNewChat": "Start New Chat",
+  "chat.emptyConversation": "No conversations yet. Start a new chat to get insights and recommendations.",
+  "chat.assistantDescription": "Arina is an AI assistant that can help you with business feasibility, demand forecasting, and optimization analysis.",
   "sidebar.analysisTools": "Analysis Tools",
   "sidebar.businessFeasibility": "Business Feasibility",
   "sidebar.demandForecasting": "Demand Forecasting",

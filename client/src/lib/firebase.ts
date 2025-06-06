@@ -8,7 +8,8 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
   User as FirebaseUser,
-  UserCredential
+  UserCredential,
+  signInWithPopup
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -28,7 +29,8 @@ const googleProvider = new GoogleAuthProvider();
 export const signInWithGoogle = async (): Promise<UserCredential> => {
   // signInWithRedirect does not return a UserCredential, so this should be handled differently if you want the user object
   // For now, return a Promise.reject to avoid type confusion
-  return Promise.reject(new Error("signInWithRedirect does not return UserCredential directly. Use getRedirectResult instead."));
+  return signInWithPopup(auth, googleProvider);
+  // return Promise.reject(new Error("signInWithRedirect does not return UserCredential directly. Use getRedirectResult instead."));
 };
 
 // Email/password login

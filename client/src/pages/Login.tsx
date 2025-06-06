@@ -19,7 +19,7 @@ function loadRecaptchaScript() {
   if (!document.getElementById('recaptcha-script')) {
     const script = document.createElement('script');
     script.id = 'recaptcha-script';
-    script.src = 'https://www.google.com/recaptcha/enterprise.js?render=' + RECAPTCHA_SITE_KEY;
+    script.src = 'https://www.google.com/recaptcha/api.js?render=' + RECAPTCHA_SITE_KEY;
     script.async = true;
     document.body.appendChild(script);
   }
@@ -61,7 +61,7 @@ export default function Login() {
     // @ts-ignore
     if (window.grecaptcha && RECAPTCHA_SITE_KEY) {
       // @ts-ignore
-      return await window.grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, { action });
+      return await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action });
     }
     return null;
   };

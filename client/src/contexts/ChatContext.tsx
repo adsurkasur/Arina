@@ -74,11 +74,14 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         setConversations((_prev: ChatConversation[]) => data);
       }
     } catch (error: any) {
+      console.error("Error loading chat history:", error);
       toast({
         title: "Error loading chat history",
-        description: error.message,
+        description: error.message || "Failed to load chat history",
         variant: "destructive",
       });
+      // Set empty conversations on error to prevent UI issues
+      setConversations([]);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +92,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Ensure user exists in database first
-      await fetch("/api/users", {
+      const userResponse = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -99,6 +102,20 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           photo_url: user.photoURL,
         }),
       });
+
+      // Check if response is ok and has content
+      if (!userResponse.ok) {
+        throw new Error(`HTTP error! status: ${userResponse.status}`);
+      }
+
+      // Only try to parse JSON if there's content
+      const contentType = userResponse.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const text = await userResponse.text();
+        if (text) {
+          JSON.parse(text); // Validate JSON
+        }
+      }
 
       const { data, error } = await createChat(user.id, "New Conversation");
 
