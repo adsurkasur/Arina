@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,6 +53,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { PanelContainer } from "@/components/ui/PanelContainer";
+import { parse } from "date-fns";
 
 // Form validation schema
 const formSchema = z.object({
@@ -240,23 +241,10 @@ export default function DemandForecasting({ onClose, animatingOut }: { onClose: 
   const graphContainerClass =
     "relative bg-white rounded-lg border border-gray-200 p-4 mb-6 overflow-x-auto";
 
-  // Fullscreen modal for the chart
-  const FullscreenChartModal = ({ onClose, children }: { onClose: () => void; children: React.ReactNode }) => {
-    return createPortal(
-      <div className="fixed inset-0 z-[9999] bg-white bg-opacity-95 flex flex-col items-center justify-center p-4 overflow-auto">
-        <button
-          className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded px-4 py-2 text-gray-700 font-medium z-50"
-          onClick={onClose}
-        >
-          Close Fullscreen
-        </button>
-        <div className="w-full h-full flex flex-col items-center justify-center max-w-5xl max-h-[90vh]">
-          {children}
-        </div>
-      </div>,
-      document.body
-    );
-  };
+
+  const chartData = useMemo(() => prepareChartData(), [results]);
+
+  const handleCloseFullscreen = useCallback(() => setIsFullscreen(false), []);
 
   return (
     <PanelContainer onClose={onClose} title={t('tools.demandForecasting.title')} animatingOut={animatingOut}>
@@ -376,16 +364,29 @@ export default function DemandForecasting({ onClose, animatingOut }: { onClose: 
                                 type="number"
                                 step="1"
                                 min="0"
+                                max={Math.pow(2, 63) - 1} // 64 BBit signed integer max value
                                 onKeyDown={(e) => {
-                                  if (e.key === "." || e.key === ",") {
+                                  let prohibitedKeys = ["e", "E", "+", "-", ".", ","];
+                                  if (prohibitedKeys.includes(e.key)) {
                                     e.preventDefault();
+                                  }
+
+                                  if (!isNaN(parseFloat(e.key))) {
+                                    // check if the input value is a 0
+                                    // ts-ignore-next-line
+                                    const input = e.target as HTMLInputElement;
+                                    if (input.value === "0" && e.key !== "0") {	
+                                      input.value = e.key; // replace 0 with the pressed key
+                                      e.preventDefault(); // prevent default behavior
+                                      field.onChange(parseFloat(e.key)); // update the field value
+                                    }
                                   }
                                 }}
                                 {...field}
                                 onChange={(e) => {
                                   const value =
                                     e.target.value === ""
-                                      ? ""
+                                      ? 0
                                       : Math.floor(parseFloat(e.target.value));
                                   field.onChange(value);
                                 }}
@@ -614,10 +615,10 @@ export default function DemandForecasting({ onClose, animatingOut }: { onClose: 
                       <li>{t('tools.demandForecasting.chartHelpHover')}</li>
                     </ul>
                   </div>
-                  <div className="h-80 w-full min-w-[350px] mb-6" style={{overflow: 'visible'}}>
+                  <div className="h-80 w-full min-w-[350px] mb-6" style={{ overflow: 'visible' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
-                        data={prepareChartData()}
+                        data={chartData}
                         margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -681,90 +682,111 @@ export default function DemandForecasting({ onClose, animatingOut }: { onClose: 
                   </div>
                 </div>
               </div>
+              {/* Fullscreen Modal */}
               {isFullscreen && (
-                <FullscreenChartModal onClose={() => setIsFullscreen(false)}>
-                  <div className="w-full h-full flex flex-col items-center justify-center">
-                    <div className="w-full max-w-5xl">
-                      <h4 className="font-medium text-gray-700 mb-2">{t('tools.demandForecasting.fullscreenChartTitle')}</h4>
-                      <div className="bg-cream p-4 rounded-lg mb-4">
-                        <h5 className="font-medium text-primary mb-2">{t('tools.demandForecasting.chartHelpTitle')}</h5>
-                        <ul className="text-sm space-y-2">
-                          <li>{t('tools.demandForecasting.chartHelpSolid')}</li>
-                          <li>{t('tools.demandForecasting.chartHelpDashed')}</li>
-                          <li>{t('tools.demandForecasting.chartHelpPoint')}</li>
-                          <li>{t('tools.demandForecasting.chartHelpHover')}</li>
+                createPortal(
+                  <div
+                    className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center"
+                    onClick={handleCloseFullscreen}
+                  >
+                    <div
+                      className="bg-white rounded-lg shadow-lg w-full max-w-4xl h-full max-h-[90vh] overflow-hidden"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="p-4 flex justify-between items-center border-b border-gray-200">
+                        <h3 className="text-lg font-medium text-gray-800">
+                          {t('tools.demandForecasting.fullscreenChartTitle')}
+                        </h3>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleCloseFullscreen}
+                        >
+                          <X className="h-5 w-5 text-gray-500" />
+                        </Button>
+                      </div>
+                      {/* Understanding the Chart Section */}
+                      <div className="bg-cream p-4 border-b border-gray-100">
+                        <h5 className="font-medium text-primary mb-2">Understanding the Chart</h5>
+                        <ul className="text-sm space-y-1 list-disc pl-5">
+                          <li>Solid line: Your actual historical demand data</li>
+                          <li>Dashed line: Predicted future demand</li>
+                          <li>Each point represents demand for one period</li>
+                          <li>Hover over points to see exact values</li>
                         </ul>
                       </div>
-                      <div className="h-[70vh] w-full min-w-[350px] mb-6" style={{overflow: 'visible'}}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={prepareChartData()}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                            <XAxis
-                              dataKey="name"
-                              label={{
-                                value: "Time Periods",
-                                position: "insideBottom",
-                                offset: -10,
-                              }}
-                              interval={0}
-                              tick={{ fontSize: 16 }}
-                              minTickGap={0}
-                            />
-                            <YAxis
-                              label={{
-                                value: "Demand Quantity",
-                                angle: -90,
-                                position: "insideLeft",
-                                offset: 10,
-                              }}
-                              tick={{ fontSize: 16 }}
-                            />
-                            <RechartsTooltip
-                              contentStyle={{
-                                backgroundColor: "white",
-                                borderRadius: "8px",
-                                border: "1px solid #e5e7eb",
-                              }}
-                              formatter={(value) => [`Quantity: ${value}`, ""]}
-                            />
-                            <Legend
-                              verticalAlign="top"
-                              height={36}
-                              formatter={(value) => {
-                                return value === "Historical"
-                                  ? "Past Data"
-                                  : "Future Prediction";
-                              }}
-                            />
-                            <Line
-                              type="linear"
-                              dataKey="Historical"
-                              stroke="#4caf50"
-                              strokeWidth={3}
-                              dot={false}
-                              isAnimationActive={false}
-                            />
-                            <Line
-                              type="linear"
-                              dataKey="Forecast"
-                              stroke="#2196f3"
-                              strokeWidth={3}
-                              dot={false}
-                              isAnimationActive={false}
-                              strokeDasharray="6 3"
-                              connectNulls={true}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
+                      <div className="h-full w-full p-2 flex items-start justify-center">
+                        <div className="w-full max-w-[700px] min-h-[200px] h-[32vh] sm:h-[40vh] md:h-[45vh] mx-auto" style={{ minWidth: 0 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart
+                              data={chartData}
+                              margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                              <XAxis
+                                dataKey="name"
+                                label={{
+                                  value: "Time Periods",
+                                  position: "insideBottom",
+                                  offset: -10,
+                                }}
+                                interval={0}
+                                tick={{ fontSize: 13 }}
+                                minTickGap={0}
+                              />
+                              <YAxis
+                                label={{
+                                  value: "Demand Quantity",
+                                  angle: -90,
+                                  position: "insideLeft",
+                                  offset: 10,
+                                }}
+                                tick={{ fontSize: 13 }}
+                              />
+                              <RechartsTooltip
+                                contentStyle={{
+                                  backgroundColor: "white",
+                                  borderRadius: "8px",
+                                  border: "1px solid #e5e7eb",
+                                }}
+                                formatter={(value) => [`Quantity: ${value}`, ""]}
+                              />
+                              <Legend
+                                verticalAlign="top"
+                                height={36}
+                                formatter={(value) => {
+                                  return value === "Historical"
+                                    ? "Past Data"
+                                    : "Future Prediction";
+                                }}
+                              />
+                              <Line
+                                type="linear"
+                                dataKey="Historical"
+                                stroke="#4caf50"
+                                strokeWidth={2}
+                                dot={false}
+                                isAnimationActive={false}
+                              />
+                              <Line
+                                type="linear"
+                                dataKey="Forecast"
+                                stroke="#2196f3"
+                                strokeWidth={2}
+                                dot={false}
+                                isAnimationActive={false}
+                                strokeDasharray="6 3"
+                                connectNulls={true}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </FullscreenChartModal>
+                  </div>,
+                  document.body
+                )
               )}
-
               {/* Data Table replaced with MAE and MAPE */}
               <div className="p-4">
                 <h4 className="font-medium text-gray-700 mb-3">
@@ -827,7 +849,7 @@ export default function DemandForecasting({ onClose, animatingOut }: { onClose: 
                     const forecastValue = forecasted && forecasted.length > 0 ? forecasted[0].forecast : null;
                     let interp = "";
                     if (forecastValue !== null && !isNaN(forecastValue)) {
-                      interp += `${t('tools.demandForecasting.predictedDemand')} <b>${productName}</b> ${t('tools.demandForecasting.is')} <b>${forecastValue.toLocaleString(undefined, {maximumFractionDigits: 2})}</b>. `;
+                      interp += `${t('tools.demandForecasting.predictedDemand')} <b>${productName}</b> ${t('tools.demandForecasting.is')} <b>${forecastValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</b>. `;
                     }
                     if (
                       accuracy &&
@@ -843,7 +865,7 @@ export default function DemandForecasting({ onClose, animatingOut }: { onClose: 
                         interp += t('tools.demandForecasting.significantError');
                       }
                     }
-                    return <span dangerouslySetInnerHTML={{__html: interp}} />;
+                    return <span dangerouslySetInnerHTML={{ __html: interp }} />;
                   })()}
                 </div>
               </div>
