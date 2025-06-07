@@ -238,7 +238,8 @@ export const GoogleMapComponent: React.FC<GoogleMapProps> = ({
           size="sm"
           variant="secondary"
           onClick={getUserLocation}
-          className="h-8 w-8 p-0 bg-white shadow-md hover:bg-gray-50"
+          className="h-8 w-8 p-0 bg-white text-[#1F3A13] shadow-md hover:bg-gray-100"
+          title="Use My Location"
         >
           <Target className="h-4 w-4" />
         </Button>

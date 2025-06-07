@@ -214,72 +214,93 @@ const WeatherWidget = React.memo(() => {
 const FarmLocationWidget = React.memo(() => {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'map' | 'satellite'>('map');
+  const [isMapFullScreen, setIsMapFullScreen] = useState(false);
 
   return (
-    <Card className="bg-white shadow-lg h-[400px] flex flex-col">
-      <CardHeader className="pb-3 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center">
-            <MapPin className="mr-2 h-5 w-5 text-green-600" />
-            {t('dashboard.farmLocation')}
-          </CardTitle>
-          <div className="flex space-x-1">
-            <Button
-              variant={viewMode === 'map' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('map')}
-              className="h-7 text-xs"
-            >
-              <Layers className="h-3 w-3 mr-1" />
-              {t('dashboard.map')}
+    <>
+      <Card className="bg-white shadow-lg h-[400px] flex flex-col">
+        <CardHeader className="pb-3 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center">
+              <MapPin className="mr-2 h-5 w-5 text-green-600" />
+              {t('dashboard.spectragrow')}
+            </CardTitle>
+            <div className="flex space-x-1 items-center">
+              <Button
+                variant={viewMode === 'map' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('map')}
+                className="h-7 text-xs"
+              >
+                <Layers className="h-3 w-3 mr-1" />
+                {t('dashboard.map')}
+              </Button>
+              <Button
+                variant={viewMode === 'satellite' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('satellite')}
+                className="h-7 text-xs"
+              >
+                <Satellite className="h-3 w-3 mr-1" />
+                {t('dashboard.satellite')}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMapFullScreen(true)}
+                className="h-8 w-8 ml-2"
+                title={t('dashboard.fullscreenMap') || 'Fullscreen Map'}
+              >
+                <Maximize className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col space-y-3">
+          {/* Map Area */}
+          <div className="relative flex-1 bg-gradient-to-br from-green-100 to-green-200 rounded-xl overflow-hidden flex flex-col">
+            {/* Google Map only, no overlay */}
+            <div className="absolute inset-0">
+              <GoogleMapComponent viewMode={viewMode} height="100%" className="w-full h-full" />
+            </div>
+          </div>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="text-center p-2 bg-green-50 rounded-lg">
+              <p className="text-lg font-bold text-green-600">-</p>
+              <p className="text-xs text-gray-600">{t('dashboard.potassium')}</p>
+            </div>
+            <div className="text-center p-2 bg-blue-50 rounded-lg">
+              <p className="text-lg font-bold text-blue-600">-</p>
+              <p className="text-xs text-gray-600">{t('dashboard.phosphorus')}</p>
+            </div>
+            <div className="text-center p-2 bg-orange-50 rounded-lg">
+              <p className="text-lg font-bold text-orange-600">-</p>
+              <p className="text-xs text-gray-600">{t('dashboard.nitrogen')}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      {/* Map Fullscreen Overlay */}
+      {isMapFullScreen && (
+        <div className="fixed inset-0 z-50 bg-white flex flex-col">
+          <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
+            <div className="flex items-center">
+              <MapPin className="mr-3 h-7 w-7 text-green-600" />
+              <span className="text-2xl font-bold">{t('dashboard.spectragrow')}</span>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setIsMapFullScreen(false)}>
+              <LayoutDashboard className="h-6 w-6" />
             </Button>
-            <Button
-              variant={viewMode === 'satellite' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('satellite')}
-              className="h-7 text-xs"
-            >
-              <Satellite className="h-3 w-3 mr-1" />
-              {t('dashboard.satellite')}
-            </Button>
+          </div>
+          <div className="flex-1 flex flex-col justify-center items-center">
+            <div className="w-full h-full">
+              <GoogleMapComponent viewMode={viewMode} height="calc(100vh - 80px)" className="w-full h-full rounded-none" />
+            </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col space-y-3">
-        {/* Map Area */}
-        <div className="relative flex-1 bg-gradient-to-br from-green-100 to-green-200 rounded-xl overflow-hidden flex flex-col">
-          {/* Google Map replaces OpenStreetMap */}
-          <div className="absolute inset-0">
-            <GoogleMapComponent viewMode={viewMode} height="100%" className="w-full h-full" />
-          </div>
-          {/* Overlay Pin di tengah peta */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <MapPin className="h-12 w-12 text-green-600 animate-bounce drop-shadow-lg" />
-          </div>
-          {/* Info lahan di bawah peta */}
-          <div className="absolute bottom-0 left-0 w-full bg-white/80 py-2 px-4 rounded-b-xl text-center border-t border-green-100 z-10">
-            <p className="font-semibold text-green-800">{t('dashboard.farmLand')}</p>
-            <p className="text-sm text-green-600">{t('dashboard.hectare')}</p>
-          </div>
-        </div>
-        
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="text-center p-2 bg-green-50 rounded-lg">
-            <p className="text-lg font-bold text-green-600">2.5</p>
-            <p className="text-xs text-gray-600">{t('dashboard.hectare')}</p>
-          </div>
-          <div className="text-center p-2 bg-blue-50 rounded-lg">
-            <p className="text-lg font-bold text-blue-600">4</p>
-            <p className="text-xs text-gray-600">{t('dashboard.block')}</p>
-          </div>
-          <div className="text-center p-2 bg-orange-50 rounded-lg">
-            <p className="text-lg font-bold text-orange-600">85%</p>
-            <p className="text-xs text-gray-600">{t('dashboard.productive')}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      )}
+    </>
   );
 });
 
