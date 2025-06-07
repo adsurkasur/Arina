@@ -191,7 +191,8 @@ export default function Login() {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, recaptchaToken: registerRecaptchaToken })
+        body: JSON.stringify({ name, email, password, recaptchaToken: registerRecaptchaToken }),
+        credentials: 'include', // Added for CORS with credentials
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || t('error.registrationFailed', 'Registration failed'));
@@ -222,7 +223,8 @@ export default function Login() {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, recaptchaToken: loginRecaptchaToken })
+        body: JSON.stringify({ email, password, recaptchaToken: loginRecaptchaToken }),
+        credentials: 'include', // Added for CORS with credentials
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || t('error.loginFailed', 'Login failed'));
