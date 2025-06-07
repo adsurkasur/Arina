@@ -2,7 +2,7 @@
 // BEST PRACTICE NOTE:
 // - setupVite(app, server): Used only in development. Injects Vite dev middleware so you can use Express (port 5000) for both API and frontend if desired.
 //   (But you can also use Vite's own dev server on port 5173 for HMR and fast refresh.)
-// - serveStatic(app): Used only in production. Serves the built frontend from client/dist/public.
+// - serveStatic(app): Used only in production. Serves the built frontend from client/dist.
 //
 // This ensures a clean separation between dev and prod, and works on Replit and locally.
 // ---
@@ -51,14 +51,14 @@ export async function setupVite(app: Express, server: Server) {
   };
 
   const vite = await createViteServer({
-    configFile: path.join(projectRoot, 'client/vite.config.ts'), // always resolve from project root
+    configFile: path.join(projectRoot, 'client/vite.config.ts'),
     customLogger: viteLogger,
     server: serverOptions,
     appType: "custom",
   });
 
   app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
+  app.use(/.*/, async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
@@ -81,17 +81,19 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  // Serve the correct production build directory from the project root
-  const distPath = path.join(projectRoot, 'client', 'dist', 'public');
+  // Use process.cwd() as the project root for static serving
+  const distPath = path.join(process.cwd(), 'client', 'dist');
+
+  const staticMiddleware = express.static(distPath);
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
-      `Could not find the build directory: ${distPath}. Ensure the client is built and the 'public' directory exists in the correct location.`,
+      `Could not find the build directory: ${distPath}. Ensure the client is built and the 'dist' directory exists in the correct location.`,
     );
   }
 
-  app.use(express.static(distPath));
-  app.use("*", (_req, res) => {
+  app.use(staticMiddleware);
+  app.use(/.*/, (_req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
   });
 }

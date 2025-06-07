@@ -1,61 +1,67 @@
 import * as dotenv from "dotenv";
 dotenv.config(); // Ensures .env variables are loaded
 
-// Remove import of firebaseAdmin since it is no longer needed
-
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { setupVite, serveStatic, log } from "./vite.js";
 import { migrate } from './migrations.js';
 
-// Run migrations before any other imports to avoid circular import issues
-(async () => {
-  await migrate().catch(console.error);
-})();
+// Add logging for startup
+console.log("[Server] Loading environment and dependencies...");
 
-const app = express();
+async function main() {
+  console.log("[Server] Running migrations...");
+  try {
+    await migrate();
+    console.log("[Server] Migrations completed.");
+  } catch (err) {
+    console.error("[Server] Migration error:", err);
+  }
 
-// Allow unlimited JSON body size
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+  const app = express();
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  // Allow unlimited JSON body size
+  app.use(express.json({ limit: '100mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+  app.use((req, res, next) => {
+    const start = Date.now();
+    const path = req.path;
+    let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+    const originalResJson = res.json;
+    res.json = function (bodyJson, ...args) {
+      capturedJsonResponse = bodyJson;
+      return originalResJson.apply(res, [bodyJson, ...args]);
+    };
+
+    res.on("finish", () => {
+      const duration = Date.now() - start;
+      if (path.startsWith("/api")) {
+        let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+        if (capturedJsonResponse) {
+          logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        }
+
+        if (logLine.length > 80) {
+          logLine = logLine.slice(0, 79) + "…";
+        }
+
+        log(logLine);
       }
+    });
 
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
+    next();
   });
 
-  next();
-});
-
-(async () => {
+  console.log("[Server] Registering routes...");
   const server = await registerRoutes(app);
+  console.log("[Server] Routes registered.");
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
+    console.error("[Server] Error middleware:", err);
     res.status(status).json({ message });
     throw err;
   });
@@ -64,8 +70,11 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
+    console.log("[Server] Setting up Vite for development...");
     await setupVite(app, server);
+    console.log("[Server] Vite setup complete.");
   } else {
+    console.log("[Server] Serving static files for production...");
     serveStatic(app);
   }
 
@@ -73,14 +82,21 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
+  console.log(`[Server] Starting server on port ${port}...`);
   server.listen({
     port,
     host: "0.0.0.0",
     reusePort: process.platform === "win32" ? false : true,
   }, () => {
     log(`serving on port ${port}`);
+    console.log(`[Server] Server is listening on http://localhost:${port}`);
   });
-})();
+  server.on("error", (err) => {
+    console.error("[Server] Server error:", err);
+  });
+}
+
+main();
 
 // ---
 // BEST PRACTICE NOTE:
