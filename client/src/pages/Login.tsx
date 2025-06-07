@@ -13,58 +13,162 @@ import { signInWithEmail } from "@/lib/firebase";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-
-function loadRecaptchaScript() {
-  if (!document.getElementById('recaptcha-script')) {
-    const script = document.createElement('script');
-    script.id = 'recaptcha-script';
-    script.src = 'https://www.google.com/recaptcha/api.js?render=' + RECAPTCHA_SITE_KEY;
-    script.async = true;
-    document.body.appendChild(script);
+declare global {
+  interface Window {
+    grecaptcha?: any;
+    onRecaptchaApiLoaded?: () => void; 
   }
 }
 
 export default function Login() {
-  const { isAuthenticated, isLoading, loginWithEmail, registerWithEmailPassword, loginWithGoogle } = useAuth();
+  const { isAuthenticated, isLoading, loginWithGoogle } = useAuth();
   const [, navigate] = useLocation();
   const { t } = useTranslation();
   const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState("login");
   const [googleLoading, setGoogleLoading] = useState(false);
   
-  // Form states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
-  const recaptchaRef = useRef<string | null>(null);
+  const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
-  // Redirect to dashboard if already authenticated
+  const loginRecaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const registerRecaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const loginRecaptchaWidgetId = useRef<number | null>(null);
+  const registerRecaptchaWidgetId = useRef<number | null>(null);
+  const [loginRecaptchaToken, setLoginRecaptchaToken] = useState<string | null>(null);
+  const [registerRecaptchaToken, setRegisterRecaptchaToken] = useState<string | null>(null);
+  const [isRecaptchaApiLoaded, setIsRecaptchaApiLoaded] = useState(false);
+
   useEffect(() => {
-    // If already authenticated, redirect to dashboard
+    window.onRecaptchaApiLoaded = () => {
+      setIsRecaptchaApiLoaded(true);
+    };
+
+    const scriptId = 'recaptcha-script';
+    if (document.getElementById(scriptId)) {
+      if (window.grecaptcha && typeof window.grecaptcha.render === 'function') {
+        setIsRecaptchaApiLoaded(true);
+      }
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaApiLoaded&render=explicit';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // delete window.onRecaptchaApiLoaded;
+    };
+  }, []);
+
+  useEffect(() => {
     if (isAuthenticated && !isLoading) {
       navigate("/");
     }
   }, [isAuthenticated, isLoading, navigate]);
 
   useEffect(() => {
-    loadRecaptchaScript();
-    // If already authenticated, redirect to dashboard
-    if (isAuthenticated && !isLoading) {
-      navigate("/");
+    if (!isRecaptchaApiLoaded || !window.grecaptcha || typeof window.grecaptcha.render !== 'function' || !RECAPTCHA_SITE_KEY) {
+      return;
     }
-  }, [isAuthenticated, isLoading, navigate]);
 
-  const executeRecaptcha = async (action: string) => {
-    // @ts-ignore
-    if (window.grecaptcha && RECAPTCHA_SITE_KEY) {
-      // @ts-ignore
-      return await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action });
+    // Explicitly nullify the widget ID of the tab that is becoming inactive or was inactive.
+    // This helps ensure a clean state when switching.
+    if (activeTab === "login") {
+      if (registerRecaptchaWidgetId.current !== null) {
+        // console.log("Login tab is active, ensuring register reCAPTCHA ID is nulled.");
+        registerRecaptchaWidgetId.current = null;
+      }
+    } else { // activeTab === "register"
+      if (loginRecaptchaWidgetId.current !== null) {
+        // console.log("Register tab is active, ensuring login reCAPTCHA ID is nulled.");
+        loginRecaptchaWidgetId.current = null;
+      }
     }
-    return null;
-  };
+
+    const renderOrResetRecaptcha = (
+      containerRef: React.RefObject<HTMLDivElement>,
+      widgetIdRef: React.MutableRefObject<number | null>,
+      setToken: (token: string | null) => void,
+      tabName: string // For logging and potentially more specific error handling
+    ) => {
+      if (!containerRef.current) {
+        // This can happen if the tab was just switched and the DOM element isn't available yet for the ref.
+        // The effect should re-run when it is.
+        // console.warn(`reCAPTCHA container for ${tabName} not found during attempt to render/reset.`);
+        return;
+      }
+
+      setToken(null); // Always reset the associated token state for the current operation
+
+      if (widgetIdRef.current === null) { // No widget exists for this tab, or we decided to re-create it.
+        containerRef.current.innerHTML = ''; // Ensure the container is pristine before rendering a new widget.
+        try {
+          widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
+            'sitekey': RECAPTCHA_SITE_KEY,
+            'callback': (token: string) => { setToken(token); setError(""); },
+            'expired-callback': () => { 
+              setToken(null); 
+              setError(t('error.recaptchaExpired', 'reCAPTCHA expired. Please try again.')); 
+              widgetIdRef.current = null; // Crucial: ensure re-render next time
+            },
+            'error-callback': () => { 
+              setError(t('error.recaptchaLoadFailed', 'reCAPTCHA failed to load.')); 
+              widgetIdRef.current = null; // Crucial: ensure re-render next time
+            }
+          });
+        } catch (e) {
+          console.error(`Error rendering reCAPTCHA for ${tabName}:`, e);
+          setError(t('error.recaptchaLoadFailed', 'reCAPTCHA failed to load.'));
+          widgetIdRef.current = null; // Ensure it's null if render fails
+        }
+      } else { // Widget exists, try to reset it.
+        try {
+          window.grecaptcha.reset(widgetIdRef.current);
+        } catch (e) {
+          console.warn(`Failed to reset reCAPTCHA for ${tabName} (widgetId: ${widgetIdRef.current}). Attempting to re-render.`, e);
+          containerRef.current.innerHTML = ''; // Clear the container
+          widgetIdRef.current = null;      // Nullify the ID to signal a fresh render is needed
+          // Attempt to re-render immediately
+          try {
+            widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
+              'sitekey': RECAPTCHA_SITE_KEY,
+              'callback': (token: string) => { setToken(token); setError(""); },
+              'expired-callback': () => { 
+                setToken(null); 
+                setError(t('error.recaptchaExpired', 'reCAPTCHA expired. Please try again.')); 
+                widgetIdRef.current = null; 
+              },
+              'error-callback': () => { 
+                setError(t('error.recaptchaLoadFailed', 'reCAPTCHA failed to load.')); 
+                widgetIdRef.current = null; 
+              }
+            });
+          } catch (renderError) {
+            console.error(`Error re-rendering reCAPTCHA for ${tabName} after failed reset:`, renderError);
+            setError(t('error.recaptchaLoadFailed', 'reCAPTCHA failed to load.'));
+            // widgetIdRef.current will remain null if this fails too
+          }
+        }
+      }
+    };
+
+    if (activeTab === "login") {
+      // Potentially clear/reset the other tab's widget if it exists and we want to be aggressive
+      // However, simply not rendering it (due to conditional JSX) is usually enough.
+      renderOrResetRecaptcha(loginRecaptchaContainerRef, loginRecaptchaWidgetId, setLoginRecaptchaToken, "login");
+    } else if (activeTab === "register") {
+      renderOrResetRecaptcha(registerRecaptchaContainerRef, registerRecaptchaWidgetId, setRegisterRecaptchaToken, "register");
+    }
+
+  }, [activeTab, isRecaptchaApiLoaded, RECAPTCHA_SITE_KEY, t]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,30 +181,22 @@ export default function Login() {
       setError(t('error.passwordLength', 'Password must be at least 6 characters'));
       return;
     }
+    if (!registerRecaptchaToken) {
+      setError(t('error.recaptchaRequired', 'Please complete the reCAPTCHA.'));
+      return;
+    }
     setFormLoading(true);
     try {
-      const token = await executeRecaptcha("register");
-      if (!token) throw new Error(t('error.recaptchaFailed', 'reCAPTCHA failed. Please try again.'));
-      // Register
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, recaptchaToken: token })
+        body: JSON.stringify({ name, email, password, recaptchaToken: registerRecaptchaToken })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || t('error.registrationFailed', 'Registration failed'));
       // Auto-login after registration
-      const loginToken = await executeRecaptcha("login");
-      const loginRes = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, recaptchaToken: loginToken })
-      });
-      const loginData = await loginRes.json();
-      if (!loginRes.ok) throw new Error(loginData.message || t('error.loginFailed', 'Login failed'));
-      // Also sign in with Firebase client SDK to update session
-      await signInWithEmail(email, password);
-      window.location.href = "/";
+      await signInWithEmail(email, password); // Attempt to sign in
+      window.location.href = "/"; // Then navigate to home
     } catch (error: any) {
       setError(error.message || t('error.registerTryAgain', 'Failed to register. Please try again.'));
     } finally {
@@ -115,18 +211,19 @@ export default function Login() {
       setError(t('error.fillAllFields', 'Please fill in all fields'));
       return;
     }
+    if (!loginRecaptchaToken) {
+      setError(t('error.recaptchaRequired', 'Please complete the reCAPTCHA.'));
+      return;
+    }
     setFormLoading(true);
     try {
-      const token = await executeRecaptcha("login");
-      if (!token) throw new Error(t('error.recaptchaFailed', 'reCAPTCHA failed. Please try again.'));
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, recaptchaToken: token })
+        body: JSON.stringify({ email, password, recaptchaToken: loginRecaptchaToken })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || t('error.loginFailed', 'Login failed'));
-      // Also sign in with Firebase client SDK to update session
       await signInWithEmail(email, password);
       window.location.href = "/";
     } catch (error: any) {
@@ -176,6 +273,17 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         <span className="ml-4 text-gray-500 text-lg">{t('login.checkingAuth', 'Checking authentication...')}</span>
+      </div>
+    );
+  }
+
+  if (!RECAPTCHA_SITE_KEY) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="bg-red-100 text-red-700 p-6 rounded shadow text-center">
+          <h2 className="text-lg font-bold mb-2">Configuration Error</h2>
+          <p>reCAPTCHA site key is missing.</p>
+        </div>
       </div>
     );
   }
@@ -276,6 +384,14 @@ export default function Login() {
                       />
                     </div>
                   </div>
+                  {/* Conditionally render reCAPTCHA for LOGIN tab */}
+                  {activeTab === 'login' && (
+                    <div key="login-recaptcha-wrapper" className="flex justify-center w-full my-3"> 
+                      <div key="login-recaptcha-container" ref={loginRecaptchaContainerRef} className="min-h-[78px]">
+                        {/* reCAPTCHA widget renders here */}
+                      </div>
+                    </div>
+                  )}
                   <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
                     {formLoading ? (
                       <>
@@ -284,7 +400,8 @@ export default function Login() {
                       </>
                     ) : (
                       t('login.buttonLogin')
-                    )}
+                    )
+                    }
                   </Button>
                   <div className="relative my-3">
                     <div className="absolute inset-0 flex items-center">
@@ -365,6 +482,14 @@ export default function Login() {
                       />
                     </div>
                   </div>
+                  {/* Conditionally render reCAPTCHA for REGISTER tab */}
+                  {activeTab === 'register' && (
+                    <div key="register-recaptcha-wrapper" className="flex justify-center w-full my-3">
+                      <div key="register-recaptcha-container" ref={registerRecaptchaContainerRef} className="min-h-[78px]">
+                        {/* reCAPTCHA widget renders here */}
+                      </div>
+                    </div>
+                  )}
                   <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={formLoading}>
                     {formLoading ? (
                       <>

@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,10 +58,22 @@ const registerSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
+declare global {
+  interface Window {
+    grecaptcha?: any;
+    onRecaptchaSuccess?: (token: string) => void;
+  }
+}
+
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
 export default function AuthModal() {
   const { showAuthModal, setShowAuthModal, loginWithGoogle, loginWithEmail, registerWithEmailPassword } = useAuth();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaWidgetRef = useRef<HTMLDivElement>(null);
+  const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
   
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -86,11 +97,82 @@ export default function AuthModal() {
     },
   });
   
+  // Callback for reCAPTCHA v2
+  useEffect(() => {
+    window.onRecaptchaSuccess = (token) => {
+      setRecaptchaToken(token);
+      setRecaptchaError(null);
+    };
+    // Cleanup global callback on unmount
+    return () => {
+      delete window.onRecaptchaSuccess;
+    };
+  }, []);
+
+  // Effect to render/reset reCAPTCHA on tab switch or component mount
+  useEffect(() => {
+    setRecaptchaToken(null); // Reset token state
+    setRecaptchaError(null); // Reset error state
+
+    const renderRecaptchaInActiveTab = () => {
+      if (recaptchaWidgetRef.current && window.grecaptcha && typeof window.grecaptcha.render === 'function') {
+        const recaptchaInnerDiv = recaptchaWidgetRef.current.querySelector('.g-recaptcha');
+        
+        if (recaptchaInnerDiv) {
+          // Clear out the inner div before rendering to prevent issues with multiple widgets.
+          recaptchaInnerDiv.innerHTML = ''; 
+          try {
+            window.grecaptcha.render(recaptchaInnerDiv, {
+              'sitekey': RECAPTCHA_SITE_KEY,
+              'callback': 'onRecaptchaSuccess', // Global callback name
+              'expired-callback': () => {
+                setRecaptchaToken(null);
+                setRecaptchaError(t('error.recaptchaExpired', 'reCAPTCHA has expired. Please complete it again.'));
+                // Consider re-rendering the captcha automatically or prompting user
+                // For now, clearing token and showing error is a safe default.
+              },
+              'error-callback': () => {
+                setRecaptchaError(t('error.recaptchaLoadFailed', 'Failed to load reCAPTCHA. Please try again.'));
+              }
+            });
+          } catch (e) {
+            console.error("Error rendering reCAPTCHA:", e);
+            setRecaptchaError(t('error.recaptchaLoadFailed', 'An error occurred while loading reCAPTCHA.'));
+          }
+        } else {
+          // console.warn("'.g-recaptcha' div not found in the current tab.");
+        }
+      } else {
+        // console.warn("reCAPTCHA API or widget ref not available for rendering.");
+        // This might happen if the reCAPTCHA script hasn't loaded yet.
+        // You might want to add a retry mechanism or ensure the script is loaded before the modal is displayed.
+      }
+    };
+
+    // Use a small timeout to allow React to update the DOM for the new tab
+    // and for the reCAPTCHA script to be ready if loaded asynchronously.
+    const timerId = setTimeout(renderRecaptchaInActiveTab, 100);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [activeTab, t]); // Added t as a dependency because it's used in callbacks
+
   const onLoginSubmit = (values: LoginFormValues) => {
+    if (!recaptchaToken) {
+      setRecaptchaError(t('error.recaptchaRequired', 'Please complete the reCAPTCHA.'));
+      return;
+    }
+    setRecaptchaError(null);
     loginWithEmail(values.email, values.password);
   };
   
   const onRegisterSubmit = (values: RegisterFormValues) => {
+    if (!recaptchaToken) {
+      setRecaptchaError(t('error.recaptchaRequired', 'Please complete the reCAPTCHA.'));
+      return;
+    }
+    setRecaptchaError(null);
     registerWithEmailPassword(values.name, values.email, values.password);
   };
   
@@ -206,6 +288,15 @@ export default function AuthModal() {
                   </svg>
                   {t('auth.loginWithGoogle')}
                 </Button>
+                
+                <div ref={recaptchaWidgetRef} className="flex justify-center">
+                  <div
+                    className="g-recaptcha"
+                    data-sitekey={RECAPTCHA_SITE_KEY}
+                    data-callback="onRecaptchaSuccess"
+                  ></div>
+                </div>
+                {recaptchaError && <div className="text-red-500 text-xs text-center mt-2">{recaptchaError}</div>}
               </form>
             </Form>
           </TabsContent>
@@ -328,6 +419,15 @@ export default function AuthModal() {
                   </svg>
                   {t('auth.loginWithGoogle')}
                 </Button>
+                
+                <div ref={recaptchaWidgetRef} className="flex justify-center">
+                  <div
+                    className="g-recaptcha"
+                    data-sitekey={RECAPTCHA_SITE_KEY}
+                    data-callback="onRecaptchaSuccess"
+                  ></div>
+                </div>
+                {recaptchaError && <div className="text-red-500 text-xs text-center mt-2">{recaptchaError}</div>}
               </form>
             </Form>
           </TabsContent>

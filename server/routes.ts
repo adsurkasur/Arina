@@ -4,18 +4,94 @@ import { storage } from "./storage.js";
 import { recommendationService } from "./services/recommendation-service.js";
 import { z } from "zod";
 import axios from 'axios';
+import { log } from "./vite.js";
+log("routes.ts module FIRST LINE EXECUTES", "routes-init");
 
 // reCAPTCHA verification helper
-async function verifyRecaptcha(token: string): Promise<boolean> {
-  const secret = process.env.RECAPTCHA_SECRET_KEY;
-  if (!secret) throw new Error('reCAPTCHA secret key not set');
-  const url = 'https://www.google.com/recaptcha/api/siteverify';
+interface RecaptchaResponse {
+  success: boolean;
+  challenge_ts?: string; // Timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ)
+  hostname?: string;     // The hostname of the site where the reCAPTCHA was solved
+  'error-codes'?: string[]; // Optional error codes
+  score?: number; // For reCAPTCHA v3
+}
+
+async function verifyRecaptcha(token: string): Promise<{ success: boolean; errorCodes?: string[]; message?: string }> {
+  log("verifyRecaptcha: invoked. Token (first 20 chars): " + (token ? token.substring(0, 20) : "null/undefined"), "routes");
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+
+  if (!secretKey || secretKey.trim() === "") {
+    log("verifyRecaptcha: RECAPTCHA_SECRET_KEY is NOT SET or is EMPTY.", "routes");
+    return { success: false, message: "reCAPTCHA secret key not configured on server." };
+  }
+  // Log more details about the key to catch potential whitespace or loading issues
+  log("verifyRecaptcha: RECAPTCHA_SECRET_KEY loaded (length " + secretKey.length + "): '" + secretKey.substring(0, 5) + "..." + secretKey.slice(-5) + "'", "routes");
+
+  const verificationUrl = `https://www.google.com/recaptcha/api/siteverify`;
   const params = new URLSearchParams();
-  params.append('secret', secret);
+  params.append('secret', secretKey);
   params.append('response', token);
-  const res = await axios.post(url, params);
-  console.log('reCAPTCHA response:', res.data); // Log for debugging
-  return res.data.success && (res.data.score === undefined || res.data.score > 0.1);
+
+  log("verifyRecaptcha: Preparing to send request to Google: " + verificationUrl, "routes");
+
+  try {
+    log("verifyRecaptcha: >>> Attempting axios.post to Google...", "routes");
+    const response = await axios.post(verificationUrl, params, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      timeout: 10000 // Add a timeout of 10 seconds
+    });
+    log("verifyRecaptcha: <<< axios.post to Google completed. Status: " + response.status, "routes");
+    const { data } = response;
+    log("verifyRecaptcha: Google response data RAW: " + JSON.stringify(data), "routes"); // This is the crucial log
+
+    if (data.success) {
+      log("verifyRecaptcha: Google response SUCCESS.", "routes");
+      return { success: true };
+    } else {
+      log("verifyRecaptcha: Google response FAILURE. Error codes: " + (data["error-codes"] ? data["error-codes"].join(", ") : "NOT PROVIDED BY GOOGLE"), "routes");
+      let userMessage = "reCAPTCHA verification failed.";
+      if (data["error-codes"]) {
+        if (data["error-codes"].includes("missing-input-secret")) {
+          userMessage = "The secret parameter is missing. Please contact support (Server config issue).";
+        } else if (data["error-codes"].includes("invalid-input-secret")) {
+          userMessage = "The secret parameter is invalid or malformed. Please contact support (Server config issue - check secret key).";
+        } else if (data["error-codes"].includes("missing-input-response")) {
+          userMessage = "The reCAPTCHA response token is missing. Please try again (Client-side issue or token lost).";
+        } else if (data["error-codes"].includes("invalid-input-response")) {
+          userMessage = "The reCAPTCHA response token is invalid or malformed. Please try again (Token might be expired or corrupted).";
+        } else if (data["error-codes"].includes("bad-request")) {
+          userMessage = "The request to Google was invalid or malformed. Please contact support.";
+        } else if (data["error-codes"].includes("timeout-or-duplicate")) {
+          userMessage = "The reCAPTCHA response has timed out or already been used. Please refresh and try again.";
+        } else {
+          userMessage = "reCAPTCHA verification failed with error(s): " + data["error-codes"].join(", ") + ".";
+        }
+      }
+      return { success: false, errorCodes: data["error-codes"], message: userMessage };
+    }
+  } catch (error) {
+    log("verifyRecaptcha: !!! Exception during axios.post or response processing !!!", "routes");
+    if (axios.isAxiosError(error)) {
+      log("verifyRecaptcha: AxiosError: " + error.message, "routes");
+      if (error.response) {
+        log("verifyRecaptcha: AxiosError response status: " + error.response.status, "routes");
+        log("verifyRecaptcha: AxiosError response data: " + JSON.stringify(error.response.data), "routes");
+      } else if (error.request) {
+        log("verifyRecaptcha: AxiosError: No response received, request was made. " + error.request, "routes");
+      } else {
+        log("verifyRecaptcha: AxiosError: Error setting up request: " + error.message, "routes");
+      }
+      if (error.code === 'ECONNABORTED') {
+        log("verifyRecaptcha: AxiosError: Request timed out.", "routes");
+        return { success: false, message: "Verification request timed out. Please try again." };
+      }
+    } else {
+      log("verifyRecaptcha: Non-Axios Exception: " + (error instanceof Error ? error.message : String(error)), "routes");
+    }
+    return { success: false, message: "An error occurred while verifying reCAPTCHA. Please try again." };
+  }
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -302,11 +378,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/login', async (req, res) => {
     const { email, password, recaptchaToken } = req.body;
     if (!email || !password || !recaptchaToken) {
-      return res.status(400).json({ message: 'Missing fields' });
+      return res.status(400).json({ message: 'Email, password, and reCAPTCHA token are required.' });
     }
     try {
-      const valid = await verifyRecaptcha(recaptchaToken);
-      if (!valid) return res.status(403).json({ message: 'reCAPTCHA failed' });
+      const recaptchaResult = await verifyRecaptcha(recaptchaToken);
+      if (!recaptchaResult.success) {
+        return res.status(403).json({ message: recaptchaResult.message || 'reCAPTCHA verification failed.' });
+      }
       // Authenticate user using Firebase Auth REST API
       const firebaseApiKey = process.env.VITE_FIREBASE_API_KEY;
       const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseApiKey}`;
@@ -327,13 +405,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/auth/register', async (req, res) => {
+    console.log('[0] SERVER LOG: /api/auth/register route HIT. Request body (keys):', Object.keys(req.body));
     const { name, email, password, recaptchaToken } = req.body;
     if (!name || !email || !password || !recaptchaToken) {
-      return res.status(400).json({ message: 'Missing fields' });
+      console.log('[0] SERVER LOG: /api/auth/register - Missing fields. Responding 400.');
+      return res.status(400).json({ message: 'Name, email, password, and reCAPTCHA token are required.' });
     }
     try {
-      const valid = await verifyRecaptcha(recaptchaToken);
-      if (!valid) return res.status(403).json({ message: 'reCAPTCHA failed' });
+      console.log('[0] SERVER LOG: /api/auth/register - Calling verifyRecaptcha.');
+      const recaptchaResult = await verifyRecaptcha(recaptchaToken);
+      if (!recaptchaResult.success) {
+        console.log('[0] SERVER LOG: /api/auth/register - verifyRecaptcha FAILED. Message:', recaptchaResult.message);
+        return res.status(403).json({ message: recaptchaResult.message || 'reCAPTCHA verification failed.' });
+      }
+      console.log('[0] SERVER LOG: /api/auth/register - verifyRecaptcha SUCCESS. Proceeding to Firebase.');
       // Register user using Firebase Auth REST API
       const firebaseApiKey = process.env.VITE_FIREBASE_API_KEY;
       const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebaseApiKey}`;
