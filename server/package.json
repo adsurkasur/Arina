@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build:client": "cd ../client && npm install && npm run build",
     "build:server": "esbuild index.ts vite.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "postbuild": "cp -r ../client/dist/public/* ./public/ || true",
-    "build": "npm run build:client && npm run build:server && npm run postbuild",
+    "build": "npm run build:server",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd ../client && npm run dev",
