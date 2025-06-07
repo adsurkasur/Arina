@@ -3,7 +3,6 @@ dotenv.config(); // Ensures .env variables are loaded
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
-import { setupVite, serveStatic, log } from "./vite.js";
 import { migrate } from './migrations.js';
 
 // Add logging for startup
@@ -66,14 +65,15 @@ async function main() {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  // Only import Vite-related functions in development
+  let setupVite: any, log: any, serveStatic: any;
+  if (process.env.NODE_ENV === "development") {
     console.log("[Server] Setting up Vite for development...");
+    ({ setupVite, serveStatic, log } = await import("./vite.js"));
     await setupVite(app, server);
     console.log("[Server] Vite setup complete.");
   } else {
+    ({ serveStatic, log } = await import("./vite.js"));
     console.log("[Server] Serving static files for production...");
     serveStatic(app);
   }
