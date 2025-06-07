@@ -690,7 +690,7 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                     onClick={handleCloseFullscreen}
                   >
                     <div
-                      className="bg-white rounded-lg shadow-lg w-full max-w-4xl h-full max-h-[90vh] overflow-hidden"
+                      className="bg-white rounded-lg w-full max-w-4xl h-full max-h-[90vh] overflow-hidden"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="p-4 flex justify-between items-center border-b border-gray-200">

@@ -56,7 +56,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   return (
     <PanelContainer onClose={onClose} title={t('settingsPanel.settings')}>
       <div className="flex-1 p-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg p-6">
           <div className="mb-6">
             <span className="block text-sm font-medium text-gray-700 mb-2">
               {t('settingsPanel.darkMode')}

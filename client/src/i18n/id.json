@@ -66,6 +66,7 @@
   "dashboard.weatherLoadError": "Gagal memuat cuaca",
   "dashboard.map": "Peta",
   "dashboard.satellite": "Satelit",
+  "dashboard.selectDate": "Pilih Tanggal",
   "debugPanel.showErrorToast": "Tampilkan Toast Kesalahan",
   "debugPanel.showNormalToast": "Tampilkan Toast Normal",
   "debugPanel.title": "Debugging",

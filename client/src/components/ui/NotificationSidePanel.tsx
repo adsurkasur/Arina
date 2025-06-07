@@ -24,7 +24,7 @@ export const NotificationSidePanel: React.FC<{ onClose: () => void }> = ({ onClo
             </button>
             <ul className="space-y-3">
               {notifications.map((n) => (
-                <li key={n.id} className={`rounded-lg p-4 border shadow-sm ${n.read ? "bg-gray-50" : "bg-green-50 border-green-200"}`}>
+                <li key={n.id} className={`rounded-lg p-4 border ${n.read ? "bg-gray-50" : "bg-green-50 border-green-200"}`}>
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm text-primary">{t(n.title)}</span>
                     <span className="text-xs text-gray-400 ml-2">{new Date(n.timestamp).toLocaleTimeString()}</span>

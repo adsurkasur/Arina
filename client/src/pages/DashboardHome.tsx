@@ -9,11 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useWeather } from "@/hooks/useWeather";
+import { id as localeId } from 'date-fns/locale';
 
 // Types
 interface AgricultureNews {
@@ -554,6 +557,8 @@ export default function DashboardHome() {
   const { analysisResults, isLoading: analysisLoading } = useAnalysisHistory();
   const { recommendations: recommendationSets } = useRecommendations();
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const userName = user?.name?.split(' ')[0] || 'Farmer';
   const currentDate = new Date().toLocaleDateString('id-ID', { 
@@ -578,13 +583,29 @@ export default function DashboardHome() {
             <p className="text-gray-600 mt-1">{currentDate}</p>
           </div>
           <div className="flex space-x-3">
-            <Button variant="outline" size="icon" className="h-10 w-10">
+            <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setCalendarOpen(true)}>
               <Calendar className="h-5 w-5" />
             </Button>
           </div>
         </div>
       </div>
-
+      {/* Calendar Modal */}
+      <Dialog open={calendarOpen} onOpenChange={setCalendarOpen}>
+        <DialogContent className="flex flex-col items-center">
+          <DialogHeader>
+            <DialogTitle>{t('dashboard.selectDate')}</DialogTitle>
+          </DialogHeader>
+          <div style={{ transform: "scale(1)", transformOrigin: "center" }}>
+            <CalendarPicker
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              className="rounded-md border"
+              locale={localeId}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
       {/* Main Content */}
       <div className={`flex-1 p-6 overflow-y-auto ${customScrollbarClass}`}>
         {/* Metrics Row */}

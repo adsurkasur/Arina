@@ -10,8 +10,8 @@ export const PanelContainer: React.FC<{
   <div
     className={cn(
       fixed
-        ? "fixed top-0 right-0 w-full max-w-md h-full bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px] z-[200]"
-        : "h-full w-full max-w-md bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px]"
+        ? "fixed top-0 right-0 w-full max-w-md h-full bg-white border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px] z-[200]"
+        : "h-full w-full max-w-md bg-white border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px]"
     )}
     style={fixed ? {} : { position: "relative", zIndex: "auto" }}
   >

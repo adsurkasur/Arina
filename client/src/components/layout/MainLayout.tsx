@@ -79,7 +79,7 @@ export function MainLayout({
         <Button
           variant="ghost"
           size="icon"
-          className="fixed top-4 left-4 z-50 bg-white/80 shadow-sm rounded-md"
+          className="fixed top-4 left-4 z-50 bg-white/80 rounded-md"
           onClick={() => setSidebarOpen(true)}
         >
           <Menu className="h-5 w-5 text-primary" />
@@ -104,7 +104,7 @@ export function MainLayout({
       >
         <header
           className={cn(
-            "bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-4 sticky top-0 z-30 w-full left-0",
+            "bg-white border-b border-gray-200 h-16 flex items-center px-4 sticky top-0 z-30 w-full left-0",
           )}
         >
           {!isMobile && (
@@ -154,17 +154,22 @@ export function MainLayout({
           </div>
         </header>
         <div className="flex-1 flex overflow-hidden relative">
-          <div className="flex-1 flex flex-col h-full bg-white/90">
+          <div
+            className={cn(
+              "flex-1 flex flex-col h-full bg-white/90 transition-[margin] duration-[300ms] ease-in-out",
+              !isMobile && panelVisible ? "mr-[420px]" : "mr-0"
+            )}
+          >
             {children}
           </div>
           {/* --- Unified Right Panel --- */}
           <div
             ref={panelRef}
             className={cn(
-              "absolute top-0 right-0 h-full flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white shadow-2xl transition-transform duration-300 will-change-transform",
+              "fixed top-16 right-0 h-[calc(100vh-4rem)] flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white transition-transform duration-300 will-change-transform",
               panelVisible ? "translate-x-0" : "translate-x-full"
             )}
-            style={{ height: "100%", maxHeight: "100vh" }}
+            style={{ maxHeight: "calc(100vh - 4rem)" }}
             aria-hidden={!panelVisible}
             tabIndex={-1}
             onTransitionEnd={handlePanelTransitionEnd}

@@ -66,6 +66,7 @@
   "dashboard.weatherLoadError": "Failed to load weather",
   "dashboard.map": "Map",
   "dashboard.satellite": "Satellite",
+  "dashboard.selectDate": "Select Date",
   "debugPanel.showErrorToast": "Show Error Toast",
   "debugPanel.showNormalToast": "Show Normal Toast",
   "debugPanel.title": "Debugging",
