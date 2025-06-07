@@ -162,6 +162,8 @@
   "sidebar.cancel": "Cancel",
   "sidebar.chat": "Chat",
   "sidebar.chatHistory": "Chat History",
+  "sidebar.deleteConversation": "Delete Conversation",
+  "sidebar.confirmDelete": "Are you sure you want to delete this conversation?",
   "sidebar.collapse": "Collapse Sidebar",
   "sidebar.coreFeatures": "Core Features",
   "sidebar.dashboard": "Dashboard",

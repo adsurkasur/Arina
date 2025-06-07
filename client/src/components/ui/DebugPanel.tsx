@@ -1,5 +1,5 @@
 import React from "react";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { PanelContainer } from "@/components/ui/PanelContainer";
 import { useMobile } from "@/hooks/use-mobile";
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 export const DebugPanel: React.FC<{ open: boolean; onClose: () => void; animatingOut?: boolean }> = ({ open, onClose, animatingOut }) => {
   const isMobile = useMobile();
   const { t } = useTranslation();
+  const { toast } = useToast();
 
   const handleNormalToast = () => {
     toast({

@@ -20,12 +20,22 @@ export default function Dashboard() {
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const [showRightPanel, setShowRightPanel] = useState(false);
   const [lastToolPanel, setLastToolPanel] = useState<JSX.Element | undefined>(undefined);
+  // New: Track main view separately from right panel/tool
+  const [mainView, setMainView] = useState<'dashboard' | 'chat'>("dashboard");
 
   // Close the active tool panel
   const handleCloseToolPanel = () => {
     setShowRightPanel(false);
     if (isMobile) {
       setActiveTool(null);
+    }
+  };
+
+  // Update setActiveTool to NOT affect mainView
+  const handleSetActiveTool = (tool: string | null) => {
+    setActiveTool(tool);
+    if (tool) {
+      setShowRightPanel(true);
     }
   };
 
@@ -67,12 +77,21 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentToolPanel]);
 
-  // Only show dashboard if explicitly opened via sidebar
+  // Determine if dashboard home should be shown
   const showDashboardHome = activeTool === "dashboard";
 
-  // Prevent right panel from opening for dashboard
-  const dashboardRightPanel = showDashboardHome ? undefined : (currentToolPanel || lastToolPanel);
-  const dashboardShowRightPanel = showDashboardHome ? false : showRightPanel;
+  // Only show a right panel if a tool is selected (not dashboard, not null)
+  const isToolPanel = !!activeTool && !["dashboard", "chat"].includes(activeTool);
+  const dashboardRightPanel = showRightPanel && isToolPanel ? (currentToolPanel || lastToolPanel) : undefined;
+  const dashboardShowRightPanel = showRightPanel && isToolPanel;
+
+  // Main view logic: show DashboardHome, ChatInterface, or fallback
+  let mainViewComponent: JSX.Element = <DashboardHome />;
+  if (activeTool === "chat") {
+    mainViewComponent = <ChatInterface />;
+  } else if (activeTool !== "dashboard") {
+    mainViewComponent = <ChatInterface />;
+  }
 
   return (
     <MainLayout
@@ -81,7 +100,7 @@ export default function Dashboard() {
       setShowRightPanel={setShowRightPanel}
       setActiveTool={setActiveTool}
     >
-      {showDashboardHome ? <DashboardHome /> : <ChatInterface />}
+      {mainViewComponent}
     </MainLayout>
   );
 }

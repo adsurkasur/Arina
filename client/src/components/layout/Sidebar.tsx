@@ -180,6 +180,14 @@ export function Sidebar({
               <LayoutDashboard className="h-5 w-5 mr-3" />
               <span>{t('sidebar.dashboard')}</span>
             </button>
+            {/* Chat Menu Item */}
+            <button
+              onClick={() => openTool("chat")}
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
+            >
+              <MessageSquare className="h-5 w-5 mr-3" />
+              <span>{t('sidebar.chat')}</span>
+            </button>
           </div>
           {/* Analysis Tools Dropdown */}
           <div className="px-2 py-2">
@@ -348,7 +356,7 @@ export function Sidebar({
                     <button
                       onClick={() => {
                         loadConversation(conversation.id);
-                        if (openTool) openTool(""); // Ensure dashboard is closed
+                        if (openTool) openTool("chat"); // Switch to chat view
                         if (isMobile) setIsOpen(false);
                       }}
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
