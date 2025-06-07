@@ -22,7 +22,9 @@
     "copy-env:client": "node -e \"process.platform==='win32'?process.exit(require('child_process').spawnSync('npm',['run','copy-env:client:win'],{stdio:'inherit'}).status):process.exit(require('child_process').spawnSync('npm',['run','copy-env:client:unix'],{stdio:'inherit'}).status)\"",
     "copy-env:server": "node -e \"process.platform==='win32'?process.exit(require('child_process').spawnSync('npm',['run','copy-env:server:win'],{stdio:'inherit'}).status):process.exit(require('child_process').spawnSync('npm',['run','copy-env:server:unix'],{stdio:'inherit'}).status)\"",
     "copy-env": "node copy-env.js",
-    "predev": "npm run copy-env"
+    "install-all": "node install-all.js",
+    "predev": "npm run install-all && npm run copy-env",
+    "prestart": "npm run install-all"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
