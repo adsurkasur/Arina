@@ -65,8 +65,10 @@ interface SidebarProps {
   setIsOpen: (isOpen: boolean) => void;
   isMobile: boolean;
   openTool: (tool: string) => void;
+  closePanel: () => void;
   setMainView: (view: 'dashboard' | 'chat') => void;
   activePanel?: string | null;
+  panelVisible?: boolean;
 }
 
 export function Sidebar({
@@ -74,8 +76,10 @@ export function Sidebar({
   setIsOpen,
   isMobile,
   openTool,
+  closePanel,
   setMainView,
   activePanel,
+  panelVisible,
 }: SidebarProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -224,7 +228,13 @@ export function Sidebar({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => openTool("businessFeasibility")}
+                            onClick={() => {
+                              if (activePanel === "businessFeasibility" && panelVisible) {
+                                closePanel();
+                              } else {
+                                openTool("businessFeasibility");
+                              }
+                            }}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <Calculator className="h-5 w-5 mr-3" />
@@ -246,7 +256,13 @@ export function Sidebar({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => openTool("demandForecasting")}
+                            onClick={() => {
+                              if (activePanel === "demandForecasting" && panelVisible) {
+                                closePanel();
+                              } else {
+                                openTool("demandForecasting");
+                              }
+                            }}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <BarChart3 className="h-5 w-5 mr-3" />
@@ -268,7 +284,13 @@ export function Sidebar({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => openTool("optimizationAnalysis")}
+                            onClick={() => {
+                              if (activePanel === "optimizationAnalysis" && panelVisible) {
+                                closePanel();
+                              } else {
+                                openTool("optimizationAnalysis");
+                              }
+                            }}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <ChartBar className="h-5 w-5 mr-3" />
@@ -290,7 +312,13 @@ export function Sidebar({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => openTool("recommendations")}
+                            onClick={() => {
+                              if (activePanel === "recommendations" && panelVisible) {
+                                closePanel();
+                              } else {
+                                openTool("recommendations");
+                              }
+                            }}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <Lightbulb className="h-5 w-5 mr-3" />
@@ -312,7 +340,13 @@ export function Sidebar({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => openTool("analysisHistory")}
+                            onClick={() => {
+                              if (activePanel === "analysisHistory" && panelVisible) {
+                                closePanel();
+                              } else {
+                                openTool("analysisHistory");
+                              }
+                            }}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
                             <ClipboardList className="h-5 w-5 mr-3" />
@@ -484,7 +518,13 @@ export function Sidebar({
         {/* Debug menu item: open DebugPanel as right panel */}
         <div className="px-2 py-2">
           <button
-            onClick={() => openTool("debug")}
+            onClick={() => {
+              if (activePanel === "debug" && panelVisible) {
+                openTool("");
+              } else {
+                openTool("debug");
+              }
+            }}
             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors mb-2"
             title="Open Debugging Panel"
           >

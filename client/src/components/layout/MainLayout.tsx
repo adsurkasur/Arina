@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { cn } from "@/lib/theme";
 import { useMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,7 +7,7 @@ import { ProfileDropdown } from "./ProfileDropdown";
 import { Menu, Bell, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { NotificationProvider, useNotification, NOTIFICATION_DURATION } from "@/contexts/NotificationContext";
+import { NotificationProvider, useNotification } from "@/contexts/NotificationContext";
 import { NotificationSidePanel } from "@/components/ui/NotificationSidePanel";
 import BusinessFeasibility from "@/components/tools/BusinessFeasibility";
 import DemandForecasting from "@/components/tools/DemandForecasting";
@@ -21,6 +21,7 @@ import HelpPanel from "@/components/ui/HelpPanel";
 
 // --- Panel Registry ---
 const PANEL_COMPONENTS: Record<string, React.ComponentType<{ onClose: () => void }>> = {
+  notification: NotificationSidePanel,
   userProfile: UserProfile,
   businessFeasibility: BusinessFeasibility,
   demandForecasting: DemandForecasting,
@@ -32,7 +33,6 @@ const PANEL_COMPONENTS: Record<string, React.ComponentType<{ onClose: () => void
   help: HelpPanel,
 };
 
-// Fix: use global JSX.Element for props
 export function MainLayout({
   children,
   setMainView,
@@ -42,28 +42,35 @@ export function MainLayout({
 }) {
   const { user } = useAuth();
   const isMobile = useMobile();
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-  const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const { unreadCount } = useNotification();
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
   const [activePanel, setActivePanel] = useState<string | null>(null);
+  const [lastPanel, setLastPanel] = useState<string | null>(null);
+  const [panelVisible, setPanelVisible] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // --- Centralized open/close logic ---
   const openPanel = (panel: string) => {
-    setNotifPanelOpen(false);
-    setActivePanel((prev) => (prev === panel ? null : panel));
+    setActivePanel(panel);
+    setLastPanel(panel);
+    setPanelVisible(true);
   };
   const closePanel = () => {
-    setActivePanel(null);
-    setNotifPanelOpen(false);
-  };
-  const openNotifPanel = () => {
-    setActivePanel(null);
-    setNotifPanelOpen(true);
+    setPanelVisible(false);
+    // Do not clear activePanel/lastPanel yet
   };
 
   // --- Panel rendering logic ---
   const PanelComponent = activePanel ? PANEL_COMPONENTS[activePanel] : null;
-  const isPanelOpen = !!activePanel;
+  const LastPanelComponent = lastPanel ? PANEL_COMPONENTS[lastPanel] : null;
+
+  // --- Handle transition end to clear activePanel after slide-out ---
+  const handlePanelTransitionEnd = () => {
+    if (!panelVisible) {
+      setActivePanel(null);
+      setLastPanel(null);
+    }
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
@@ -83,8 +90,10 @@ export function MainLayout({
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
         openTool={openPanel}
+        closePanel={closePanel}
         setMainView={setMainView || (() => {})}
         activePanel={activePanel}
+        panelVisible={panelVisible}
       />
       <div
         className={cn(
@@ -117,8 +126,7 @@ export function MainLayout({
               size="icon" 
               className="rounded-full"
               onClick={() => {
-                if (notifPanelOpen) setNotifPanelOpen(false);
-                if (activePanel === 'help' && isPanelOpen) {
+                if (activePanel === 'help' && panelVisible) {
                   closePanel();
                 } else {
                   openPanel('help');
@@ -129,10 +137,10 @@ export function MainLayout({
             </Button>
             <div className="relative">
               <Button variant="outline" size="icon" className="rounded-full" onClick={() => {
-                if (notifPanelOpen) {
-                  setNotifPanelOpen(false);
+                if (activePanel === 'notification' && panelVisible) {
+                  closePanel();
                 } else {
-                  openNotifPanel();
+                  openPanel('notification');
                 }
               }}>
                 <Bell className="h-5 w-5 text-gray-600" />
@@ -151,20 +159,21 @@ export function MainLayout({
           </div>
           {/* --- Unified Right Panel --- */}
           <div
+            ref={panelRef}
             className={cn(
-              "absolute top-0 right-0 h-full flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white shadow-2xl transition-transform duration-300",
-              notifPanelOpen || isPanelOpen ? "translate-x-0" : "translate-x-full",
-              "will-change-transform"
+              "absolute top-0 right-0 h-full flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white shadow-2xl transition-transform duration-300 will-change-transform",
+              panelVisible ? "translate-x-0" : "translate-x-full"
             )}
             style={{ height: "100%", maxHeight: "100vh" }}
-            aria-hidden={!(notifPanelOpen || isPanelOpen)}
+            aria-hidden={!panelVisible}
             tabIndex={-1}
+            onTransitionEnd={handlePanelTransitionEnd}
           >
-            {notifPanelOpen && (
-              <NotificationSidePanel onClose={closePanel} />
-            )}
-            {PanelComponent && isPanelOpen && (
-              <PanelComponent onClose={closePanel} />
+            {/* Always render lastPanel content as long as lastPanel is set */}
+            {lastPanel && LastPanelComponent && (
+              <div style={{ height: '100%' }}>
+                <LastPanelComponent onClose={closePanel} />
+              </div>
             )}
           </div>
         </div>
