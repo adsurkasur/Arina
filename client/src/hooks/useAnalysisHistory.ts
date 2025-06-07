@@ -5,6 +5,8 @@ import { useAuth } from './useAuth';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
 import { AnalysisResult } from '@/types/analysis';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export function useAnalysisHistory() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -22,7 +24,7 @@ export function useAnalysisHistory() {
         throw new Error('User ID is required');
       }
       
-      const response = await fetch(`/api/analysis?userId=${user.id}`);
+      const response = await fetch(`${API_BASE}/api/analysis?userId=${user.id}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch analysis history');

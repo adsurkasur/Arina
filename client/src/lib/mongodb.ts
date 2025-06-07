@@ -1,6 +1,8 @@
 // All functions in this file now use the backend API for MongoDB integration.
 // Local storage and stubbed logic have been removed. All data is persisted via Express API endpoints.
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 // User management
 
 // User profile management
@@ -11,7 +13,7 @@ export const createUserProfile = async (
   photoURL?: string,
 ) => {
   try {
-    const response = await fetch("/api/users", {
+    const response = await fetch(`${API_BASE}/api/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: userId, email, name, photo_url: photoURL }),
@@ -27,7 +29,7 @@ export const createUserProfile = async (
 
 export const getUserProfile = async (userId: string) => {
   try {
-    const response = await fetch(`/api/users/${userId}`);
+    const response = await fetch(`${API_BASE}/api/users/${userId}`);
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "User not found");
     return { data, error: null };
@@ -55,7 +57,7 @@ export const updateUserPreferences = async (
   try {
     // Always include user info in PATCH body for upsert
     const patchBody = { ...prefs, email: userInfo.email, name: userInfo.name, photo_url: userInfo.photoURL };
-    const response = await fetch(`/api/users/${userId}/preferences`, {
+    const response = await fetch(`${API_BASE}/api/users/${userId}/preferences`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(patchBody),
@@ -66,7 +68,7 @@ export const updateUserPreferences = async (
       if (data.message === "User not found" && userInfo) {
         await createUserProfile(userId, userInfo.email, userInfo.name, userInfo.photoURL);
         // Retry update
-        const retryResponse = await fetch(`/api/users/${userId}/preferences`, {
+        const retryResponse = await fetch(`${API_BASE}/api/users/${userId}/preferences`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(patchBody),
@@ -86,7 +88,7 @@ export const updateUserPreferences = async (
 
 export const deleteUserAccount = async (userId: string) => {
   try {
-    const response = await fetch(`/api/users/${userId}/account`, {
+    const response = await fetch(`${API_BASE}/api/users/${userId}/account`, {
       method: "DELETE",
     });
     const data = await response.json();
@@ -101,7 +103,7 @@ export const deleteUserAccount = async (userId: string) => {
 // Chat history
 export const getChatHistory = async (userId: string) => {
   try {
-    const response = await fetch(`/api/conversations/${userId}`);
+    const response = await fetch(`${API_BASE}/api/conversations/${userId}`);
     const data = await response.json();
     if (!response.ok) throw new Error(data?.message || "Failed to fetch chat history");
     return { data, error: null };
@@ -113,7 +115,7 @@ export const getChatHistory = async (userId: string) => {
 
 export const createChat = async (userId: string, title: string) => {
   try {
-    const response = await fetch("/api/conversations", {
+    const response = await fetch(`${API_BASE}/api/conversations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId, title }),
@@ -129,7 +131,7 @@ export const createChat = async (userId: string, title: string) => {
 
 export const updateChatTitle = async (chatId: string, title: string) => {
   try {
-    const response = await fetch(`/api/conversations/${chatId}`, {
+    const response = await fetch(`${API_BASE}/api/conversations/${chatId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
@@ -145,7 +147,7 @@ export const updateChatTitle = async (chatId: string, title: string) => {
 
 export const deleteChat = async (chatId: string) => {
   try {
-    const response = await fetch(`/api/conversations/${chatId}`, {
+    const response = await fetch(`${API_BASE}/api/conversations/${chatId}`, {
       method: "DELETE"
     });
     if (!response.ok) throw new Error("Failed to delete chat");
@@ -159,7 +161,7 @@ export const deleteChat = async (chatId: string) => {
 // Chat messages
 export const getChatMessages = async (conversationId: string) => {
   try {
-    const response = await fetch(`/api/messages/${conversationId}`);
+    const response = await fetch(`${API_BASE}/api/messages/${conversationId}`);
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Failed to fetch messages");
     return { data, error: null };
@@ -176,7 +178,7 @@ export const addChatMessage = async (
   sender_id: string,
 ) => {
   try {
-    const response = await fetch("/api/messages", {
+    const response = await fetch(`${API_BASE}/api/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ conversation_id: conversationId, role, content, sender_id }),
@@ -196,7 +198,7 @@ export const saveAnalysisResult = async (
   data: any,
 ) => {
   try {
-    const response = await fetch("/api/analysis", {
+    const response = await fetch(`${API_BASE}/api/analysis`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId, type, data }),

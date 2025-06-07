@@ -187,7 +187,8 @@ export default function Login() {
     }
     setFormLoading(true);
     try {
-      const res = await fetch("/api/auth/register", {
+      const API_BASE = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password, recaptchaToken: registerRecaptchaToken })
@@ -217,7 +218,8 @@ export default function Login() {
     }
     setFormLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const API_BASE = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, recaptchaToken: loginRecaptchaToken })

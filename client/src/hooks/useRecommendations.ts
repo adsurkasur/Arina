@@ -5,6 +5,8 @@ import { RecommendationSet, RecommendationItem, GenerateRecommendationsParams } 
 import { useToast } from './use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export function useRecommendations() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -23,7 +25,7 @@ export function useRecommendations() {
     queryKey: ['recommendations', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const res = await fetch(`/api/recommendations/${user.id}`);
+      const res = await fetch(`${API_BASE}/api/recommendations/${user.id}`);
       if (!res.ok) throw new Error('Failed to fetch recommendations');
       return res.json();
     },
@@ -56,7 +58,7 @@ export function useRecommendations() {
     mutationFn: async (params: Omit<GenerateRecommendationsParams, 'userId'>) => {
       if (!user) return null;
       
-      const response = await fetch('/api/recommendations/generate', {
+      const response = await fetch(`${API_BASE}/api/recommendations/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -100,7 +102,7 @@ export function useRecommendations() {
     mutateAsync: deleteRecommendationSetMutation 
   } = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/recommendations/${id}`, {
+      const response = await fetch(`${API_BASE}/api/recommendations/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
