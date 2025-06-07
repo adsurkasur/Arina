@@ -147,7 +147,7 @@ const WeatherWidget = React.memo(() => {
     return (
       <Card className="bg-gradient-to-br from-gray-400 to-gray-600 text-white h-full">
         <CardContent className="p-6 text-center h-full flex flex-col justify-center">
-          <p className="text-sm mb-2">Gagal memuat cuaca</p>
+          <p className="text-sm mb-2">{t('dashboard.weatherLoadError')}</p>
           <Button variant="ghost" size="sm" onClick={refreshWeather} className="text-white">
             <RefreshCw className="h-4 w-4 mr-1" />
             Refresh
@@ -199,6 +199,7 @@ const WeatherWidget = React.memo(() => {
 
 // Farm Location Widget
 const FarmLocationWidget = React.memo(() => {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'map' | 'satellite'>('map');
 
   return (
@@ -207,7 +208,7 @@ const FarmLocationWidget = React.memo(() => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center">
             <MapPin className="mr-2 h-5 w-5 text-green-600" />
-            Lokasi Lahan
+            {t('dashboard.farmLocation')}
           </CardTitle>
           <div className="flex space-x-1">
             <Button
@@ -217,7 +218,7 @@ const FarmLocationWidget = React.memo(() => {
               className="h-7 text-xs"
             >
               <Layers className="h-3 w-3 mr-1" />
-              Peta
+              {t('dashboard.map')}
             </Button>
             <Button
               variant={viewMode === 'satellite' ? 'default' : 'outline'}
@@ -226,7 +227,7 @@ const FarmLocationWidget = React.memo(() => {
               className="h-7 text-xs"
             >
               <Satellite className="h-3 w-3 mr-1" />
-              Satelit
+              {t('dashboard.satellite')}
             </Button>
           </div>
         </div>
@@ -244,8 +245,8 @@ const FarmLocationWidget = React.memo(() => {
           </div>
           {/* Info lahan di bawah peta */}
           <div className="absolute bottom-0 left-0 w-full bg-white/80 py-2 px-4 rounded-b-xl text-center border-t border-green-100 z-10">
-            <p className="font-semibold text-green-800">Lahan Pertanian</p>
-            <p className="text-sm text-green-600">2.5 Hektar</p>
+            <p className="font-semibold text-green-800">{t('dashboard.farmLand')}</p>
+            <p className="text-sm text-green-600">{t('dashboard.hectare')}</p>
           </div>
         </div>
         
@@ -253,15 +254,15 @@ const FarmLocationWidget = React.memo(() => {
         <div className="grid grid-cols-3 gap-2">
           <div className="text-center p-2 bg-green-50 rounded-lg">
             <p className="text-lg font-bold text-green-600">2.5</p>
-            <p className="text-xs text-gray-600">Hektar</p>
+            <p className="text-xs text-gray-600">{t('dashboard.hectare')}</p>
           </div>
           <div className="text-center p-2 bg-blue-50 rounded-lg">
             <p className="text-lg font-bold text-blue-600">4</p>
-            <p className="text-xs text-gray-600">Blok</p>
+            <p className="text-xs text-gray-600">{t('dashboard.block')}</p>
           </div>
           <div className="text-center p-2 bg-orange-50 rounded-lg">
             <p className="text-lg font-bold text-orange-600">85%</p>
-            <p className="text-xs text-gray-600">Produktif</p>
+            <p className="text-xs text-gray-600">{t('dashboard.productive')}</p>
           </div>
         </div>
       </CardContent>
@@ -434,6 +435,7 @@ const AgricultureInsightsWidget = React.memo(() => {
 
 // Recent Activity Widget
 const RecentActivityWidget = React.memo(({ analysisResults }: { analysisResults: any[] }) => {
+  const { t } = useTranslation();
   const recentActivities = analysisResults?.slice(0, 6) || [];
 
   return (
@@ -441,7 +443,7 @@ const RecentActivityWidget = React.memo(({ analysisResults }: { analysisResults:
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center">
           <History className="mr-2 h-5 w-5 text-blue-500" />
-          Aktivitas Terkini
+          {t('dashboard.recentActivity')}
         </CardTitle>
       </CardHeader>
       <CardContent className="h-full pb-6">
@@ -468,7 +470,7 @@ const RecentActivityWidget = React.memo(({ analysisResults }: { analysisResults:
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
               <History className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">Belum ada aktivitas</p>
+              <p className="text-sm text-gray-500">{t('dashboard.noActivity')}</p>
             </div>
           </div>
         )}
@@ -571,14 +573,11 @@ export default function DashboardHome() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              Selamat datang, {userName}! 👋
+              {t('dashboard.welcome', { name: userName })}
             </h1>
             <p className="text-gray-600 mt-1">{currentDate}</p>
           </div>
           <div className="flex space-x-3">
-            <Button variant="outline" size="icon" className="h-10 w-10">
-              <Bell className="h-5 w-5" />
-            </Button>
             <Button variant="outline" size="icon" className="h-10 w-10">
               <Calendar className="h-5 w-5" />
             </Button>
@@ -596,7 +595,7 @@ export default function DashboardHome() {
             <CardContent className="p-6 h-full flex flex-col justify-center">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Analisis</p>
+                  <p className="text-sm font-medium text-gray-600">{t('dashboard.totalAnalyses')}</p>
                   <p className="text-3xl font-bold text-blue-600">
                     {analysisResults?.length || 0}
                   </p>
@@ -610,7 +609,7 @@ export default function DashboardHome() {
             <CardContent className="p-6 h-full flex flex-col justify-center">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Rekomendasi</p>
+                  <p className="text-sm font-medium text-gray-600">{t('dashboard.recommendations')}</p>
                   <p className="text-3xl font-bold text-green-600">{totalRecommendations}</p>
                 </div>
                 <Lightbulb className="h-8 w-8 text-green-600" />
@@ -628,9 +627,9 @@ export default function DashboardHome() {
               <div>
                 <CardTitle className="text-lg flex items-center">
                   <Newspaper className="mr-2 h-5 w-5 text-blue-600" />
-                  Info & Data Pertanian
+                  {t('dashboard.agriInfoTitle')}
                 </CardTitle>
-                <CardDescription className="text-sm">Berita terkini dengan solusi AI</CardDescription>
+                <CardDescription className="text-sm">{t('dashboard.agriInfoDesc')}</CardDescription>
               </div>
               <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(true)} className="h-8 w-8">
                 <Maximize className="h-4 w-4" />
@@ -652,7 +651,7 @@ export default function DashboardHome() {
           <div className="flex justify-between items-center mb-6 flex-shrink-0">
             <h2 className="text-2xl font-bold flex items-center">
               <Newspaper className="mr-3 h-8 w-8 text-blue-600" />
-              Info & Data Pertanian
+              {t('dashboard.agriInfoTitle')}
             </h2>
             <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(false)}>
               <LayoutDashboard className="h-6 w-6" />

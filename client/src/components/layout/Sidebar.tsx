@@ -27,6 +27,7 @@ import {
   History,
   ClipboardList,
   Info,
+  LayoutDashboard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -176,7 +177,7 @@ export function Sidebar({
               onClick={() => openTool("dashboard")}
               className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
             >
-              <BarChart3 className="h-5 w-5 mr-3" />
+              <LayoutDashboard className="h-5 w-5 mr-3" />
               <span>{t('sidebar.dashboard')}</span>
             </button>
           </div>
@@ -232,7 +233,7 @@ export function Sidebar({
                             onClick={() => openTool("demandForecasting")}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <ChartBar className="h-5 w-5 mr-3" />
+                            <BarChart3 className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.demandForecasting')}</span>
                           </button>
                         </TooltipTrigger>
@@ -254,7 +255,7 @@ export function Sidebar({
                             onClick={() => openTool("optimizationAnalysis")}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <BarChart3 className="h-5 w-5 mr-3" />
+                            <ChartBar className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.optimizationAnalysis')}</span>
                           </button>
                         </TooltipTrigger>
