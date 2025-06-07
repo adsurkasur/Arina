@@ -18,8 +18,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTranslation } from 'react-i18next';
 
 export function RecommendationsList() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [currentTab, setCurrentTab] = useState('all');
   const [currentSeason] = useState<'spring' | 'summer' | 'fall' | 'winter'>(
@@ -45,7 +47,7 @@ export function RecommendationsList() {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-center text-gray-500">Please sign in to view recommendations</p>
+          <p className="text-center text-gray-500">{t('tools.recommendations.signInPrompt')}</p>
         </CardContent>
       </Card>
     );
@@ -117,30 +119,30 @@ export function RecommendationsList() {
           {generating ? (
             <>
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              Generating...
+              {t('tools.recommendations.generating')}
             </>
           ) : (
             <>
               <Lightbulb className="mr-2 h-4 w-4" />
-              Generate Recommendations
+              {t('tools.recommendations.generate')}
             </>
           )}
         </Button>
 
         <Badge variant="outline" className="flex items-center gap-1 ml-2">
           <Calendar className="h-3 w-3" />
-          <span className="capitalize">{currentSeason}</span>
+          <span className="capitalize">{t(`tools.recommendations.season.${currentSeason}`)}</span>
         </Badge>
       </div>
 
       {/* Tabs for filtering recommendations */}
       <Tabs defaultValue="all" value={currentTab} onValueChange={setCurrentTab}>
         <TabsList className="grid grid-cols-5 w-full">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="crop">Crops</TabsTrigger>
-          <TabsTrigger value="business">Business</TabsTrigger>
-          <TabsTrigger value="market">Market</TabsTrigger>
-          <TabsTrigger value="resource">Resources</TabsTrigger>
+          <TabsTrigger value="all">{t('tools.recommendations.tabs.all')}</TabsTrigger>
+          <TabsTrigger value="crop">{t('tools.recommendations.tabs.crop')}</TabsTrigger>
+          <TabsTrigger value="business">{t('tools.recommendations.tabs.business')}</TabsTrigger>
+          <TabsTrigger value="market">{t('tools.recommendations.tabs.market')}</TabsTrigger>
+          <TabsTrigger value="resource">{t('tools.recommendations.tabs.resource')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={currentTab} className="mt-4">
@@ -168,16 +170,16 @@ export function RecommendationsList() {
             <Card>
               <CardContent className="pt-6 pb-6 text-center">
                 <Lightbulb className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-500 mb-2">No recommendations available yet</p>
+                <p className="text-gray-500 mb-2">{t('tools.recommendations.emptyTitle')}</p>
                 <p className="text-gray-400 text-sm mb-4">
-                  Generate recommendations based on your data and chat history
+                  {t('tools.recommendations.emptyDesc')}
                 </p>
                 <Button 
                   onClick={handleGenerate} 
                   disabled={generating}
                   className="bg-primary hover:bg-primary/90 text-white"
                 >
-                  {generating ? "Generating..." : "Generate Now"}
+                  {generating ? t('tools.recommendations.generating') : t('tools.recommendations.generateNow')}
                 </Button>
               </CardContent>
             </Card>
