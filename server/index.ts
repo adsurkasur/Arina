@@ -18,10 +18,11 @@ async function main() {
   }
 
   const app = express();
-
-  // Allow unlimited JSON body size
   app.use(express.json({ limit: '100mb' }));
   app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+
+  // Logging middleware
+  let appLog: (message: string) => void;
 
   app.use((req, res, next) => {
     const start = Date.now();
@@ -46,10 +47,9 @@ async function main() {
           logLine = logLine.slice(0, 79) + "…";
         }
 
-        log(logLine);
+        appLog(logLine); // Use the conditionally assigned log function
       }
     });
-
     next();
   });
 
@@ -65,20 +65,20 @@ async function main() {
     throw err;
   });
 
-  // Only import Vite-related functions in development
-  let setupVite: any, log: any, serveStatic: any;
+  // Conditional import for Vite-related functions
   if (process.env.NODE_ENV === "development") {
     console.log("[Server] Setting up Vite for development...");
-    ({ setupVite, serveStatic, log } = await import("./vite.js"));
+    const { setupVite, devLog } = await import("./vite.js");
+    appLog = devLog;
     await setupVite(app, server);
     console.log("[Server] Vite setup complete.");
   } else {
-    ({ serveStatic, log } = await import("./vite.js"));
+    const { serveStatic, log } = await import("./vite.js");
+    appLog = log;
     console.log("[Server] Serving static files for production...");
     serveStatic(app);
   }
 
-  // Use PORT env variable if available, default to 8080 for Cloud Run compatibility
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
   console.log(`[Server] Starting server on port ${port}...`);
   server.listen({
@@ -86,7 +86,7 @@ async function main() {
     host: "0.0.0.0",
     reusePort: process.platform === "win32" ? false : true,
   }, () => {
-    log(`serving on port ${port}`);
+    appLog(`serving on port ${port}`);
     console.log(`[Server] Server is listening on http://localhost:${port}`);
   });
   server.on("error", (err) => {
