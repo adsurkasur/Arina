@@ -1,11 +1,10 @@
 import * as dotenv from "dotenv";
-dotenv.config(); // Ensures .env variables are loaded
+dotenv.config();
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { migrate } from './migrations.js';
 
-// Add logging for startup
 console.log("[Server] Loading environment and dependencies...");
 
 async function main() {
@@ -15,26 +14,30 @@ async function main() {
     console.log("[Server] Migrations completed.");
   } catch (err) {
     console.error("[Server] Migration error:", err);
+    process.exit(1);
   }
 
   const app = express();
   app.use(express.json({ limit: '100mb' }));
   app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-  // Logging middleware
-  let appLog: (message: string) => void;
+  // Optional: Add CORS if your frontend is on a different domain
+  // import cors from 'cors';
+  // app.use(cors({
+  //   origin: ['https://your-vercel-frontend-domain.vercel.app', 'http://localhost:5173'],
+  //   credentials: true,
+  // }));
 
+  // Logging middleware (for API requests only)
   app.use((req, res, next) => {
     const start = Date.now();
     const path = req.path;
     let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
     const originalResJson = res.json;
     res.json = function (bodyJson, ...args) {
       capturedJsonResponse = bodyJson;
       return originalResJson.apply(res, [bodyJson, ...args]);
     };
-
     res.on("finish", () => {
       const duration = Date.now() - start;
       if (path.startsWith("/api")) {
@@ -42,12 +45,10 @@ async function main() {
         if (capturedJsonResponse) {
           logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
         }
-
         if (logLine.length > 80) {
           logLine = logLine.slice(0, 79) + "…";
         }
-
-        appLog(logLine); // Use the conditionally assigned log function
+        console.log(`[App Log] ${logLine}`);
       }
     });
     next();
@@ -62,35 +63,21 @@ async function main() {
     const message = err.message || "Internal Server Error";
     console.error("[Server] Error middleware:", err);
     res.status(status).json({ message });
-    throw err;
+    // Do not throw after sending a response
   });
 
-  // Conditional import for Vite-related functions
-  if (process.env.NODE_ENV === "development") {
-    console.log("[Server] Setting up Vite for development...");
-    const { setupVite, devLog } = await import("./vite.js");
-    appLog = devLog;
-    await setupVite(app, server);
-    console.log("[Server] Vite setup complete.");
-  } else {
-    const { serveStatic, log } = await import("./vite.js");
-    appLog = log;
-    console.log("[Server] Serving static files for production...");
-    serveStatic(app);
-  }
-
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
-  console.log(`[Server] Starting server on port ${port}...`);
+  console.log(`[Server] Starting API server on port ${port}...`);
   server.listen({
     port,
     host: "0.0.0.0",
     reusePort: process.platform === "win32" ? false : true,
   }, () => {
-    appLog(`serving on port ${port}`);
-    console.log(`[Server] Server is listening on http://localhost:${port}`);
+    console.log(`[App Log] API serving on port ${port}`);
+    console.log(`[Server] API server is listening on http://localhost:${port}`);
   });
   server.on("error", (err) => {
-    console.error("[Server] Server error:", err);
+    console.error("[Server] API server error:", err);
   });
 }
 

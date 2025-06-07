@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "npm run copy-env && concurrently --raw \"npm run dev:server\" \"npm run dev:client:wait\"",
+    "dev": "npm run build && npm run copy-env && concurrently --raw \"npm run dev:server\" \"npm run dev:client:wait\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev:server",
     "build:client": "cd client && npm install && npm run build",
