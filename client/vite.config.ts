@@ -17,10 +17,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        // Change to localhost if backend is running locally
-        // target: 'http://localhost:5000', // Changed to local backend
-        // Or use an environment variable
-        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        target: process.env.VITE_API_URL || `http://localhost:${process.env.BACKEND_PORT || 8080}`,
         changeOrigin: true,
         secure: false,
         configure: (proxy, _options) => {

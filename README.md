@@ -16,7 +16,7 @@ Arina is a next-generation web application designed to empower businesses with a
 ## Project Structure
 
 ```
-Arina-Gemini/
+Arina/
 ├── client/           # Frontend React app (Vite, TypeScript)
 ├── server/           # Backend code (schemas, engines, services)
 ├── package.json      # Project metadata and scripts (monorepo root)

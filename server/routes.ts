@@ -4,12 +4,9 @@ import { storage } from "./storage.js";
 import { recommendationService } from "./services/recommendation-service.js";
 import { z } from "zod";
 import axios from 'axios';
-import { log } from "./vite.js";
 import { getUserSettingsService } from './services/userSettingsService.js';
 import { UserSettingsSchema } from './db/schema.js';
 import { getDb } from './db.js';
-
-log("routes.ts module FIRST LINE EXECUTES", "routes-init");
 
 // reCAPTCHA verification helper
 interface RecaptchaResponse {
@@ -21,40 +18,40 @@ interface RecaptchaResponse {
 }
 
 async function verifyRecaptcha(token: string): Promise<{ success: boolean; errorCodes?: string[]; message?: string }> {
-  log("verifyRecaptcha: invoked. Token (first 20 chars): " + (token ? token.substring(0, 20) : "null/undefined"), "routes");
+  console.log("verifyRecaptcha: invoked. Token (first 20 chars): " + (token ? token.substring(0, 20) : "null/undefined"), "routes");
   const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
   if (!secretKey || secretKey.trim() === "") {
-    log("verifyRecaptcha: RECAPTCHA_SECRET_KEY is NOT SET or is EMPTY.", "routes");
+    console.log("verifyRecaptcha: RECAPTCHA_SECRET_KEY is NOT SET or is EMPTY.", "routes");
     return { success: false, message: "reCAPTCHA secret key not configured on server." };
   }
   // Log more details about the key to catch potential whitespace or loading issues
-  log("verifyRecaptcha: RECAPTCHA_SECRET_KEY loaded (length " + secretKey.length + "): '" + secretKey.substring(0, 5) + "..." + secretKey.slice(-5) + "'", "routes");
+  console.log("verifyRecaptcha: RECAPTCHA_SECRET_KEY loaded (length " + secretKey.length + "): '" + secretKey.substring(0, 5) + "..." + secretKey.slice(-5) + "'", "routes");
 
   const verificationUrl = `https://www.google.com/recaptcha/api/siteverify`;
   const params = new URLSearchParams();
   params.append('secret', secretKey);
   params.append('response', token);
 
-  log("verifyRecaptcha: Preparing to send request to Google: " + verificationUrl, "routes");
+  console.log("verifyRecaptcha: Preparing to send request to Google: " + verificationUrl, "routes");
 
   try {
-    log("verifyRecaptcha: >>> Attempting axios.post to Google...", "routes");
+    console.log("verifyRecaptcha: >>> Attempting axios.post to Google...", "routes");
     const response = await axios.post(verificationUrl, params, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       timeout: 10000 // Add a timeout of 10 seconds
     });
-    log("verifyRecaptcha: <<< axios.post to Google completed. Status: " + response.status, "routes");
+    console.log("verifyRecaptcha: <<< axios.post to Google completed. Status: " + response.status, "routes");
     const { data } = response;
-    log("verifyRecaptcha: Google response data RAW: " + JSON.stringify(data), "routes"); // This is the crucial log
+    console.log("verifyRecaptcha: Google response data RAW: " + JSON.stringify(data), "routes"); // This is the crucial log
 
     if (data.success) {
-      log("verifyRecaptcha: Google response SUCCESS.", "routes");
+      console.log("verifyRecaptcha: Google response SUCCESS.", "routes");
       return { success: true };
     } else {
-      log("verifyRecaptcha: Google response FAILURE. Error codes: " + (data["error-codes"] ? data["error-codes"].join(", ") : "NOT PROVIDED BY GOOGLE"), "routes");
+      console.log("verifyRecaptcha: Google response FAILURE. Error codes: " + (data["error-codes"] ? data["error-codes"].join(", ") : "NOT PROVIDED BY GOOGLE"), "routes");
       let userMessage = "reCAPTCHA verification failed.";
       if (data["error-codes"]) {
         if (data["error-codes"].includes("missing-input-secret")) {
@@ -76,23 +73,23 @@ async function verifyRecaptcha(token: string): Promise<{ success: boolean; error
       return { success: false, errorCodes: data["error-codes"], message: userMessage };
     }
   } catch (error) {
-    log("verifyRecaptcha: !!! Exception during axios.post or response processing !!!", "routes");
+    console.log("verifyRecaptcha: !!! Exception during axios.post or response processing !!!", "routes");
     if (axios.isAxiosError(error)) {
-      log("verifyRecaptcha: AxiosError: " + error.message, "routes");
+      console.log("verifyRecaptcha: AxiosError: " + error.message, "routes");
       if (error.response) {
-        log("verifyRecaptcha: AxiosError response status: " + error.response.status, "routes");
-        log("verifyRecaptcha: AxiosError response data: " + JSON.stringify(error.response.data), "routes");
+        console.log("verifyRecaptcha: AxiosError response status: " + error.response.status, "routes");
+        console.log("verifyRecaptcha: AxiosError response data: " + JSON.stringify(error.response.data), "routes");
       } else if (error.request) {
-        log("verifyRecaptcha: AxiosError: No response received, request was made. " + error.request, "routes");
+        console.log("verifyRecaptcha: AxiosError: No response received, request was made. " + error.request, "routes");
       } else {
-        log("verifyRecaptcha: AxiosError: Error setting up request: " + error.message, "routes");
+        console.log("verifyRecaptcha: AxiosError: Error setting up request: " + error.message, "routes");
       }
       if (error.code === 'ECONNABORTED') {
-        log("verifyRecaptcha: AxiosError: Request timed out.", "routes");
+        console.log("verifyRecaptcha: AxiosError: Request timed out.", "routes");
         return { success: false, message: "Verification request timed out. Please try again." };
       }
     } else {
-      log("verifyRecaptcha: Non-Axios Exception: " + (error instanceof Error ? error.message : String(error)), "routes");
+      console.log("verifyRecaptcha: Non-Axios Exception: " + (error instanceof Error ? error.message : String(error)), "routes");
     }
     return { success: false, message: "An error occurred while verifying reCAPTCHA. Please try again." };
   }

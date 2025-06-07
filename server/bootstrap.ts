@@ -3,8 +3,9 @@ dotenv.config();
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
-import { setupVite, serveStatic, log } from "./vite.js";
 import { migrate } from "./migrations.js";
+
+function log(...args: any[]) { console.log(...args); }
 
 async function main() {
   // Run migrations before starting the server
@@ -49,12 +50,6 @@ async function main() {
     res.status(status).json({ message });
     throw err;
   });
-
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
 
   const port = 5000;
   server.listen({
