@@ -18,21 +18,9 @@ Arina-Gemini is a next-generation web application designed to empower businesses
 ```
 Arina-Gemini/
 ├── client/           # Frontend React app (Vite, TypeScript)
-│   ├── src/
-│   │   ├── components/      # UI and feature components
-│   │   ├── contexts/        # React context providers
-│   │   ├── hooks/           # Custom React hooks
-│   │   ├── i18n/            # Internationalization files
-│   │   ├── lib/             # Utility libraries (Firebase, Gemini, etc.)
-│   │   ├── pages/           # Page components
-│   │   ├── types/           # TypeScript types
-│   │   └── utils/           # Utility functions
-│   └── ...
 ├── server/           # Backend (Node.js, Express, Drizzle ORM)
-│   ├── services/           # Business logic and services
-│   └── ...
 ├── shared/           # Shared code (schemas, engines)
-├── package.json      # Project metadata and scripts
+├── package.json      # Project metadata and scripts (monorepo root)
 └── ...
 ```
 
@@ -40,85 +28,81 @@ Arina-Gemini/
 
 ### Prerequisites
 - **Node.js** (v18+ recommended)
-- **npm** or **yarn**
+- **npm** (v9+ recommended)
 
-### Installation
+### Installation (Monorepo)
 
 1. **Clone the repository:**
-   ```bash
+   ```powershell
    git clone <repo-url>
    cd Arina-Gemini
    ```
-2. **Install dependencies for both client and server:**
-   ```bash
-   cd client && npm install
-   cd ../server && npm install
+2. **Install all dependencies (client & server):**
+   ```powershell
+   npm run install-all
    ```
+   This will install dependencies in both `client` and `server` workspaces.
+
+3. **Copy environment variables:**
+   - Place your `.env` file in the project root.
+   - To copy `.env` to both `client` and `server`, run:
+     ```powershell
+     npm run copy-env
+     ```
+   - This will automatically copy `.env` to the appropriate folders using cross-platform scripts.
 
 ### Running the Application
 
-#### Development Mode
-- **Start the client:**
-  ```bash
-  cd client
+#### Development Mode (Full Stack)
+- **Start both client and server concurrently:**
+  ```powershell
   npm run dev
   ```
-- **Start the server:**
-  ```bash
-  cd server
-  npm run dev
-  ```
+  - This will:
+    - Ensure `.env` files are copied
+    - Start the backend (`server`) and wait for it to be ready
+    - Start the frontend (`client`) after the backend is up
 
 #### Production Mode
-1. **Build the client:**
-   ```bash
-   cd client
+1. **Build both client and server:**
+   ```powershell
    npm run build
    ```
-2. **Serve the client and start the server:**
-   - Deploy the `client/dist` folder using your preferred static hosting (Vercel, Netlify, etc.)
-   - Start the server:
-     ```bash
-     cd server
-     npm run start
-     ```
-   - Configure environment variables and reverse proxy as needed for your deployment.
+2. **Start the server (serves API and production client):**
+   ```powershell
+   npm start
+   ```
+   - The server will run from `server/dist/index.js`.
+   - Deploy the `client/dist` folder to your preferred static hosting if needed.
 
-## Configuration
+### Additional Scripts
+- **Check TypeScript:**
+  ```powershell
+  npm run check
+  ```
+- **Push database migrations (Drizzle ORM):**
+  ```powershell
+  npm run db:push
+  ```
 
-- **Environment Variables:**
-  - Both `client` and `server` may require environment variables for API keys, database URIs, and third-party integrations. See `.env.example` files in respective folders for details.
-- **Database:**
-  - The backend uses Drizzle ORM and supports MongoDB (or other, as configured). Ensure your database is running and accessible.
-- **Authentication:**
-  - Firebase is used for authentication. Set up your Firebase project and update configuration files accordingly.
+### Environment Variables
+- Place a `.env` file in the project root. It will be copied to both `client` and `server` automatically.
+- See `.env.example` in each folder for required variables.
+
+### Database
+- The backend uses Drizzle ORM. Ensure your database is running and accessible.
+
+### Authentication
+- Firebase is used for authentication. Set up your Firebase project and update configuration files accordingly.
 
 ## Technologies Used
 
 - **Frontend:** React, TypeScript, Vite, Tailwind CSS
 - **Backend:** Node.js, Express, Drizzle ORM
-- **Database:** MongoDB (or other, as configured)
+- **Database:** MongoDB
 - **Authentication:** Firebase
 - **AI/ML:** Gemini API integration
-- **Testing:** (Add your testing framework, e.g., Jest, React Testing Library)
-- **Deployment:** Vercel, Netlify, or custom server
-
-## Production API Routing (Vercel)
-
-- The file `client/vercel.json` rewrites all `/api/*` requests to your backend server in production.
-- If you deploy your backend to a new URL or environment, update the `destination` field in `vercel.json` accordingly:
-
-```
-{
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://your-backend-url/api/$1"
-    }
-  ]
-}
-```
-- No changes are needed in `vite.config.ts` for production API routing. The `server.proxy` setting is only used for local development.
+- **Deployment:** Vercel and Railway (or other)
 
 ## Contributing
 
