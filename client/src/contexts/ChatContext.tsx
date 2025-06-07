@@ -29,6 +29,7 @@ interface ChatContextProps {
   renameConversation: (conversationId: string, title: string) => Promise<void>;
   deleteConversation: (conversationId: string) => Promise<void>;
   loadChatHistory: () => Promise<void>;
+  clearActiveConversation: () => void;
 }
 
 export const ChatContext = createContext<ChatContextProps>({
@@ -43,6 +44,7 @@ export const ChatContext = createContext<ChatContextProps>({
   renameConversation: async () => {},
   deleteConversation: async () => {},
   loadChatHistory: async () => {},
+  clearActiveConversation: () => {},
 });
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
@@ -366,6 +368,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     [activeConversation, toast],
   );
 
+  const clearActiveConversation = useCallback(() => {
+    setActiveConversation(null);
+    setMessages([]);
+  }, []);
+
   return (
     <ChatContext.Provider
       value={{
@@ -380,6 +387,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         renameConversation,
         deleteConversation,
         loadChatHistory,
+        clearActiveConversation,
       }}
     >
       {children}

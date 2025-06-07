@@ -26,17 +26,19 @@ export default function Dashboard() {
   // Close the active tool panel
   const handleCloseToolPanel = () => {
     setShowRightPanel(false);
-    if (isMobile) {
-      setActiveTool(null);
-    }
+    setActiveTool(null);
   };
 
-  // Update setActiveTool to NOT affect mainView
+  // Set the main view (dashboard or chat) independently
+  const handleSetMainView = (view: 'dashboard' | 'chat') => {
+    setMainView(view);
+  };
+
+  // Set the right panel/tool independently
   const handleSetActiveTool = (tool: string | null) => {
+    // Only update the right panel, do not affect mainView
     setActiveTool(tool);
-    if (tool) {
-      setShowRightPanel(true);
-    }
+    setShowRightPanel(!!tool);
   };
 
   // Render the active tool component
@@ -80,16 +82,14 @@ export default function Dashboard() {
   // Determine if dashboard home should be shown
   const showDashboardHome = activeTool === "dashboard";
 
-  // Only show a right panel if a tool is selected (not dashboard, not null)
-  const isToolPanel = !!activeTool && !["dashboard", "chat"].includes(activeTool);
+  // Only show a right panel if a tool is selected (not null)
+  const isToolPanel = !!activeTool;
   const dashboardRightPanel = showRightPanel && isToolPanel ? (currentToolPanel || lastToolPanel) : undefined;
   const dashboardShowRightPanel = showRightPanel && isToolPanel;
 
-  // Main view logic: show DashboardHome, ChatInterface, or fallback
+  // Main view logic: show DashboardHome or ChatInterface
   let mainViewComponent: JSX.Element = <DashboardHome />;
-  if (activeTool === "chat") {
-    mainViewComponent = <ChatInterface />;
-  } else if (activeTool !== "dashboard") {
+  if (mainView === "chat") {
     mainViewComponent = <ChatInterface />;
   }
 
@@ -98,7 +98,8 @@ export default function Dashboard() {
       rightPanel={dashboardRightPanel}
       showRightPanel={dashboardShowRightPanel}
       setShowRightPanel={setShowRightPanel}
-      setActiveTool={setActiveTool}
+      setActiveTool={(tool) => handleSetActiveTool(tool)}
+      setMainView={handleSetMainView}
     >
       {mainViewComponent}
     </MainLayout>

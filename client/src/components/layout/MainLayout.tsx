@@ -17,12 +17,14 @@ export function MainLayout({
   showRightPanel,
   setShowRightPanel,
   setActiveTool,
+  setMainView,
 }: {
   children: JSX.Element;
   rightPanel?: JSX.Element;
   showRightPanel?: boolean;
   setShowRightPanel?: (open: boolean) => void;
   setActiveTool?: (tool: string) => void;
+  setMainView?: (view: 'dashboard' | 'chat') => void;
 }) {
   const { user } = useAuth();
   const isMobile = useMobile();
@@ -120,6 +122,7 @@ export function MainLayout({
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
         openTool={openTool}
+        setMainView={setMainView!}
       />
       <div
         className={cn(

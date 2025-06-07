@@ -65,6 +65,7 @@ interface SidebarProps {
   setIsOpen: (isOpen: boolean) => void;
   isMobile: boolean;
   openTool: (tool: string) => void;
+  setMainView: (view: 'dashboard' | 'chat') => void;
 }
 
 export function Sidebar({
@@ -72,6 +73,7 @@ export function Sidebar({
   setIsOpen,
   isMobile,
   openTool,
+  setMainView,
 }: SidebarProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -81,6 +83,7 @@ export function Sidebar({
     loadConversation,
     renameConversation,
     deleteConversation,
+    clearActiveConversation,
   } = useChat();
   const [analysisToolsOpen, setAnalysisToolsOpen] = useState(true);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
@@ -174,7 +177,7 @@ export function Sidebar({
           {/* Dashboard Menu Item */}
           <div className="px-2 py-2">
             <button
-              onClick={() => openTool("dashboard")}
+              onClick={() => setMainView("dashboard")}
               className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
             >
               <LayoutDashboard className="h-5 w-5 mr-3" />
@@ -182,7 +185,10 @@ export function Sidebar({
             </button>
             {/* Chat Menu Item */}
             <button
-              onClick={() => openTool("chat")}
+              onClick={() => {
+                setMainView("chat");
+                clearActiveConversation();
+              }}
               className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
             >
               <MessageSquare className="h-5 w-5 mr-3" />
@@ -355,8 +361,8 @@ export function Sidebar({
                   >
                     <button
                       onClick={() => {
+                        setMainView("chat");
                         loadConversation(conversation.id);
-                        if (openTool) openTool("chat"); // Switch to chat view
                         if (isMobile) setIsOpen(false);
                       }}
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
