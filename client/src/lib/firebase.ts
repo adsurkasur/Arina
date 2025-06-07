@@ -9,7 +9,8 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
   UserCredential,
-  signInWithPopup
+  signInWithPopup,
+  deleteUser as firebaseDeleteUser // Add this import
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -51,6 +52,15 @@ export const signOut = () => {
 // Auth state listener
 export const onAuthChanged = (callback: (user: FirebaseUser | null) => void) => {
   return onAuthStateChanged(auth, callback);
+};
+
+// Delete user account
+export const deleteCurrentUserAccount = async (): Promise<void> => {
+  const user = auth.currentUser;
+  if (user) {
+    return firebaseDeleteUser(user);
+  }
+  throw new Error("No user is currently signed in.");
 };
 
 export { auth };

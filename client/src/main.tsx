@@ -1,6 +1,3 @@
-import { initializeI18n } from "@/i18n";
-initializeI18n("en");
-
 import React, { useEffect, useState, useContext } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
@@ -14,6 +11,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { initializeI18n } from "@/i18n";
 
 function UniversalLoadingScreen() {
   return (
@@ -29,8 +27,9 @@ function RootApp() {
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [language, setLanguage] = useState("en");
   const [darkMode, setDarkMode] = useState(false);
+  // Track if i18n has been initialized
+  const [i18nReady, setI18nReady] = useState(false);
 
-  // Only run loadSettings when userReady transitions to true
   useEffect(() => {
     let cancelled = false;
     async function loadSettings() {
@@ -48,6 +47,9 @@ function RootApp() {
         setLanguage(lang);
         setDarkMode(dark);
         document.documentElement.classList.toggle("dark", dark);
+        // Initialize i18n with the loaded language (or fallback to en)
+        initializeI18n(lang);
+        setI18nReady(true);
         setSettingsLoaded(true);
       }
     }
@@ -59,12 +61,15 @@ function RootApp() {
       }
     } else {
       // No user, so allow login screen to show
+      // Initialize i18n with fallback language
+      initializeI18n("en");
+      setI18nReady(true);
       setSettingsLoaded(true);
     }
     return () => { cancelled = true; };
   }, [userReady, user]);
 
-  if (!settingsLoaded) return <UniversalLoadingScreen />;
+  if (!settingsLoaded || !i18nReady) return <UniversalLoadingScreen />;
 
   return (
     <ThemeProvider darkMode={darkMode} setDarkMode={setDarkMode}>

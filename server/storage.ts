@@ -385,6 +385,55 @@ export class DatabaseStorage {
     const user = await db.collection("users").findOne({ id: newId });
     console.log(`[updateUserId] User with new id exists:`, !!user);
   }
+
+  async deleteUserAccount(userId: string): Promise<void> {
+    const db = getDb();
+    try {
+      // Start a session for transaction, if your MongoDB setup supports it
+      // const session = db.client.startSession(); 
+      // await session.withTransaction(async () => {
+
+      // 1. Delete user document
+      const userDeletionResult = await db.collection("users").deleteOne({ id: userId }/*, { session }*/);
+      if (userDeletionResult.deletedCount === 0) {
+        // If user not found, perhaps already deleted or never existed. 
+        // Depending on desired behavior, could throw error or log and continue.
+        console.warn(`[deleteUserAccount] User with ID ${userId} not found for deletion.`);
+        // throw new Error(`User with ID ${userId} not found.`); 
+      }
+
+      // 2. Delete associated chat conversations and their messages
+      const conversations = await db.collection("chat_conversations").find({ user_id: userId }/*, { session }*/).toArray();
+      for (const conv of conversations) {
+        await db.collection("chat_messages").deleteMany({ conversation_id: conv.id }/*, { session }*/);
+      }
+      await db.collection("chat_conversations").deleteMany({ user_id: userId }/*, { session }*/);
+
+      // 3. Delete associated analysis results
+      await db.collection("analysis_results").deleteMany({ user_id: userId }/*, { session }*/);
+
+      // 4. Delete associated recommendation sets and their items
+      const recommendationSets = await db.collection("recommendation_sets").find({ user_id: userId }/*, { session }*/).toArray();
+      for (const recSet of recommendationSets) {
+        await db.collection("recommendation_items").deleteMany({ set_id: recSet.id }/*, { session }*/);
+      }
+      await db.collection("recommendation_sets").deleteMany({ user_id: userId }/*, { session }*/);
+
+      // });
+      // await session.endSession();
+      console.log(`[deleteUserAccount] Successfully deleted account and associated data for user ID ${userId}`);
+
+    } catch (error) {
+      console.error(`[deleteUserAccount] Error deleting user account for ID ${userId}:`, error);
+      // if (session && session.inTransaction()) {
+      //   await session.abortTransaction();
+      // }
+      // if (session) {
+      //   await session.endSession();
+      // }
+      throw new Error(`Failed to delete user account data: ${(error as Error).message}`);
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();

@@ -5,8 +5,9 @@ import {
   signInWithEmail,
   registerWithEmail,
   signOut,
+  deleteCurrentUserAccount, // Add this import
 } from "@/lib/firebase";
-import { createUserProfile } from "@/lib/mongodb";
+import { createUserProfile, deleteUserAccount as deleteMongoUserAccount } from "@/lib/mongodb"; // Add deleteMongoUserAccount
 import { User } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -25,6 +26,7 @@ interface AuthContextProps {
     password: string,
   ) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount?: () => Promise<void>; // Add this line
   checkAuthState: () => void;
   userReady: boolean;
 }
@@ -39,6 +41,7 @@ export const AuthContext = createContext<AuthContextProps>({
   loginWithEmail: async () => {},
   registerWithEmailPassword: async () => {},
   logout: async () => {},
+  deleteAccount: async () => {}, // Add this line
   checkAuthState: () => {},
   userReady: false,
 });
@@ -194,6 +197,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const deleteAccount = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "No user is signed in to delete.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const userId = user.id;
+    try {
+      // 1. Delete from Firebase Auth
+      await deleteCurrentUserAccount();
+      toast({
+        title: "Firebase Account Deleted",
+        description: "Your Firebase authentication account has been deleted.",
+      });
+
+      // 2. Delete from MongoDB via backend API
+      try {
+        await deleteMongoUserAccount(userId);
+        toast({
+          title: "Database Account Deleted",
+          description: "Your account data has been removed from our database.",
+        });
+      } catch (mongoError: any) {
+        // Log this error, but proceed with logout as Firebase user is deleted
+        console.error("Error deleting user data from MongoDB:", mongoError);
+        toast({
+          title: "Database Deletion Issue",
+          description: `Firebase account deleted, but an error occurred removing data from database: ${mongoError.message}. Please contact support if needed.`,
+          variant: "destructive",
+          duration: 10000, // Longer duration for important error
+        });
+      }
+
+      // 3. Clear local state and navigate
+      setUser(null);
+      navigate("/login"); // Navigate to login or home page
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been successfully deleted.",
+      });
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      toast({
+        title: "Error Deleting Account",
+        description: error.message || "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Only block with spinner if user is authenticated and userReady is false
   if (isLoading || (user && !userReady)) {
     if (profileError && user) {
@@ -241,6 +297,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         loginWithEmail,
         registerWithEmailPassword,
         logout,
+        deleteAccount, // Add this line
         checkAuthState,
         userReady,
       }}

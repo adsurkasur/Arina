@@ -5,6 +5,9 @@ import { recommendationService } from "./services/recommendation-service.js";
 import { z } from "zod";
 import axios from 'axios';
 import { log } from "./vite.js";
+import { getUserSettingsService } from './services/userSettingsService';
+import { UserSettingsSchema } from '../shared/schema';
+
 log("routes.ts module FIRST LINE EXECUTES", "routes-init");
 
 // reCAPTCHA verification helper
@@ -181,6 +184,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updated);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // DELETE endpoint for user account
+  app.delete("/api/users/:id/account", async (req, res) => {
+    try {
+      const userId = req.params.id;
+      await storage.deleteUserAccount(userId);
+      res.status(200).json({ message: "User account deleted successfully" });
+    } catch (error: any) {
+      console.error(`Error in DELETE /api/users/${req.params.id}/account:`, error);
+      res.status(500).json({ message: error.message || "Failed to delete user account" });
     }
   });
 
@@ -441,6 +456,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: error.response.data.error.message });
       }
       return res.status(500).json({ message: error.message });
+    }
+  });
+
+  // User Settings Endpoints
+  app.get('/api/user/settings', async (req, res) => {
+    if (!req.session.user) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+    try {
+      const settingsService = await getUserSettingsService();
+      const settings = await settingsService.getByUserId(req.session.user.id);
+      if (!settings) {
+        // If no settings found, return defaults (or create them as getByUserId now does)
+        const defaultSettings = await settingsService.createUserDefaultSettings(req.session.user.id);
+        return res.send(defaultSettings);
+      }
+      res.send(settings);
+    } catch (error) {
+      console.error('Error fetching user settings:', error);
+      res.status(500).send({ error: 'Failed to fetch user settings' });
+    }
+  });
+
+  app.put('/api/user/settings', async (req, res) => {
+    if (!req.session.user) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+    try {
+      const settingsData = UserSettingsSchema.pick({ theme: true, language: true }).partial().parse(req.body);
+      const settingsService = await getUserSettingsService();
+      const updatedSettings = await settingsService.upsert(req.session.user.id, settingsData);
+      res.send(updatedSettings);
+    } catch (error) {
+      console.error('Error updating user settings:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).send({ error: 'Invalid settings data', details: error.errors });
+      }
+      res.status(500).send({ error: 'Failed to update user settings' });
     }
   });
 

@@ -14,7 +14,8 @@ import {
   Mail, 
   Save, 
   X,
-  LogOut
+  LogOut,
+  XCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useChat } from "@/hooks/useChat";
@@ -23,13 +24,14 @@ import { useRecommendations } from "@/hooks/useRecommendations";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useTranslation } from 'react-i18next';
 import { PanelContainer } from "@/components/ui/PanelContainer";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface UserProfileProps {
   onClose: () => void;
 }
 
 export default function UserProfile({ onClose }: UserProfileProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth(); // Add deleteAccount
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -231,6 +233,43 @@ export default function UserProfile({ onClose }: UserProfileProps) {
                     <LogOut className="h-4 w-4 mr-2" />
                     {t('userProfile.signOut')}
                   </Button>
+                </div>
+
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <Label className="text-red-600">{t('userProfile.dangerZone')}</Label>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="destructive" 
+                        className="w-full justify-start"
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        {t('userProfile.deleteAccountButton')}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{t('userProfile.deleteAccountConfirmTitle')}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t('userProfile.deleteAccountConfirmDesc')}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{t('userProfile.cancel')}</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={async () => {
+                            if (deleteAccount) {
+                              await deleteAccount();
+                              onClose(); // Close profile panel after deletion
+                            }
+                          }}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          {t('userProfile.deleteAccountConfirmButton')}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </CardContent>
             </Card>
