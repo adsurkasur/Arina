@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useToast } from '@/hooks/use-toast';
 
 interface WeatherData {
   temperature: number;
@@ -17,6 +19,8 @@ interface WeatherError {
 }
 
 export const useWeather = (lat?: number, lon?: number) => {
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<WeatherError | null>(null);
@@ -63,9 +67,20 @@ export const useWeather = (lat?: number, lon?: number) => {
   };
 
   const getCurrentLocation = () => {
-    return new Promise<{lat: number, lon: number}>((resolve, reject) => {
+    return new Promise<{lat: number, lon: number}>((resolve) => {
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser'));
+        // Default to Jakarta if geolocation is not supported
+        const msg = t('dashboard.weatherNoGeolocation', 'Geolocation is not available. Menampilkan cuaca untuk Jakarta.');
+        setError({
+          message: msg,
+          code: 'NO_GEOLOCATION'
+        });
+        toast({
+          title: t('alert.info', 'Info'),
+          description: msg,
+          variant: 'default',
+        });
+        resolve({ lat: -6.2088, lon: 106.8456 });
         return;
       }
 
@@ -77,7 +92,18 @@ export const useWeather = (lat?: number, lon?: number) => {
           });
         },
         (error) => {
-          reject(new Error(`Geolocation error: ${error.message}`));
+          // Default to Jakarta if user denies or error occurs
+          const msg = t('dashboard.weatherGeolocationDenied', 'Tidak dapat mengakses lokasi. Menampilkan cuaca untuk Jakarta.');
+          setError({
+            message: msg,
+            code: 'GEOLOCATION_DENIED'
+          });
+          toast({
+            title: t('alert.info', 'Info'),
+            description: msg,
+            variant: 'default',
+          });
+          resolve({ lat: -6.2088, lon: 106.8456 });
         },
         {
           enableHighAccuracy: true,
