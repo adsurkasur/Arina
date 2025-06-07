@@ -26,11 +26,14 @@ function ApiHealthGate({ children }: { children: React.ReactNode }) {
   const [apiReady, setApiReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Use VITE_API_URL if set, otherwise fallback to relative path
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+
   useEffect(() => {
     let cancelled = false;
     async function checkApi() {
       try {
-        const res = await fetch('/api/health');
+        const res = await fetch(`${API_BASE}/api/health`);
         if (!res.ok) throw new Error('API not ready');
         if (!cancelled) {
           setApiReady(true);
@@ -44,7 +47,7 @@ function ApiHealthGate({ children }: { children: React.ReactNode }) {
     }
     checkApi();
     return () => { cancelled = true; };
-  }, []);
+  }, [API_BASE]);
 
   if (!apiReady) {
     return (
