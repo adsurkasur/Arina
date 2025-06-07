@@ -153,19 +153,19 @@ export type UserSettings = z.infer<typeof UserSettingsSchema>;
 
 // Types
 export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUser = typeof users.$inferInsert;
 
 export type ChatConversation = typeof chatConversations.$inferSelect;
-export type InsertChatConversation = z.infer<typeof insertChatConversationSchema>;
+export type InsertChatConversation = typeof chatConversations.$inferInsert;
 
 export type ChatMessage = typeof chatMessages.$inferSelect;
-export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;
 
 export type AnalysisResult = typeof analysisResults.$inferSelect;
-export type InsertAnalysisResult = z.infer<typeof insertAnalysisResultSchema>;
+export type InsertAnalysisResult = typeof analysisResults.$inferInsert;
 
 export type RecommendationItem = typeof recommendationItems.$inferSelect;
-export type InsertRecommendationItem = z.infer<typeof insertRecommendationItemSchema>;
+export type InsertRecommendationItem = typeof recommendationItems.$inferInsert;
 
 export type RecommendationSet = typeof recommendationSets.$inferSelect;
-export type InsertRecommendationSet = z.infer<typeof insertRecommendationSetSchema>;
+export type InsertRecommendationSet = typeof recommendationSets.$inferInsert;
