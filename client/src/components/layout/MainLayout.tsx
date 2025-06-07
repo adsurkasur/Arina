@@ -9,21 +9,35 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { NotificationProvider, useNotification, NOTIFICATION_DURATION } from "@/contexts/NotificationContext";
 import { NotificationSidePanel } from "@/components/ui/NotificationSidePanel";
+import BusinessFeasibility from "@/components/tools/BusinessFeasibility";
+import DemandForecasting from "@/components/tools/DemandForecasting";
+import OptimizationAnalysis from "@/components/tools/OptimizationAnalysis";
+import RecommendationDashboard from "@/components/recommendations/RecommendationDashboard";
+import AnalysisHistory from "@/components/history/AnalysisHistory";
+import UserProfile from "@/components/profile/UserProfile";
+import SettingsPanel from "@/components/profile/SettingsPanel";
+import { DebugPanel } from "@/components/ui/DebugPanel";
+import HelpPanel from "@/components/ui/HelpPanel";
+
+// --- Panel Registry ---
+const PANEL_COMPONENTS: Record<string, React.ComponentType<{ onClose: () => void }>> = {
+  userProfile: UserProfile,
+  businessFeasibility: BusinessFeasibility,
+  demandForecasting: DemandForecasting,
+  optimizationAnalysis: OptimizationAnalysis,
+  recommendations: RecommendationDashboard,
+  analysisHistory: AnalysisHistory,
+  settings: SettingsPanel,
+  debug: (props) => <DebugPanel {...props} />,
+  help: HelpPanel,
+};
 
 // Fix: use global JSX.Element for props
 export function MainLayout({
   children,
-  rightPanel,
-  showRightPanel,
-  setShowRightPanel,
-  setActiveTool,
   setMainView,
 }: {
   children: JSX.Element;
-  rightPanel?: JSX.Element;
-  showRightPanel?: boolean;
-  setShowRightPanel?: (open: boolean) => void;
-  setActiveTool?: (tool: string) => void;
   setMainView?: (view: 'dashboard' | 'chat') => void;
 }) {
   const { user } = useAuth();
@@ -31,78 +45,25 @@ export function MainLayout({
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const { unreadCount } = useNotification();
-  const [lastActiveTool, setLastActiveTool] = useState<string | null>(null);
-  // Animation: keep panel mounted for close animation
-  const [panelVisible, setPanelVisible] = useState(false);
-  const [panelAnimatingOut, setPanelAnimatingOut] = useState(false);
-  // Track which panel was last open for correct animation out
-  const [lastPanelType, setLastPanelType] = useState<"notification" | "tool" | null>(null);
-  // Cache the last non-undefined rightPanel for animation out
-  const [lastRightPanel, setLastRightPanel] = useState<JSX.Element | undefined>(undefined);
+  const [activePanel, setActivePanel] = useState<string | null>(null);
 
-  // Watch showRightPanel and notifPanelOpen to control mount/unmount for animation
-  React.useEffect(() => {
-    if (showRightPanel || notifPanelOpen) {
-      setPanelVisible(true);
-      setPanelAnimatingOut(false);
-      if (notifPanelOpen) setLastPanelType("notification");
-      else if (showRightPanel) setLastPanelType("tool");
-    } else if (panelVisible) {
-      setPanelAnimatingOut(true);
-      // Unmount after animation duration (match .35s in CSS, or .5s for featurepanel-out)
-      const timeout = setTimeout(() => {
-        setPanelVisible(false);
-        setPanelAnimatingOut(false);
-        setLastPanelType(null);
-      }, 500); // match duration-500 in className
-      return () => clearTimeout(timeout);
-    }
-  }, [showRightPanel, notifPanelOpen]);
-
-  // Toggle tool panel: if already open with same tool, close it; else open new tool
-  const openTool = (tool: string) => {
-    if (!setActiveTool || !setShowRightPanel) return;
-    if (notifPanelOpen) setNotifPanelOpen(false);
-    if (lastActiveTool === tool && showRightPanel) {
-      setShowRightPanel(false);
-      setActiveTool("");
-      setLastActiveTool(null);
-    } else {
-      setActiveTool(tool);
-      setShowRightPanel(!!tool && tool !== "dashboard");
-      setLastActiveTool(tool);
-    }
-  };
-
-  // Open or close notification panel when icon is pressed
-  const handleOpenNotifPanel = () => {
-    setNotifPanelOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        if (setShowRightPanel) setShowRightPanel(false);
-        if (setActiveTool) setActiveTool("");
-        setLastActiveTool(null);
-      }
-      return next;
-    });
-  };
-
-  const showNotificationPanel = notifPanelOpen;
-  const showToolPanel = showRightPanel && !notifPanelOpen;
-
-  // When notification panel closes, also close any tool panel (unify behavior)
-  const handleNotifPanelClose = () => {
+  // --- Centralized open/close logic ---
+  const openPanel = (panel: string) => {
     setNotifPanelOpen(false);
-    if (setShowRightPanel) setShowRightPanel(false);
-    if (setActiveTool) setActiveTool("");
-    setLastActiveTool(null);
+    setActivePanel((prev) => (prev === panel ? null : panel));
+  };
+  const closePanel = () => {
+    setActivePanel(null);
+    setNotifPanelOpen(false);
+  };
+  const openNotifPanel = () => {
+    setActivePanel(null);
+    setNotifPanelOpen(true);
   };
 
-  React.useEffect(() => {
-    if (rightPanel) {
-      setLastRightPanel(rightPanel);
-    }
-  }, [rightPanel]);
+  // --- Panel rendering logic ---
+  const PanelComponent = activePanel ? PANEL_COMPONENTS[activePanel] : null;
+  const isPanelOpen = !!activePanel;
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
@@ -121,8 +82,9 @@ export function MainLayout({
         isMobile={isMobile}
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
-        openTool={openTool}
-        setMainView={setMainView!}
+        openTool={openPanel}
+        setMainView={setMainView || (() => {})}
+        activePanel={activePanel}
       />
       <div
         className={cn(
@@ -156,21 +118,23 @@ export function MainLayout({
               className="rounded-full"
               onClick={() => {
                 if (notifPanelOpen) setNotifPanelOpen(false);
-                if (lastActiveTool === 'help' && showRightPanel) {
-                  if (setShowRightPanel) setShowRightPanel(false);
-                  if (setActiveTool) setActiveTool("");
-                  setLastActiveTool(null);
+                if (activePanel === 'help' && isPanelOpen) {
+                  closePanel();
                 } else {
-                  if (setActiveTool) setActiveTool('help');
-                  if (setShowRightPanel) setShowRightPanel(true);
-                  setLastActiveTool('help');
+                  openPanel('help');
                 }
               }}
             >
               <HelpCircle className="h-5 w-5 text-gray-600" />
             </Button>
             <div className="relative">
-              <Button variant="outline" size="icon" className="rounded-full" onClick={handleOpenNotifPanel}>
+              <Button variant="outline" size="icon" className="rounded-full" onClick={() => {
+                if (notifPanelOpen) {
+                  setNotifPanelOpen(false);
+                } else {
+                  openNotifPanel();
+                }
+              }}>
                 <Bell className="h-5 w-5 text-gray-600" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center font-bold border border-white">{unreadCount}</span>
@@ -178,56 +142,31 @@ export function MainLayout({
               </Button>
             </div>
             <Separator orientation="vertical" className="h-8 mx-1" />
-            {user && <ProfileDropdown openTool={openTool} />}
+            {user && <ProfileDropdown openTool={openPanel} />}
           </div>
         </header>
         <div className="flex-1 flex overflow-hidden relative">
           <div className="flex-1 flex flex-col h-full bg-white/90">
             {children}
           </div>
-          {/* Right Panel (Notification or Tool) - always render container for animation, only render content when open */}
-          {panelVisible && !isMobile && (
-            <div
-              className={cn(
-                "absolute top-0 right-0 h-full flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white shadow-2xl",
-                panelAnimatingOut ? "animate-featurepanel-out" : "animate-featurepanel-in"
-              )}
-              style={{
-                height: "100%",
-                maxHeight: "100vh",
-                background: "none",
-                border: "none",
-                boxShadow: "none",
-                pointerEvents: panelAnimatingOut ? "none" : undefined,
-              }}
-            >
-              {/* Only render the correct panel during animation out */}
-              {((notifPanelOpen && !panelAnimatingOut) || (panelAnimatingOut && lastPanelType === "notification")) && (
-                <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} animatingOut={panelAnimatingOut} />
-              )}
-              {((lastRightPanel && ((showRightPanel && !panelAnimatingOut) || (panelAnimatingOut && lastPanelType === "tool"))) &&
-                React.cloneElement((showRightPanel && !panelAnimatingOut ? rightPanel : lastRightPanel) as any, {
-                  onClose: () => {
-                    if (setShowRightPanel) setShowRightPanel(false);
-                    if (setActiveTool) setActiveTool("");
-                    setLastActiveTool(null);
-                  },
-                  animatingOut: panelAnimatingOut,
-                })
-              )}
-            </div>
-          )}
-          {/* Mobile overlays */}
-          {showNotificationPanel && isMobile && (
-            <NotificationSidePanel open={notifPanelOpen} onClose={handleNotifPanelClose} />
-          )}
-          {showToolPanel && isMobile && rightPanel && React.cloneElement(rightPanel as any, {
-            onClose: () => {
-              if (setShowRightPanel) setShowRightPanel(false);
-              if (setActiveTool) setActiveTool("");
-              setLastActiveTool(null);
-            },
-          })}
+          {/* --- Unified Right Panel --- */}
+          <div
+            className={cn(
+              "absolute top-0 right-0 h-full flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white shadow-2xl transition-transform duration-300",
+              notifPanelOpen || isPanelOpen ? "translate-x-0" : "translate-x-full",
+              "will-change-transform"
+            )}
+            style={{ height: "100%", maxHeight: "100vh" }}
+            aria-hidden={!(notifPanelOpen || isPanelOpen)}
+            tabIndex={-1}
+          >
+            {notifPanelOpen && (
+              <NotificationSidePanel onClose={closePanel} />
+            )}
+            {PanelComponent && isPanelOpen && (
+              <PanelComponent onClose={closePanel} />
+            )}
+          </div>
         </div>
       </div>
     </div>

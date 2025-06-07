@@ -50,6 +50,7 @@
   "dashboard.notifications": "Notifications",
   "dashboard.overview": "Overview",
   "dashboard.recentActivity": "Recent Activity",
+  "dashboard.noActivity": "No recent activity",
   "dashboard.title": "Dashboard",
   "dashboard.totalAnalyses": "Total Analyses",
   "dashboard.viewAll": "View All",

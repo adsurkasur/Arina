@@ -58,7 +58,6 @@ import { PanelContainer } from "@/components/ui/PanelContainer";
 
 interface AnalysisHistoryProps {
   onClose: () => void;
-  animatingOut?: boolean;
 }
 
 const TYPE_LABELS = {
@@ -92,7 +91,7 @@ const PIE_COLORS = [
   CHART_COLORS.lightGreen
 ];
 
-export default function AnalysisHistory({ onClose, animatingOut }: AnalysisHistoryProps) {
+export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { 
@@ -694,7 +693,7 @@ export default function AnalysisHistory({ onClose, animatingOut }: AnalysisHisto
   }
 
   return (
-    <PanelContainer onClose={onClose} title={t('tools.analysisHistory.title')} animatingOut={animatingOut}>
+    <PanelContainer onClose={onClose} title={t('tools.analysisHistory.title')}>
       <div className="flex flex-col md:flex-row gap-3 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

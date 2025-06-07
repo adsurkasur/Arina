@@ -61,7 +61,7 @@ export default function Dashboard() {
       case "settings":
         return <SettingsPanel onClose={handleCloseToolPanel} />;
       case "debug":
-        return <DebugPanel open={true} onClose={handleCloseToolPanel} />;
+        return <DebugPanel onClose={handleCloseToolPanel} />;
       case "help":
         return <HelpPanel onClose={handleCloseToolPanel} />;
       default:
@@ -95,10 +95,6 @@ export default function Dashboard() {
 
   return (
     <MainLayout
-      rightPanel={dashboardRightPanel}
-      showRightPanel={dashboardShowRightPanel}
-      setShowRightPanel={setShowRightPanel}
-      setActiveTool={(tool) => handleSetActiveTool(tool)}
       setMainView={handleSetMainView}
     >
       {mainViewComponent}

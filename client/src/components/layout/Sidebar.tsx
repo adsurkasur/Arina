@@ -66,6 +66,7 @@ interface SidebarProps {
   isMobile: boolean;
   openTool: (tool: string) => void;
   setMainView: (view: 'dashboard' | 'chat') => void;
+  activePanel?: string | null;
 }
 
 export function Sidebar({
@@ -74,6 +75,7 @@ export function Sidebar({
   isMobile,
   openTool,
   setMainView,
+  activePanel,
 }: SidebarProps) {
   const { t } = useTranslation();
   const { user } = useAuth();

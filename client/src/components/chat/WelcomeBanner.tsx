@@ -82,21 +82,21 @@ export default function WelcomeBanner({ onToolSelect }: WelcomeBannerProps) {
           <div className="space-y-2">
             <Button 
               variant="outline" 
-              className="button-suggestion"
+              className="w-full justify-start text-left text-gray-800 bg-cream border-0 transition-colors button-suggestion"
               onClick={() => onToolSelect && onToolSelect('businessFeasibility')}
             >
               {t('chat.example.businessFeasibility')}
             </Button>
             <Button 
               variant="outline" 
-              className="button-suggestion"
+              className="w-full justify-start text-left text-gray-800 bg-cream border-0 transition-colors button-suggestion"
               onClick={() => onToolSelect && onToolSelect('demandForecasting')}
             >
               {t('chat.example.demandForecasting')}
             </Button>
             <Button 
               variant="outline" 
-              className="button-suggestion"
+              className="w-full justify-start text-left text-gray-800 bg-cream border-0 transition-colors button-suggestion"
               onClick={() => onToolSelect && onToolSelect('optimizationAnalysis')}
             >
               {t('chat.example.optimizationAnalysis')}

@@ -74,7 +74,7 @@ const formSchema = z.object({
   periodLength: z.number().min(1).max(12),
 });
 
-export default function DemandForecasting({ onClose, animatingOut }: { onClose: () => void; animatingOut?: boolean }) {
+export default function DemandForecasting({ onClose }: { onClose: () => void }) {
   const [results, setResults] = useState<ForecastResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -247,7 +247,7 @@ export default function DemandForecasting({ onClose, animatingOut }: { onClose: 
   const handleCloseFullscreen = useCallback(() => setIsFullscreen(false), []);
 
   return (
-    <PanelContainer onClose={onClose} title={t('tools.demandForecasting.title')} animatingOut={animatingOut}>
+    <PanelContainer onClose={onClose} title={t('tools.demandForecasting.title')}>
       <div className="space-y-6">
         {/* Section: Forecast Info */}
         <div className="mb-4">

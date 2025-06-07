@@ -6,14 +6,12 @@ export const PanelContainer: React.FC<{
   onClose?: () => void;
   title?: string;
   fixed?: boolean;
-  animatingOut?: boolean;
-}> = ({ children, onClose, title, fixed, animatingOut }) => (
+}> = ({ children, onClose, title, fixed }) => (
   <div
     className={cn(
       fixed
         ? "fixed top-0 right-0 w-full max-w-md h-full bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px] z-[200]"
-        : "h-full w-full max-w-md bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px]",
-      animatingOut ? "animate-featurepanel-out" : "animate-featurepanel-in"
+        : "h-full w-full max-w-md bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ease-in-out flex flex-col min-w-[320px]"
     )}
     style={fixed ? {} : { position: "relative", zIndex: "auto" }}
   >

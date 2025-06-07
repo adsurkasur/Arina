@@ -13,10 +13,12 @@ import { useTranslation } from "react-i18next";
 
 interface RecommendationsProps {
   onClose: () => void;
+  open?: boolean;
 }
 
-export default function Recommendations({ onClose }: RecommendationsProps) {
+export default function Recommendations({ onClose, open }: RecommendationsProps) {
   const { t } = useTranslation();
+  if (!open) return null;
   return (
     <PanelContainer onClose={onClose} title={t("tools.recommendations.title")}>
       <div className="flex-1 overflow-auto p-6">

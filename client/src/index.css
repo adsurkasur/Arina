@@ -211,10 +211,31 @@ body {
   background-color: #EFEFE5 !important;
 }
 
-.button-suggestion {
-  @apply w-full justify-start text-left text-gray-800 bg-cream border-0 transition-colors;
-}
 .button-suggestion:hover, .button-suggestion:focus-visible {
   background-color: #4B7B3F !important; /* accent green */
   color: #F9F9EF !important; /* cream text */
+}
+
+/* Slide animations for feature panel */
+@keyframes featurepanel-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes featurepanel-slide-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.featurepanel-slide-in {
+  animation: featurepanel-slide-in 0.35s cubic-bezier(0.77,0,0.175,1) both;
+}
+.featurepanel-slide-out {
+  animation: featurepanel-slide-out 0.35s cubic-bezier(0.77,0,0.175,1) both;
 }

@@ -50,6 +50,7 @@
   "dashboard.notifications": "Notifikasi",
   "dashboard.overview": "Ringkasan",
   "dashboard.recentActivity": "Aktivitas Terbaru",
+  "dashboard.noActivity": "Tidak ada aktivitas terbaru",
   "dashboard.title": "Dasbor",
   "dashboard.totalAnalyses": "Total Analisis",
   "dashboard.viewAll": "Lihat Semua",

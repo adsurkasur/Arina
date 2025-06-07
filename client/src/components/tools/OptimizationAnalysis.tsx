@@ -105,7 +105,7 @@ const formSchema = z.object({
   objective: z.enum(["maximize", "minimize"]).optional(),
 });
 
-export default function OptimizationAnalysis({ onClose, animatingOut }: { onClose: () => void; animatingOut?: boolean }) {
+export default function OptimizationAnalysis({ onClose }: { onClose: () => void }) {
   const [activeTab, setActiveTab] = useState("variables");
   const [results, setResults] = useState<OptimizationResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -283,7 +283,7 @@ export default function OptimizationAnalysis({ onClose, animatingOut }: { onClos
   };
 
   return (
-    <PanelContainer onClose={onClose} title={t('tools.optimization.title')} animatingOut={animatingOut}>
+    <PanelContainer onClose={onClose} title={t('tools.optimization.title')}>
       <div className="space-y-6">
         {/* Section: Problem Definition */}
         <div className="mb-4">

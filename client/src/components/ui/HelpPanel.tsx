@@ -4,17 +4,12 @@ import { useTranslation } from "react-i18next";
 
 interface HelpPanelProps {
   onClose: () => void;
-  animatingOut?: boolean;
 }
 
-const HelpPanel: React.FC<HelpPanelProps> = ({ onClose, animatingOut }) => {
+const HelpPanel: React.FC<HelpPanelProps> = ({ onClose }) => {
   const { t } = useTranslation();
   return (
-    <PanelContainer
-      onClose={onClose}
-      title={t("help.title")}
-      animatingOut={animatingOut}
-    >
+    <PanelContainer onClose={onClose} title={t("help.title")}>
       <div className="p-4 space-y-4">
         <p>{t("help.description")}</p>
         <p>
