@@ -1,6 +1,6 @@
-# Arina-Gemini
+# Arina
 
-Arina-Gemini is a next-generation web application designed to empower businesses with advanced analysis, forecasting, and personalized recommendations. Built with a modular, scalable architecture, it leverages modern technologies including React (Vite), TypeScript, Tailwind CSS, and a robust Node.js/Express backend. The project is engineered for maintainability, extensibility, and high performance, supporting both rapid prototyping and production-grade deployments.
+Arina is a next-generation web application designed to empower businesses with advanced analysis, forecasting, and personalized recommendations. Built with a modular, scalable architecture, it leverages modern technologies including React (Vite), TypeScript, Tailwind CSS, and a robust Node.js/Express backend. The project is engineered for maintainability, extensibility, and high performance, supporting both rapid prototyping and production-grade deployments.
 
 ## Features
 
