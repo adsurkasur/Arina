@@ -21,16 +21,17 @@ export const useWeather = (lat?: number, lon?: number) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<WeatherError | null>(null);
 
-  // OpenWeatherMap API key - Ganti dengan API key Anda
-  const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
+  // Google Maps API key for Weather API
+  const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   const fetchWeather = async (latitude: number, longitude: number) => {
     try {
       setLoading(true);
       setError(null);
 
+      // Google Weather API current conditions endpoint
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=id`
+        `https://weather.googleapis.com/v1/currentConditions:lookup?key=${API_KEY}&location.latitude=${latitude}&location.longitude=${longitude}&unitsSystem=METRIC`
       );
 
       if (!response.ok) {
@@ -38,16 +39,16 @@ export const useWeather = (lat?: number, lon?: number) => {
       }
 
       const data = await response.json();
-
+      // Map Google Weather API response to WeatherData
       const weatherData: WeatherData = {
-        temperature: Math.round(data.main.temp),
-        condition: data.weather[0].description,
-        humidity: data.main.humidity,
-        windSpeed: Math.round(data.wind.speed * 3.6), // Convert m/s to km/h
-        highTemp: Math.round(data.main.temp_max),
-        lowTemp: Math.round(data.main.temp_min),
-        icon: data.weather[0].icon,
-        location: data.name
+        temperature: Math.round(data.temperature?.degrees ?? 0),
+        condition: data.weatherCondition?.description?.text || 'Unknown',
+        humidity: Math.round(data.relativeHumidity ?? 0),
+        windSpeed: Math.round(data.wind?.speed?.value ?? 0),
+        highTemp: Math.round(data.currentConditionsHistory?.maxTemperature?.degrees ?? data.temperature?.degrees ?? 0),
+        lowTemp: Math.round(data.currentConditionsHistory?.minTemperature?.degrees ?? data.temperature?.degrees ?? 0),
+        icon: data.weatherCondition?.iconBaseUri || '',
+        location: data.timeZone?.id || 'Unknown',
       };
 
       setWeatherData(weatherData);
@@ -91,10 +92,8 @@ export const useWeather = (lat?: number, lon?: number) => {
     const initWeather = async () => {
       try {
         if (lat && lon) {
-          // Use provided coordinates
           await fetchWeather(lat, lon);
         } else {
-          // Get current location
           const location = await getCurrentLocation();
           await fetchWeather(location.lat, location.lon);
         }

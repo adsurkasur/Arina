@@ -17,6 +17,7 @@ import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useWeather } from "@/hooks/useWeather";
 import { id as localeId } from 'date-fns/locale';
+import { GoogleMapComponent } from '@/components/GoogleMap';
 
 // Types
 interface AgricultureNews {
@@ -151,9 +152,13 @@ const WeatherWidget = React.memo(() => {
       <Card className="bg-gradient-to-br from-gray-400 to-gray-600 text-white h-full">
         <CardContent className="p-6 text-center h-full flex flex-col justify-center">
           <p className="text-sm mb-2">{t('dashboard.weatherLoadError')}</p>
-          <Button variant="ghost" size="sm" onClick={refreshWeather} className="text-white">
+          <Button variant="ghost" size="sm" onClick={refreshWeather} className="text-white mb-2">
             <RefreshCw className="h-4 w-4 mr-1" />
-            Refresh
+            {t('dashboard.refresh') || 'Refresh'}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={refreshWeather} className="text-white">
+            <Navigation className="h-4 w-4 mr-1" />
+            {t('dashboard.useMyLocation') || 'Use My Location'}
           </Button>
         </CardContent>
       </Card>
@@ -168,9 +173,14 @@ const WeatherWidget = React.memo(() => {
             <Cloud className="mr-2 h-5 w-5" />
             Cuaca {weatherData?.location || 'Jakarta'}
           </span>
-          <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8">
-            <RefreshCw className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8" title={t('dashboard.refresh') || 'Refresh'}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8" title={t('dashboard.useMyLocation') || 'Use My Location'}>
+              <Navigation className="h-4 w-4" />
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -238,9 +248,9 @@ const FarmLocationWidget = React.memo(() => {
       <CardContent className="flex-1 flex flex-col space-y-3">
         {/* Map Area */}
         <div className="relative flex-1 bg-gradient-to-br from-green-100 to-green-200 rounded-xl overflow-hidden flex flex-col">
-          {/* Peta */}
+          {/* Google Map replaces OpenStreetMap */}
           <div className="absolute inset-0">
-            <OpenStreetMap className="w-full h-full" height="100%" />
+            <GoogleMapComponent viewMode={viewMode} height="100%" className="w-full h-full" />
           </div>
           {/* Overlay Pin di tengah peta */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -481,74 +491,6 @@ const RecentActivityWidget = React.memo(({ analysisResults }: { analysisResults:
     </Card>
   );
 });
-
-// Komponen OpenStreetMap
-export const OpenStreetMap: React.FC<{ height?: string; className?: string }> = ({
-  height = "200px",
-  className = "",
-}) => {
-  const mapRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let map: any;
-    let marker: any;
-
-    // Dynamic import agar SSR aman
-    import("leaflet").then(L => {
-      // Hapus map sebelumnya jika ada
-      if (mapRef.current && (mapRef.current as any)._leaflet_id) {
-        (mapRef.current as any)._leaflet_id = null;
-      }
-
-      // Default ke Jakarta
-      const defaultLatLng: [number, number] = [-6.2088, 106.8456];
-
-      // Inisialisasi map
-      map = L.map(mapRef.current!).setView(defaultLatLng, 13);
-
-      L.tileLayer("https://a.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '© OpenStreetMap contributors',
-        crossOrigin: true,
-      }).addTo(map);
-
-      // Ambil lokasi sekarang
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            const latlng: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-            map.setView(latlng, 15);
-            marker = L.marker(latlng).addTo(map)
-              .bindPopup("Lokasi Anda Sekarang").openPopup();
-          },
-          () => {
-            // Jika gagal, tetap di default
-            marker = L.marker(defaultLatLng).addTo(map)
-              .bindPopup("Lokasi Default (Jakarta)").openPopup();
-          }
-        );
-      } else {
-        marker = L.marker(defaultLatLng).addTo(map)
-          .bindPopup("Lokasi Default (Jakarta)").openPopup();
-      }
-    });
-
-    // Cleanup
-    return () => {
-      if (mapRef.current && mapRef.current.innerHTML) {
-        mapRef.current.innerHTML = "";
-      }
-      if (map && map.remove) map.remove();
-    };
-  }, []);
-
-  return (
-    <div
-      ref={mapRef}
-      className={className}
-      style={{ width: "100%", height, borderRadius: 12, overflow: "hidden" }}
-    />
-  );
-};
 
 // Main Dashboard Component
 export default function DashboardHome() {
