@@ -5,8 +5,9 @@ import { recommendationService } from "./services/recommendation-service.js";
 import { z } from "zod";
 import axios from 'axios';
 import { log } from "./vite.js";
-import { getUserSettingsService } from './services/userSettingsService';
-import { UserSettingsSchema } from '../shared/schema';
+import { getUserSettingsService } from './services/userSettingsService.js';
+import { UserSettingsSchema } from '../shared/schema.js';
+import { getDb } from './db.js';
 
 log("routes.ts module FIRST LINE EXECUTES", "routes-init");
 
@@ -494,6 +495,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).send({ error: 'Invalid settings data', details: error.errors });
       }
       res.status(500).send({ error: 'Failed to update user settings' });
+    }
+  });
+
+  // Health check endpoint for DB readiness
+  app.get('/api/health', async (req, res) => {
+    try {
+      await getDb().command({ ping: 1 });
+      res.status(200).json({ status: 'ok' });
+    } catch (e) {
+      res.status(500).json({ status: 'error', message: 'DB not ready' });
     }
   });
 

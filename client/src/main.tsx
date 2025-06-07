@@ -22,6 +22,41 @@ function UniversalLoadingScreen() {
   );
 }
 
+function ApiHealthGate({ children }: { children: React.ReactNode }) {
+  const [apiReady, setApiReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function checkApi() {
+      try {
+        const res = await fetch('/api/health');
+        if (!res.ok) throw new Error('API not ready');
+        if (!cancelled) {
+          setApiReady(true);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError('Connecting to server...');
+          setTimeout(checkApi, 1000);
+        }
+      }
+    }
+    checkApi();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (!apiReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <span className="ml-4 text-gray-500 text-lg">{error || 'Connecting to server...'}</span>
+      </div>
+    );
+  }
+  return <>{children}</>;
+}
+
 function RootApp() {
   const { user, userReady } = useContext(AuthContext);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -87,9 +122,11 @@ function RootApp() {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <RootApp />
-    </AuthProvider>
-  </QueryClientProvider>
+  <ApiHealthGate>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RootApp />
+      </AuthProvider>
+    </QueryClientProvider>
+  </ApiHealthGate>
 );

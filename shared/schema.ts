@@ -144,10 +144,11 @@ export const UserSettingsSchema = z.object({
   userId: z.string(),
   theme: z.enum(['light', 'dark', 'system']).default('system'),
   language: z.enum(['en', 'id']).default('en'),
-  // Add other settings as needed
   createdAt: z.date().default(() => new Date()),
   updatedAt: z.date().default(() => new Date()),
 });
+
+export type UserSettings = z.infer<typeof UserSettingsSchema>;
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -167,5 +168,3 @@ export type InsertRecommendationItem = z.infer<typeof insertRecommendationItemSc
 
 export type RecommendationSet = typeof recommendationSets.$inferSelect;
 export type InsertRecommendationSet = z.infer<typeof insertRecommendationSetSchema>;
-
-export type UserSettings = z.infer<typeof UserSettingsSchema>;
