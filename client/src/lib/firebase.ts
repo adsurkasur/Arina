@@ -10,7 +10,10 @@ import {
   User as FirebaseUser,
   UserCredential,
   signInWithPopup,
-  deleteUser as firebaseDeleteUser // Add this import
+  deleteUser as firebaseDeleteUser, // Add this import
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup,
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -61,6 +64,28 @@ export const deleteCurrentUserAccount = async (): Promise<void> => {
     return firebaseDeleteUser(user);
   }
   throw new Error("No user is currently signed in.");
+};
+
+/**
+ * Re-authenticate the current user.
+ * @param method 'password' | 'google'
+ * @param credentialData { email, password } for password, or undefined for Google
+ */
+export const reauthenticateCurrentUser = async (
+  method: 'password' | 'google',
+  credentialData?: { email: string; password: string }
+): Promise<void> => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user is currently signed in.");
+  if (method === 'password') {
+    if (!credentialData?.email || !credentialData?.password) throw new Error('Email and password required');
+    const credential = EmailAuthProvider.credential(credentialData.email, credentialData.password);
+    await reauthenticateWithCredential(user, credential);
+  } else if (method === 'google') {
+    await reauthenticateWithPopup(user, googleProvider);
+  } else {
+    throw new Error('Unsupported re-authentication method');
+  }
 };
 
 export { auth };

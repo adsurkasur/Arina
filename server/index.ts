@@ -1,8 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config(); // Ensures .env variables are loaded
 
-// Initialize Firebase Admin SDK FIRST before other imports that might use it.
-import './firebaseAdmin.js'; // Initialize Firebase Admin
+// Remove import of firebaseAdmin since it is no longer needed
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";

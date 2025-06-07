@@ -5,12 +5,14 @@ import {
   signInWithEmail,
   registerWithEmail,
   signOut,
-  deleteCurrentUserAccount, // Add this import
+  deleteCurrentUserAccount,
+  reauthenticateCurrentUser, // Import reauthenticateCurrentUser
 } from "@/lib/firebase";
 import { createUserProfile, deleteUserAccount as deleteMongoUserAccount } from "@/lib/mongodb"; // Add deleteMongoUserAccount
 import { User } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { ReauthModal } from "@/components/auth/ReauthModal";
 
 interface AuthContextProps {
   user: User | null;
@@ -29,6 +31,7 @@ interface AuthContextProps {
   deleteAccount?: () => Promise<void>; // Add this line
   checkAuthState: () => void;
   userReady: boolean;
+  requestReauthentication?: (method: 'password' | 'google', onSuccess: () => void) => void; // Add reauthentication callback
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -44,6 +47,7 @@ export const AuthContext = createContext<AuthContextProps>({
   deleteAccount: async () => {}, // Add this line
   checkAuthState: () => {},
   userReady: false,
+  requestReauthentication: async () => {}, // Add this line
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -54,6 +58,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userReady, setUserReady] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<null | (() => void)>(null); // State for pending delete action
+  const [reauthOpen, setReauthOpen] = useState(false);
+  const [reauthMethod, setReauthMethod] = useState<'password' | 'google'>('password');
+  const [reauthError, setReauthError] = useState<string | null>(null);
+  const [reauthEmail, setReauthEmail] = useState<string>("");
+  const [reauthCallback, setReauthCallback] = useState<(() => void) | null>(null);
   const { toast } = useToast();
   const [, navigate] = useLocation();
 
@@ -197,6 +207,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // Update requestReauthentication to show modal
+  const requestReauthentication = (
+    method: 'password' | 'google',
+    onSuccess: () => void
+  ) => {
+    setReauthMethod(method);
+    setReauthOpen(true);
+    setReauthCallback(() => onSuccess);
+    setReauthEmail(user?.email || "");
+    setReauthError(null);
+  };
+
+  // Handler for modal
+  const handleReauth = async (data: { email?: string; password?: string }) => {
+    setReauthError(null);
+    try {
+      await reauthenticateCurrentUser(
+        reauthMethod,
+        reauthMethod === 'password' ? { email: reauthEmail, password: data.password! } : undefined
+      );
+      setReauthOpen(false);
+      setReauthError(null);
+      if (reauthCallback) reauthCallback();
+    } catch (err: any) {
+      setReauthError(err.message || 'Re-authentication failed');
+    }
+  };
+
   const deleteAccount = async () => {
     if (!user) {
       toast({
@@ -241,6 +279,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         description: "Your account has been successfully deleted.",
       });
     } catch (error: any) {
+      if (error.code === 'auth/requires-recent-login') {
+        // Prompt for re-authentication
+        setPendingDelete(() => deleteAccount);
+        requestReauthentication(
+          user?.email ? 'password' : 'google',
+          async () => {
+            // After successful re-auth, try again
+            setPendingDelete(null);
+            await deleteAccount();
+          }
+        );
+        return;
+      }
       console.error("Error deleting account:", error);
       toast({
         title: "Error Deleting Account",
@@ -300,9 +351,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         deleteAccount, // Add this line
         checkAuthState,
         userReady,
+        requestReauthentication, // Add requestReauthentication to context value
       }}
     >
       {children}
+      <ReauthModal
+        open={reauthOpen}
+        method={reauthMethod}
+        email={reauthEmail}
+        onReauth={handleReauth}
+        onClose={() => setReauthOpen(false)}
+        error={reauthError}
+      />
     </AuthContext.Provider>
   );
 };
