@@ -22,7 +22,7 @@ export const useWeather = (lat?: number, lon?: number) => {
   const [error, setError] = useState<WeatherError | null>(null);
 
   // Google Maps API key for Weather API
-  const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  const API_KEY = import.meta.env.VITE_GOOGLE_WEATHER_API_KEY;
 
   const fetchWeather = async (latitude: number, longitude: number) => {
     try {
