@@ -4,6 +4,8 @@ dotenv.config();
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { migrate } from './migrations.js';
+// @ts-ignore
+import cors from "cors";
 
 console.log("[Server] Loading environment and dependencies...");
 
@@ -21,12 +23,23 @@ async function main() {
   app.use(express.json({ limit: '100mb' }));
   app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-  // Optional: Add CORS if your frontend is on a different domain
-  // import cors from 'cors';
-  // app.use(cors({
-  //   origin: ['https://your-vercel-frontend-domain.vercel.app', 'http://localhost:5173'],
-  //   credentials: true,
-  // }));
+  // --- CORS Best Practice ---
+  // Allow only your Vercel frontend and localhost in development
+  const allowedOrigins = [
+    'https://arina-fe.vercel.app',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ];
+  app.use(cors({
+    origin: function(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+      // allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  }));
+  // --- End CORS ---
 
   // Logging middleware (for API requests only)
   app.use((req, res, next) => {
