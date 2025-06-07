@@ -268,7 +268,7 @@ const FarmLocationWidget = React.memo(() => {
           <div className="grid grid-cols-3 gap-2">
             <div className="text-center p-2 bg-green-50 rounded-lg">
               <p className="text-lg font-bold text-green-600">-</p>
-              <p className="text-xs text-gray-600">{t('dashboard.potassium')}</p>
+              <p className="text-xs text-gray-600">{t('dashboard.nitrogen')}</p>
             </div>
             <div className="text-center p-2 bg-blue-50 rounded-lg">
               <p className="text-lg font-bold text-blue-600">-</p>
@@ -276,7 +276,7 @@ const FarmLocationWidget = React.memo(() => {
             </div>
             <div className="text-center p-2 bg-orange-50 rounded-lg">
               <p className="text-lg font-bold text-orange-600">-</p>
-              <p className="text-xs text-gray-600">{t('dashboard.nitrogen')}</p>
+              <p className="text-xs text-gray-600">{t('dashboard.potassium')}</p>
             </div>
           </div>
         </CardContent>
