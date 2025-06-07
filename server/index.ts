@@ -78,10 +78,8 @@ async function main() {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // Use PORT env variable if available, default to 8080 for Cloud Run compatibility
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
   console.log(`[Server] Starting server on port ${port}...`);
   server.listen({
     port,
