@@ -11,9 +11,8 @@
     "skipLibCheck": true,
     "baseUrl": "../",
     "paths": {
-      "@/*": ["client/src/*"],
-      "@shared/*": ["shared/*"]
+      "@/*": ["client/src/*"]
     }
   },
-  "include": ["./**/*.ts", "../shared/**/*.ts"]
+  "include": ["./**/*.ts"]
 }

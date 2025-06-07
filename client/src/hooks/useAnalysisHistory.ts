@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useToast } from './use-toast';
 import { useAuth } from './useAuth';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { AnalysisResult } from '@shared/schema';
+import { AnalysisResult } from '@/types/analysis';
 
 export function useAnalysisHistory() {
   const { user } = useAuth();

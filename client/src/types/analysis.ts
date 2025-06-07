@@ -136,3 +136,12 @@ export interface OptimizationResult {
   summary: string;
   chart: any; // Chart data for visualization
 }
+
+export interface AnalysisResult {
+  id: string;
+  user_id: string;
+  type: string;
+  data: any;
+  created_at: string;
+  updated_at: string;
+}

@@ -1,5 +1,5 @@
 import { Collection, Db } from 'mongodb';
-import { UserSettings } from '../../shared/schema.js';
+import { UserSettings } from '../types/recommendations.js';
 
 export class UserSettingsService {
   private collection: Collection<UserSettings>;

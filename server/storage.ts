@@ -13,7 +13,7 @@ import {
   InsertRecommendationSet,
   RecommendationItem,
   InsertRecommendationItem,
-} from "../shared/schema.js";
+} from "./db/schema.js";
 import { z } from "zod";
 
 const chatConversationSchema = z.object({

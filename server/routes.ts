@@ -6,7 +6,7 @@ import { z } from "zod";
 import axios from 'axios';
 import { log } from "./vite.js";
 import { getUserSettingsService } from './services/userSettingsService.js';
-import { UserSettingsSchema } from '../shared/schema.js';
+import { UserSettingsSchema } from './db/schema.js';
 import { getDb } from './db.js';
 
 log("routes.ts module FIRST LINE EXECUTES", "routes-init");

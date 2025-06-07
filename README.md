@@ -18,8 +18,7 @@ Arina is a next-generation web application designed to empower businesses with a
 ```
 Arina-Gemini/
 ├── client/           # Frontend React app (Vite, TypeScript)
-├── server/           # Backend (Node.js, Express, Drizzle ORM)
-├── shared/           # Shared code (schemas, engines)
+├── server/           # Backend code (schemas, engines, services)
 ├── package.json      # Project metadata and scripts (monorepo root)
 └── ...
 ```

@@ -37,8 +37,3 @@ export interface UserSettings {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export interface GenerateRecommendationsParams {
-  userId: string;
-  currentSeason?: 'spring' | 'summer' | 'fall' | 'winter';
-}
