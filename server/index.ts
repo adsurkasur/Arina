@@ -27,7 +27,7 @@ async function main() {
   // Allow only your Vercel frontend and localhost in development
   const allowedOrigins = [
     'https://arina-fe.vercel.app',
-    'https://app.arinaai.site/'
+    'https://app.arinaai.site'
     // Localhost origins are now handled by the regex in the CORS middleware
   ];
   app.use(cors({
