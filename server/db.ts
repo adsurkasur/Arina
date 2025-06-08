@@ -14,7 +14,7 @@ async function connectToMongo() {
   }
   mongoClient = new MongoClient(process.env.MONGO_URI);
   await mongoClient.connect();
-  db = mongoClient.db();
+  db = mongoClient.db("ArinaCluster"); // Explicitly set database name
   console.log("Connected to MongoDB");
   return db;
 }

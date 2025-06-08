@@ -143,45 +143,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/users/:id/preferences", async (req, res) => {
     try {
       const { dark_mode, language, email, name, photo_url } = req.body;
-      let updated = await storage.updateUserPreferences(req.params.id, { dark_mode, language });
+      let updated;
+      try {
+        updated = await storage.updateUserPreferences(req.params.id, { dark_mode, language }, email);
+      } catch (err) {
+        console.error('[PATCH /api/users/:id/preferences] MongoDB error during updateUserPreferences', {
+          id: req.params.id,
+          dark_mode,
+          language,
+          error: err instanceof Error ? err.message : err
+        });
+        return res.status(500).json({ message: "Database error during updateUserPreferences", error: err instanceof Error ? err.message : err });
+      }
       if (!updated) {
         // Upsert: create user if missing, then update preferences
+        console.log('[DEBUG] PATCH /api/users/:id/preferences: updateUserPreferences returned undefined. Request body:', req.body);
         if (!email || !name) {
+          console.log('[DEBUG] PATCH /api/users/:id/preferences: Missing email or name for user creation. Email:', email, 'Name:', name);
           return res.status(400).json({ message: "Missing email or name for user creation" });
         }
         // Check if a user with this email already exists
-        const existingUser = await storage.getUserByEmail(email);
-        if (existingUser) {
-          // Update that user's id to the current id (merge accounts)
-          await storage.updateUserId(existingUser.id, req.params.id);
-        } else {
-          // Create new user
-          await storage.createUser({
-            id: req.params.id,
-            email,
-            name,
-            photo_url: photo_url ?? null,
-          });
+        let existingUser;
+        try {
+          existingUser = await storage.getUserByEmail(email);
+        } catch (err) {
+          console.log('[DEBUG] PATCH /api/users/:id/preferences: Error in getUserByEmail:', err);
+          return res.status(500).json({ message: "Database error during getUserByEmail", error: err instanceof Error ? err.message : err });
         }
-        updated = await storage.updateUserPreferences(req.params.id, { dark_mode, language });
+        if (existingUser) {
+          try {
+            await storage.updateUserId(existingUser.id, req.params.id);
+          } catch (err) {
+            console.log('[DEBUG] PATCH /api/users/:id/preferences: Error in updateUserId:', err);
+            return res.status(500).json({ message: "Database error during updateUserId", error: err instanceof Error ? err.message : err });
+          }
+        } else {
+          try {
+            await storage.createUser({
+              id: req.params.id,
+              email,
+              name,
+              photo_url: photo_url ?? null,
+            });
+          } catch (err) {
+            console.log('[DEBUG] PATCH /api/users/:id/preferences: Error in createUser:', err);
+            return res.status(500).json({ message: "Database error during createUser", error: err instanceof Error ? err.message : err });
+          }
+        }
+        try {
+          updated = await storage.updateUserPreferences(req.params.id, { dark_mode, language });
+        } catch (err) {
+          console.log('[DEBUG] PATCH /api/users/:id/preferences: Error in updateUserPreferences (after upsert):', err);
+          return res.status(500).json({ message: "Database error during updateUserPreferences (after upsert)", error: err instanceof Error ? err.message : err });
+        }
         if (!updated) {
           // Fallback: fetch and log user by id
-          const userById = await storage.getUser(req.params.id);
-          console.error('[PATCH /api/users/:id/preferences] Failed to upsert user preferences', {
-            id: req.params.id,
-            email,
-            name,
-            photo_url,
-            dark_mode,
-            language,
-            userById
-          });
-          return res.status(500).json({ message: "Failed to upsert user preferences" });
+          let userById;
+          try {
+            userById = await storage.getUser(req.params.id);
+          } catch (err) {
+            console.log('[DEBUG] PATCH /api/users/:id/preferences: Error in getUser (final fallback):', err);
+            return res.status(500).json({ message: "Database error during getUser (final fallback)", error: err instanceof Error ? err.message : err });
+          }
+          console.log('[DEBUG] PATCH /api/users/:id/preferences: Failed to upsert user preferences. userById:', userById);
+          return res.status(500).json({ message: "Failed to upsert user preferences", userById });
         }
       }
       res.json(updated);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
+    } catch (error) {
+      console.error('[PATCH /api/users/:id/preferences] Unexpected error', error);
+      res.status(500).json({ message: 'Unexpected error in PATCH /api/users/:id/preferences', error: error instanceof Error ? error.message : error });
     }
   });
 

@@ -26,14 +26,15 @@ async function main() {
   // --- CORS Best Practice ---
   // Allow only your Vercel frontend and localhost in development
   const allowedOrigins = [
-    'https://arina-fe.vercel.app',
-    'http://localhost:5173',
-    'http://127.0.0.1:5173'
+    'https://arina-fe.vercel.app'
+    // Localhost origins are now handled by the regex in the CORS middleware
   ];
   app.use(cors({
     origin: function(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
       // allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
+      // Allow all localhost and 127.0.0.1 ports
+      if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error('Not allowed by CORS'));
     },

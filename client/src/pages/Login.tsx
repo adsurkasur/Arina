@@ -12,6 +12,7 @@ import { FcGoogle } from "react-icons/fc";
 import { signInWithEmail } from "@/lib/firebase";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 
 declare global {
   interface Window {
@@ -187,7 +188,7 @@ export default function Login() {
     }
     setFormLoading(true);
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || '';
+      const API_BASE = getApiBaseUrl();
       const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -219,7 +220,7 @@ export default function Login() {
     }
     setFormLoading(true);
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || '';
+      const API_BASE = getApiBaseUrl();
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

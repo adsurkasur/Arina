@@ -4,8 +4,9 @@ import { useToast } from './use-toast';
 import { useAuth } from './useAuth';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
 import { AnalysisResult } from '@/types/analysis';
+import { getApiBaseUrl } from '@/lib/apiBaseUrl';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = getApiBaseUrl();
 
 export function useAnalysisHistory() {
   const { user } = useAuth();

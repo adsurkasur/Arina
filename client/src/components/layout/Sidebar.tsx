@@ -376,9 +376,9 @@ export function Sidebar({
                 {t('sidebar.chatHistory')}
               </h3>
               <button
-                onClick={() => {
-                  createNewChat();
-                  if (openTool) openTool(""); // Ensure dashboard is closed
+                onClick={async () => {
+                  await createNewChat();
+                  setMainView("chat"); // Only switch to chat view
                   if (isMobile) setIsOpen(false);
                 }}
                 className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"

@@ -16,6 +16,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 
 interface ChatContextProps {
   conversations: ChatConversation[];
@@ -94,7 +95,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Ensure user exists in database first
-      const API_BASE = import.meta.env.VITE_API_URL || '';
+      const API_BASE = getApiBaseUrl();
       const userResponse = await fetch(`${API_BASE}/api/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

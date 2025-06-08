@@ -76,7 +76,7 @@ export class DatabaseStorage {
     };
   }
 
-  async updateUserPreferences(id: string, prefs: { dark_mode?: boolean; language?: string }): Promise<User | undefined> {
+  async updateUserPreferences(id: string, prefs: { dark_mode?: boolean; language?: string }, email?: string): Promise<User | undefined> {
     const updateData: any = {};
     if (prefs.dark_mode !== undefined) updateData.dark_mode = prefs.dark_mode;
     if (prefs.language) updateData.language = prefs.language;
@@ -84,12 +84,38 @@ export class DatabaseStorage {
       // No update fields provided, just return the user as-is
       return this.getUser(id);
     }
-    const result = await getDb().collection("users").findOneAndUpdate(
-      { id },
+    const cleanId = typeof id === 'string' ? id.trim() : String(id);
+    let result = await getDb().collection("users").findOneAndUpdate(
+      { id: cleanId },
       { $set: updateData },
       { returnDocument: "after" }
     );
-    if (!result || !result.value) return undefined;
+    if ((!result || !result.value) && email) {
+      result = await getDb().collection("users").findOneAndUpdate(
+        { email: email },
+        { $set: updateData },
+        { returnDocument: "after" }
+      );
+    }
+    if (!result || !result.value) {
+      // If user exists, return as-is (update may not return value)
+      const fallbackUser = await getDb().collection("users").findOne({ id: cleanId });
+      if (fallbackUser) {
+        return {
+          id: fallbackUser.id,
+          email: fallbackUser.email,
+          name: fallbackUser.name,
+          photo_url: fallbackUser.photo_url ?? null,
+          created_at: fallbackUser.created_at ?? null,
+          dark_mode: fallbackUser.dark_mode ?? false,
+          language: fallbackUser.language ?? "en",
+        };
+      }
+      // Log all user ids for debugging
+      const allIds = await getDb().collection("users").find({}, { projection: { id: 1, email: 1 } }).toArray();
+      console.error('[updateUserPreferences] No user matched for id or email. All user ids/emails in DB:', allIds);
+      return undefined;
+    }
     return {
       id: result.value.id,
       email: result.value.email,

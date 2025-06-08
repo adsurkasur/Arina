@@ -17,7 +17,7 @@ import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useWeather } from "@/hooks/useWeather";
 import { id as localeId } from 'date-fns/locale';
-import { GoogleMapComponent } from '@/components/GoogleMap';
+import { GoogleMapReactComponent } from '@/components/GoogleMapReact';
 
 // Types
 interface AgricultureNews {
@@ -261,7 +261,7 @@ const FarmLocationWidget = React.memo(() => {
           <div className="relative flex-1 bg-gradient-to-br from-green-100 to-green-200 rounded-xl overflow-hidden flex flex-col">
             {/* Google Map only, no overlay */}
             <div className="absolute inset-0">
-              <GoogleMapComponent viewMode={viewMode} height="100%" className="w-full h-full" />
+              <GoogleMapReactComponent viewMode={viewMode} height="100%" className="w-full h-full" />
             </div>
           </div>
           {/* Stats */}
@@ -295,7 +295,7 @@ const FarmLocationWidget = React.memo(() => {
           </div>
           <div className="flex-1 flex flex-col justify-center items-center">
             <div className="w-full h-full">
-              <GoogleMapComponent viewMode={viewMode} height="calc(100vh - 80px)" className="w-full h-full rounded-none" />
+              <GoogleMapReactComponent viewMode={viewMode} height="calc(100vh - 80px)" className="w-full h-full rounded-none" />
             </div>
           </div>
         </div>

@@ -1,7 +1,9 @@
 // All functions in this file now use the backend API for MongoDB integration.
 // Local storage and stubbed logic have been removed. All data is persisted via Express API endpoints.
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+import { getApiBaseUrl } from "./apiBaseUrl";
+
+const API_BASE = getApiBaseUrl();
 
 // User management
 

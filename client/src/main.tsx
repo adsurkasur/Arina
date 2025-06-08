@@ -12,6 +12,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { initializeI18n } from "@/i18n";
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 
 function UniversalLoadingScreen() {
   return (
@@ -26,8 +27,7 @@ function ApiHealthGate({ children }: { children: React.ReactNode }) {
   const [apiReady, setApiReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Use VITE_API_URL if set, otherwise fallback to relative path
-  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const API_BASE = getApiBaseUrl();
 
   useEffect(() => {
     let cancelled = false;

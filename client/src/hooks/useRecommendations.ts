@@ -4,8 +4,9 @@ import { getQueryFn, queryClient } from '@/lib/queryClient';
 import { RecommendationSet, RecommendationItem, GenerateRecommendationsParams } from '@/types/recommendations';
 import { useToast } from './use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { getApiBaseUrl } from '@/lib/apiBaseUrl';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = getApiBaseUrl();
 
 export function useRecommendations() {
   const { user } = useAuth();
