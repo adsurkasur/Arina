@@ -29,69 +29,116 @@ Arina/
 - **Node.js** (v18+ recommended)
 - **npm** (v9+ recommended)
 
-### Installation (Monorepo)
+### Local Development (Quick Start)
 
 1. **Clone the repository:**
-   ```powershell
-   git clone <repo-url>
-   cd Arina-Gemini
+   ```bash
+   git clone https://github.com/adsurkasur/Arina.git
+   cd Arina
    ```
-2. **Install all dependencies (client & server):**
-   ```powershell
-   npm run install-all
-   ```
-   This will install dependencies in both `client` and `server` workspaces.
-
-3. **Copy environment variables:**
-   - Place your `.env` file in the project root.
-   - To copy `.env` to both `client` and `server`, run:
-     ```powershell
-     npm run copy-env
+2. **Prepare your environment variables:**
+   - Create a `.env` file in the project root with the following variables (replace the values with your own):
+     
+     ```env
+     # Firebase (Client)
+     VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+     VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+     VITE_FIREBASE_API_KEY=your_firebase_api_key
+     VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+     VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+     VITE_FIREBASE_APP_ID=your_firebase_app_id
+     VITE_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
+     
+     # Gemini & Google APIs (Client)
+     VITE_GEMINI_API_KEY=your_gemini_api_key
+     VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+     VITE_GOOGLE_WEATHER_API_KEY=your_google_weather_api_key
+     
+     # reCAPTCHA (Client & Server)
+     RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
+     VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+     
+     # Database (Server)
+     MONGO_URI=your_mongodb_uri
+     
+     # API URLs
+     VITE_API_URL=your_api_url
+     
+     # Ports
+     PORT=8080
+     BACKEND_PORT=8080
      ```
-   - This will automatically copy `.env` to the appropriate folders using cross-platform scripts.
 
-### Running the Application
+3. **Start the application:**
+   ```bash
+   npm run dev
+   ```
+   This command will automatically install dependencies, copy environment variables, and start both the client and server for local development.
 
-#### Development Mode (Full Stack)
-- **Start both client and server concurrently:**
-  ```powershell
-  npm run dev
-  ```
-  - This will:
-    - Ensure `.env` files are copied
-    - Start the backend (`server`) and wait for it to be ready
-    - Start the frontend (`client`) after the backend is up
+> **Note:**
+> - The `.env` file in the project root will be copied to both `client` and `server` automatically.
 
-#### Production Mode
+## Production Build
+
 1. **Build both client and server:**
-   ```powershell
+   ```bash
    npm run build
    ```
 2. **Start the server (serves API and production client):**
-   ```powershell
+   ```bash
    npm start
    ```
    - The server will run from `server/dist/index.js`.
    - Deploy the `client/dist` folder to your preferred static hosting if needed.
 
-### Additional Scripts
+## Additional Scripts
 - **Check TypeScript:**
-  ```powershell
+  ```bash
   npm run check
   ```
 - **Push database migrations (Drizzle ORM):**
-  ```powershell
+  ```bash
   npm run db:push
   ```
 
-### Environment Variables
+## Environment Variables
 - Place a `.env` file in the project root. It will be copied to both `client` and `server` automatically.
-- See `.env.example` in each folder for required variables.
+- The required variables are:
+  
+  ```env
+  # Firebase (Client)
+  VITE_FIREBASE_STORAGE_BUCKET
+  VITE_FIREBASE_AUTH_DOMAIN
+  VITE_FIREBASE_API_KEY
+  VITE_FIREBASE_PROJECT_ID
+  VITE_FIREBASE_MESSAGING_SENDER_ID
+  VITE_FIREBASE_APP_ID
+  VITE_FIREBASE_MEASUREMENT_ID
+  
+  # Gemini & Google APIs (Client)
+  VITE_GEMINI_API_KEY
+  VITE_GOOGLE_MAPS_API_KEY
+  VITE_GOOGLE_WEATHER_API_KEY
+  
+  # reCAPTCHA (Client & Server)
+  RECAPTCHA_SECRET_KEY
+  VITE_RECAPTCHA_SITE_KEY
+  
+  # Database (Server)
+  MONGO_URI
+  
+  # API URLs
+  VITE_API_URL
+  
+  # Ports
+  PORT
+  BACKEND_PORT
+  ```
 
-### Database
+## Database
 - The backend uses Drizzle ORM. Ensure your database is running and accessible.
 
-### Authentication
+## Authentication
 - Firebase is used for authentication. Set up your Firebase project and update configuration files accordingly.
 
 ## Technologies Used
