@@ -156,6 +156,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Database error during updateUserPreferences", error: err instanceof Error ? err.message : err });
       }
       if (!updated) {
+        // If no update fields were provided, return the user as-is (not an error)
+        const userById = await storage.getUser(req.params.id);
+        if (userById) {
+          return res.json(userById);
+        }
         // Upsert: create user if missing, then update preferences
         console.log('[DEBUG] PATCH /api/users/:id/preferences: updateUserPreferences returned undefined. Request body:', req.body);
         if (!email || !name) {
