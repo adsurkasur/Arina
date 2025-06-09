@@ -72,7 +72,7 @@
   "dashboard.refresh": "Muat Ulang",
   "dashboard.useMyLocation": "Gunakan Lokasi Saya",
   "dashboard.mapInsight": "Wawasan Lahan",
-  "dashboard.poweredBy": "Didukung oleh {{provName}}",
+  "dashboard.poweredBy": "Ditenagai oleh {{provName}}",
   "debugPanel.showErrorToast": "Tampilkan Toast Kesalahan",
   "debugPanel.showNormalToast": "Tampilkan Toast Normal",
   "debugPanel.title": "Debugging",

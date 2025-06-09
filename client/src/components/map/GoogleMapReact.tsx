@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,6 +24,10 @@ interface GoogleMapProps {
   viewMode?: 'map' | 'satellite';
   height?: string;
   className?: string;
+  // Add for syncing location
+  center?: { lat: number; lng: number };
+  zoom?: number;
+  onMapChange?: (center: { lat: number; lng: number }, zoom: number) => void;
 }
 
 const containerStyle = {
@@ -33,12 +37,16 @@ const containerStyle = {
 
 const defaultCenter = { lat: -6.2088, lng: 106.8456 };
 
-export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
+export const GoogleMapReactComponent: React.FC<GoogleMapProps & { isFullScreen?: boolean }> = ({
   onLocationSelect,
   markers = [],
   viewMode = 'map',
   height = '300px',
   className = '',
+  isFullScreen = false,
+  center,
+  zoom,
+  onMapChange,
 }) => {
   const { t } = useTranslation();
   const [selected, setSelected] = React.useState<MapMarker | null>(null);
@@ -54,7 +62,24 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
 
   const onLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
-  }, []);
+    // Ensure mapTypeId is set on load
+    if (viewMode === 'satellite') {
+      map.setMapTypeId('satellite');
+    } else {
+      map.setMapTypeId('roadmap');
+    }
+  }, [viewMode]);
+
+  // Ensure mapTypeId updates when viewMode changes
+  useEffect(() => {
+    if (mapRef.current) {
+      if (viewMode === 'satellite') {
+        mapRef.current.setMapTypeId('satellite');
+      } else {
+        mapRef.current.setMapTypeId('roadmap');
+      }
+    }
+  }, [viewMode]);
 
   const onUnmount = useCallback(() => {
     mapRef.current = null;
@@ -144,13 +169,61 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
     };
   };
 
+  // Track last center/zoom to avoid unnecessary updates
+  const lastCenterRef = useRef<{ lat: number; lng: number } | null>(null);
+  const lastZoomRef = useRef<number | null>(null);
+
+  // Effect to update map center/zoom if props change (from parent)
+  useEffect(() => {
+    if (mapRef.current && center && zoom !== undefined) {
+      const map = mapRef.current;
+      const currCenter = map.getCenter();
+      const currZoom = map.getZoom();
+      // Only update if different (avoid loop)
+      if (
+        (!currCenter || currCenter.lat() !== center.lat || currCenter.lng() !== center.lng) ||
+        currZoom !== zoom
+      ) {
+        map.setCenter(center);
+        map.setZoom(zoom);
+      }
+    }
+  }, [center, zoom]);
+
+  // Handler for user panning/zooming
+  useEffect(() => {
+    if (!mapRef.current || !onMapChange) return;
+    const map = mapRef.current;
+    const handleIdle = () => {
+      const c = map.getCenter();
+      const z = map.getZoom();
+      if (!c) return;
+      const newCenter = { lat: c.lat(), lng: c.lng() };
+      // Only call if changed
+      if (
+        (!lastCenterRef.current || lastCenterRef.current.lat !== newCenter.lat || lastCenterRef.current.lng !== newCenter.lng) ||
+        lastZoomRef.current !== (z ?? null)
+      ) {
+        lastCenterRef.current = newCenter;
+        lastZoomRef.current = z ?? null;
+        if (typeof z === 'number') {
+          onMapChange(newCenter, z);
+        }
+      }
+    };
+    map.addListener('idle', handleIdle);
+    return () => {
+      window.google.maps.event.clearListeners(map, 'idle');
+    };
+  }, [onMapChange]);
+
   return (
     <div className={`relative ${className}`} style={{ height }}>
       {isLoaded && (
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={userLocation || defaultCenter}
-          zoom={13}
+          center={center || userLocation || defaultCenter}
+          zoom={zoom || 13}
           onLoad={onLoad}
           onUnmount={onUnmount}
           mapTypeId={viewMode === 'satellite' ? 'satellite' : 'roadmap'}
@@ -224,24 +297,30 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
       </div>
       {/* Prediction result from backend */}
       {prediction && (
-        <div className="absolute bottom-3 right-1 max-w-xs bg-white/90 backdrop-blur-sm rounded shadow p-3 text-xs">
-          <h1 className="text-sm font-bold mb-2 text-red-500">{t('map.testOnly')}</h1>
-          <h3 className="font-bold mb-1">{t('map.classificationResult')}</h3>
-          <div style={{padding: '0.25rem'}}>{t('map.predictedClass')}: <br /> {prediction.classification?.predicted_class}</div>
-          <div style={{padding: '0.25rem'}}>{t('map.output')}: <br /> {Array.isArray(prediction.classification?.output) ? prediction.classification.output.map((item: any, idx: number) => (
-            <span key={idx}>{item}<br /></span>
-          )) : prediction.classification?.output}</div>
-          <div style={{padding: '0.25rem'}}>{t('map.parameters')}: <br /> {Array.isArray(prediction.classification?.parameters) ? prediction.classification.parameters.map((item: any, idx: number) => (
-            <span key={idx}>{item}<br /></span>
-          )) : prediction.classification?.parameters}</div>
-          <h3 className="font-bold mt-2 mb-1">{t('map.regressionResult')}</h3>
-          <div style={{padding: '0.25rem'}}>{t('map.output')}: <br /> {Array.isArray(prediction.regression?.output) ? prediction.regression.output.map((item: any, idx: number) => (
-            <span key={idx}>{item}<br /></span>
-          )) : prediction.regression?.output}</div>
-          <div style={{padding: '0.25rem'}}>{t('map.parameters')}: <br /> {Array.isArray(prediction.regression?.parameters) ? prediction.regression.parameters.map((item: any, idx: number) => (
-            <span key={idx}>{item}<br /></span>
-          )) : prediction.regression?.parameters} </div>
-        </div>
+        isFullScreen ? (
+          <div className="absolute bottom-3 right-1 max-w-xs bg-white/90 backdrop-blur-sm rounded shadow p-3 text-xs">
+            <h1 className="text-sm font-bold mb-2 text-red-500">{t('map.testOnly')}</h1>
+            <h3 className="font-bold mb-1">{t('map.classificationResult')}</h3>
+            <div style={{padding: '0.25rem'}}>{t('map.predictedClass')}: <br /> {prediction.classification?.predicted_class}</div>
+            <div style={{padding: '0.25rem'}}>{t('map.output')}: <br /> {Array.isArray(prediction.classification?.output) ? prediction.classification.output.map((item: any, idx: number) => (
+              <span key={idx}>{item}<br /></span>
+            )) : prediction.classification?.output}</div>
+            <div style={{padding: '0.25rem'}}>{t('map.parameters')}: <br /> {Array.isArray(prediction.classification?.parameters) ? prediction.classification.parameters.map((item: any, idx: number) => (
+              <span key={idx}>{item}<br /></span>
+            )) : prediction.classification?.parameters}</div>
+            <h3 className="font-bold mt-2 mb-1">{t('map.regressionResult')}</h3>
+            <div style={{padding: '0.25rem'}}>{t('map.output')}: <br /> {Array.isArray(prediction.regression?.output) ? prediction.regression.output.map((item: any, idx: number) => (
+              <span key={idx}>{item}<br /></span>
+            )) : prediction.regression?.output}</div>
+            <div style={{padding: '0.25rem'}}>{t('map.parameters')}: <br /> {Array.isArray(prediction.regression?.parameters) ? prediction.regression.parameters.map((item: any, idx: number) => (
+              <span key={idx}>{item}<br /></span>
+            )) : prediction.regression?.parameters} </div>
+          </div>
+        ) : (
+          <div className="absolute bottom-3 right-1 max-w-xs bg-white/90 backdrop-blur-sm rounded shadow p-3 text-xs border border-dashed border-red-400 text-red-500 cursor-pointer select-none">
+            <span>{t('map.useFullscreenPrediction')}</span>
+          </div>
+        )
       )}
     </div>
   );

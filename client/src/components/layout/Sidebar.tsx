@@ -27,7 +27,9 @@ import {
   History,
   ClipboardList,
   Info,
-  LayoutDashboard
+  LayoutDashboard,
+  ChevronsUp,
+  Newspaper
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,6 +61,7 @@ import {
 import { ChatConversation } from "@/types";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useTranslation } from 'react-i18next';
+import { Cpu } from "lucide-react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -66,7 +69,7 @@ interface SidebarProps {
   isMobile: boolean;
   openTool: (tool: string) => void;
   closePanel: () => void;
-  setMainView: (view: 'dashboard' | 'chat') => void;
+  setMainView: (view: 'dashboard' | 'chat' | 'dashboardOverview' | 'dashboardNews' | 'dashboardAgriData' | 'dashboardDevices') => void;
   activePanel?: string | null;
   panelVisible?: boolean;
 }
@@ -98,6 +101,7 @@ export function Sidebar({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
   const [debugPanelOpen, setDebugPanelOpen] = useState(false);
+  const [dashboardOpen, setDashboardOpen] = useState(true);
 
   // Handle toggling the sidebar on mobile
   const handleCloseSidebar = () => {
@@ -180,16 +184,8 @@ export function Sidebar({
 
         {/* Main Menu Section */}
         <div className="flex-1 overflow-y-auto custom-scrollbar transition-all duration-[200ms] font-sans">
-          {/* Dashboard Menu Item */}
+          {/* Chat Menu Item */}
           <div className="px-2 py-2">
-            <button
-              onClick={() => setMainView("dashboard")}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
-            >
-              <LayoutDashboard className="h-5 w-5 mr-3" />
-              <span>{t('sidebar.dashboard')}</span>
-            </button>
-            {/* Chat Menu Item */}
             <button
               onClick={() => {
                 setMainView("chat");
@@ -201,6 +197,71 @@ export function Sidebar({
               <span>{t('sidebar.chat')}</span>
             </button>
           </div>
+
+          {/* Dashboard Dropdown */}
+          <div className="px-2 py-2">
+            <Collapsible
+              open={dashboardOpen}
+              onOpenChange={setDashboardOpen}
+              className="w-full"
+            >
+              <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
+                <div className="flex items-center">
+                  <span>{t('sidebar.dashboard')}</span>
+                </div>
+                {dashboardOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent
+                className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp"
+              >
+                <div className="pl-2 mt-1">
+                  <ul className="space-y-1">
+                    <li>
+                      <button
+                        onClick={() => setMainView('dashboardOverview')}
+                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                      >
+                        <LayoutDashboard className="h-5 w-5 mr-3 text-white" />
+                        <span>{t('sidebar.dashboardOverview') || 'Overview'}</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => setMainView('dashboardNews')}
+                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                      >
+                        <Newspaper className="h-5 w-5 mr-3 text-white" />
+                        <span>{t('sidebar.dashboardNews') || 'News'}</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => setMainView('dashboardAgriData')}
+                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                      >
+                        <ClipboardList className="h-5 w-5 mr-3 text-white" />
+                        <span>{t('sidebar.dashboardAgriData') || 'Agriculture Data'}</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => setMainView('dashboardDevices')}
+                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                      >
+                        <Cpu className="h-5 w-5 mr-3 text-white" />
+                        <span>{t('sidebar.dashboardDevices') || 'Devices'}</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+
           {/* Analysis Tools Dropdown */}
           <div className="px-2 py-2">
             <Collapsible
@@ -293,7 +354,7 @@ export function Sidebar({
                             }}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <ChartBar className="h-5 w-5 mr-3" />
+                            <ChevronsUp className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.optimizationAnalysis')}</span>
                           </button>
                         </TooltipTrigger>
@@ -349,7 +410,7 @@ export function Sidebar({
                             }}
                             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                           >
-                            <ClipboardList className="h-5 w-5 mr-3" />
+                            <History className="h-5 w-5 mr-3" />
                             <span>{t('sidebar.analysisHistory')}</span>
                           </button>
                         </TooltipTrigger>

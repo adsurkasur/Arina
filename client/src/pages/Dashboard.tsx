@@ -11,6 +11,10 @@ import AnalysisHistory from "@/components/history/AnalysisHistory";
 import UserProfile from "@/components/profile/UserProfile";
 import SettingsPanel from "@/components/profile/SettingsPanel";
 import DashboardHome from "./DashboardHome";
+import DashboardOverview from "./DashboardOverview";
+import DashboardNews from "./DashboardNews";
+import DashboardAgriData from "./DashboardAgriData";
+import DashboardDevices from "./DashboardDevices";
 import { DebugPanel } from "@/components/ui/DebugPanel";
 import HelpPanel from "@/components/ui/HelpPanel";
 
@@ -21,7 +25,7 @@ export default function Dashboard() {
   const [showRightPanel, setShowRightPanel] = useState(false);
   const [lastToolPanel, setLastToolPanel] = useState<JSX.Element | undefined>(undefined);
   // New: Track main view separately from right panel/tool
-  const [mainView, setMainView] = useState<'dashboard' | 'chat'>("dashboard");
+  const [mainView, setMainView] = useState<'dashboard' | 'chat' | 'dashboardOverview' | 'dashboardNews' | 'dashboardAgriData' | 'dashboardDevices'>("dashboardOverview");
 
   // Close the active tool panel
   const handleCloseToolPanel = () => {
@@ -30,7 +34,7 @@ export default function Dashboard() {
   };
 
   // Set the main view (dashboard or chat) independently
-  const handleSetMainView = (view: 'dashboard' | 'chat') => {
+  const handleSetMainView = (view: 'dashboard' | 'chat' | 'dashboardOverview' | 'dashboardNews' | 'dashboardAgriData' | 'dashboardDevices') => {
     setMainView(view);
   };
 
@@ -88,8 +92,16 @@ export default function Dashboard() {
   const dashboardShowRightPanel = showRightPanel && isToolPanel;
 
   // Main view logic: show DashboardHome or ChatInterface
-  let mainViewComponent: JSX.Element = <DashboardHome />;
-  if (mainView === "chat") {
+  let mainViewComponent: JSX.Element = <DashboardOverview />;
+  if (mainView === "dashboardOverview" || mainView === "dashboard") {
+    mainViewComponent = <DashboardOverview />;
+  } else if (mainView === "dashboardNews") {
+    mainViewComponent = <DashboardNews />;
+  } else if (mainView === "dashboardAgriData") {
+    mainViewComponent = <DashboardAgriData />;
+  } else if (mainView === "dashboardDevices") {
+    mainViewComponent = <DashboardDevices />;
+  } else if (mainView === "chat") {
     mainViewComponent = <ChatInterface />;
   }
 

@@ -215,10 +215,20 @@ const FarmLocationWidget = React.memo(() => {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'map' | 'satellite'>('map');
   const [isMapFullScreen, setIsMapFullScreen] = useState(false);
+  // Add shared state for map center and zoom
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: -6.2088, lng: 106.8456 });
+  const [mapZoom, setMapZoom] = useState<number>(13);
+
+  // Handler to sync map location from either map
+  const handleMapChange = useCallback((center: { lat: number; lng: number }, zoom: number) => {
+    setMapCenter(center);
+    setMapZoom(zoom);
+  }, []);
 
   return (
     <>
-      <Card className="bg-white shadow-lg h-[400px] flex flex-col">
+      {/* Always render the small map, but hide it when fullscreen is open */}
+      <Card className={`bg-white shadow-lg h-[400px] flex flex-col${isMapFullScreen ? ' hidden' : ''}`}>
         <CardHeader className="pb-3 flex-shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -266,7 +276,15 @@ const FarmLocationWidget = React.memo(() => {
           <div className="relative flex-1 bg-gradient-to-br from-green-100 to-green-200 rounded-xl overflow-hidden flex flex-col">
             {/* Google Map only, no overlay */}
             <div className="absolute inset-0">
-              <GoogleMapReactComponent viewMode={viewMode} height="100%" className="w-full h-full" />
+              <GoogleMapReactComponent
+                viewMode={viewMode}
+                height="100%"
+                className="w-full h-full"
+                isFullScreen={false}
+                center={mapCenter}
+                zoom={mapZoom}
+                onMapChange={handleMapChange}
+              />
             </div>
           </div>
           {/* Stats */}
@@ -320,7 +338,15 @@ const FarmLocationWidget = React.memo(() => {
           </div>
           <div className="flex-1 flex flex-col justify-center items-center">
             <div className="w-full h-full">
-              <GoogleMapReactComponent viewMode={viewMode} height="calc(100vh - 80px)" className="w-full h-full rounded-none" />
+              <GoogleMapReactComponent
+                viewMode={viewMode}
+                height="calc(100vh - 80px)"
+                className="w-full h-full rounded-none"
+                isFullScreen={true}
+                center={mapCenter}
+                zoom={mapZoom}
+                onMapChange={handleMapChange}
+              />
             </div>
           </div>
         </div>
