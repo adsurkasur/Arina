@@ -3,6 +3,7 @@ import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-map
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Target, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // Fix: define libraries array outside the component to avoid performance warning
 const GOOGLE_MAP_LIBRARIES = ['geometry', 'places'] as any;
@@ -37,8 +38,10 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
   height = '300px',
   className = '',
 }) => {
+  const { t } = useTranslation();
   const [selected, setSelected] = React.useState<MapMarker | null>(null);
   const [userLocation, setUserLocation] = React.useState<{ lat: number; lng: number } | null>(null);
+  const [prediction, setPrediction] = React.useState<any>(null); // State for prediction result
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -57,12 +60,23 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
 
   // Add marker on map click (waypoint)
   const [waypoint, setWaypoint] = React.useState<{lat: number, lng: number} | null>(null);
+  const fetchPrediction = async (lat: number, lon: number) => {
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_SPECTRAGROW_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${apiBaseUrl}/predict?lat=${lat}&lon=${lon}`);
+      const data = await response.json();
+      setPrediction(data);
+    } catch (err) {
+      alert("Failed to fetch prediction from backend");
+    }
+  };
   const handleMapClick = (e: google.maps.MapMouseEvent) => {
     if (e.latLng) {
       setWaypoint({ lat: e.latLng.lat(), lng: e.latLng.lng() });
       if (onLocationSelect) {
         onLocationSelect(e.latLng.lat(), e.latLng.lng());
       }
+      fetchPrediction(e.latLng.lat(), e.latLng.lng()); // Call backend after map click
     }
   };
 
@@ -162,7 +176,7 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
                 id: 'waypoint',
                 lat: waypoint.lat,
                 lng: waypoint.lng,
-                title: 'Pin Lokasi',
+                title: 'Pin Location',
                 type: 'waypoint',
               })}
             />
@@ -196,16 +210,37 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
         </Button>
       </div>
       {/* Instructions */}
-      <div className="absolute bottom-2 left-2">
+      <div className="absolute bottom-3 left-1">
         <Card className="bg-white/90 backdrop-blur-sm">
           <CardContent className="p-2">
             <div className="flex items-center space-x-2 text-xs text-gray-600">
               <Info className="h-3 w-3" />
-              <span>Klik pada peta untuk menambah pin</span>
+              <span>{t('map.instructions')}</span>
             </div>
           </CardContent>
         </Card>
       </div>
+      {/* Prediction result from backend */}
+      {prediction && (
+        <div className="absolute bottom-3 right-1 max-w-xs bg-white/90 backdrop-blur-sm rounded shadow p-3 text-xs">
+          <h1 className="text-sm font-bold mb-2 text-red-500">{t('map.testOnly')}</h1>
+          <h3 className="font-bold mb-1">{t('map.classificationResult')}</h3>
+          <div style={{padding: '0.25rem'}}>{t('map.predictedClass')}: <br /> {prediction.classification?.predicted_class}</div>
+          <div style={{padding: '0.25rem'}}>{t('map.output')}: <br /> {Array.isArray(prediction.classification?.output) ? prediction.classification.output.map((item: any, idx: number) => (
+            <span key={idx}>{item}<br /></span>
+          )) : prediction.classification?.output}</div>
+          <div style={{padding: '0.25rem'}}>{t('map.parameters')}: <br /> {Array.isArray(prediction.classification?.parameters) ? prediction.classification.parameters.map((item: any, idx: number) => (
+            <span key={idx}>{item}<br /></span>
+          )) : prediction.classification?.parameters}</div>
+          <h3 className="font-bold mt-2 mb-1">{t('map.regressionResult')}</h3>
+          <div style={{padding: '0.25rem'}}>{t('map.output')}: <br /> {Array.isArray(prediction.regression?.output) ? prediction.regression.output.map((item: any, idx: number) => (
+            <span key={idx}>{item}<br /></span>
+          )) : prediction.regression?.output}</div>
+          <div style={{padding: '0.25rem'}}>{t('map.parameters')}: <br /> {Array.isArray(prediction.regression?.parameters) ? prediction.regression.parameters.map((item: any, idx: number) => (
+            <span key={idx}>{item}<br /></span>
+          )) : prediction.regression?.parameters} </div>
+        </div>
+      )}
     </div>
   );
 };

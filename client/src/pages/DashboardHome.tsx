@@ -17,7 +17,7 @@ import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useWeather } from "@/hooks/useWeather";
 import { id as localeId } from 'date-fns/locale';
-import { GoogleMapReactComponent } from '@/components/GoogleMapReact';
+import { GoogleMapReactComponent } from '@/components/map/GoogleMapReact';
 
 // Types
 interface AgricultureNews {
@@ -221,9 +221,14 @@ const FarmLocationWidget = React.memo(() => {
       <Card className="bg-white shadow-lg h-[400px] flex flex-col">
         <CardHeader className="pb-3 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center">
-              <MapPin className="mr-2 h-5 w-5 text-green-600" />
-              {t('dashboard.spectragrow')}
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MapPin className="h-8 w-8 text-green-600" />
+                <div className="flex flex-col items-start">
+                {t('dashboard.mapInsight')}
+                  <div className="text-xs text-gray-500 ml-0">
+                   {t('dashboard.poweredBy', { provName: 'Spectragrow' })}
+                  </div>
+                </div>
             </CardTitle>
             <div className="flex space-x-1 items-center">
               <Button
@@ -289,9 +294,29 @@ const FarmLocationWidget = React.memo(() => {
               <MapPin className="mr-3 h-7 w-7 text-green-600" />
               <span className="text-2xl font-bold">{t('dashboard.spectragrow')}</span>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setIsMapFullScreen(false)}>
-              <LayoutDashboard className="h-6 w-6" />
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={viewMode === 'map' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('map')}
+                className="h-8 text-xs"
+              >
+                <Layers className="h-4 w-4 mr-1" />
+                {t('dashboard.map')}
+              </Button>
+              <Button
+                variant={viewMode === 'satellite' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('satellite')}
+                className="h-8 text-xs"
+              >
+                <Satellite className="h-4 w-4 mr-1" />
+                {t('dashboard.satellite')}
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setIsMapFullScreen(false)}>
+                <LayoutDashboard className="h-6 w-6" />
+              </Button>
+            </div>
           </div>
           <div className="flex-1 flex flex-col justify-center items-center">
             <div className="w-full h-full">
