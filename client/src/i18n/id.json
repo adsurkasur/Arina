@@ -224,6 +224,8 @@
   "toast.error": "Terjadi kesalahan.",
   "toast.errorDescription": "Ini adalah notifikasi toast kesalahan.",
   "toast.errorTitle": "Toast Kesalahan",
+  "toast.localhostTitle": "Info",
+  "toast.localhostDescription": "Anda sedang menjalankan Arina secara lokal. Beberapa fitur mungkin terbatas atau hanya untuk pengembangan.",
   "toast.normalDescription": "Ini adalah notifikasi toast normal.",
   "toast.normalTitle": "Toast Normal",
   "toast.saved": "Perubahan berhasil disimpan.",

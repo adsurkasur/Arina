@@ -14,7 +14,6 @@ export const DebugPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     toast({
       title: t('toast.normalTitle'),
       description: t('toast.normalDescription'),
-      duration: 4000,
     });
   };
 
@@ -23,7 +22,6 @@ export const DebugPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       title: t('toast.errorTitle'),
       description: t('toast.errorDescription'),
       variant: "destructive",
-      duration: 4000,
     });
   };
 

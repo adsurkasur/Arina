@@ -150,11 +150,24 @@ export function setNotificationAdd(fn: typeof notificationAdd) {
 function toast({ ...props }: Toast) {
   const id = genId();
 
-  // Also add to NotificationContext for notification panel
-  if (notificationAdd && props.title) {
+  // Always add to NotificationContext for notification panel
+  if (notificationAdd) {
+    let titleString = "";
+    let descriptionString = undefined;
+    if (typeof props.title === "string") {
+      titleString = props.title;
+    } else if (props.title) {
+      // Try to render ReactNode to string (fallback)
+      titleString = String(props.title);
+    }
+    if (typeof props.description === "string") {
+      descriptionString = props.description;
+    } else if (props.description) {
+      descriptionString = String(props.description);
+    }
     notificationAdd({
-      title: typeof props.title === "string" ? props.title : "Notification",
-      description: typeof props.description === "string" ? props.description : undefined,
+      title: titleString || "Notification",
+      description: descriptionString,
       type: props.variant === "destructive" ? "error" : "default",
     });
   }
@@ -172,7 +185,7 @@ function toast({ ...props }: Toast) {
       ...props,
       id,
       open: true,
-      duration: NOTIFICATION_DURATION,
+      duration: NOTIFICATION_DURATION, // Enforce uniform duration
       onOpenChange: (open) => {
         if (!open) dismiss();
       },

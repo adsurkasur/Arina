@@ -13,6 +13,9 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { initializeI18n } from "@/i18n";
 import { getApiBaseUrl } from "@/lib/apiBaseUrl";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { Toaster } from "@/components/ui/toaster";
 
 function UniversalLoadingScreen() {
   return (
@@ -58,6 +61,24 @@ function ApiHealthGate({ children }: { children: React.ReactNode }) {
     );
   }
   return <>{children}</>;
+}
+
+function LocalhostToast() {
+  const { toast } = useToast();
+  const { t } = useTranslation();
+  React.useEffect(() => {
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "[::1]";
+    if (isLocalhost) {
+      toast({
+        title: t("toast.localhostTitle"),
+        description: t("toast.localhostDescription"),
+      });
+    }
+  }, [toast, t]);
+  return null;
 }
 
 function RootApp() {
@@ -115,6 +136,8 @@ function RootApp() {
         <TooltipProvider>
           <NotificationProvider>
             <ChatProvider>
+              <Toaster />
+              <LocalhostToast />
               <App />
             </ChatProvider>
           </NotificationProvider>

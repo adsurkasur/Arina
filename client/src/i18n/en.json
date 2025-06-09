@@ -229,6 +229,8 @@
   "toast.saved": "Changes saved successfully.",
   "toast.success": "Success!",
   "toast.updated": "Updated successfully.",
+  "toast.localhostTitle": "Info",
+  "toast.localhostDescription": "You are running Arina locally. Some features may be limited or for development only.",
   "tools.analysisHistory.allTypes": "All types",
   "tools.analysisHistory.businessFeasibility": "Business Feasibility",
   "tools.analysisHistory.demandForecasting": "Demand Forecasting",

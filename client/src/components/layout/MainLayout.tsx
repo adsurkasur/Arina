@@ -85,6 +85,26 @@ export function MainLayout({
           <Menu className="h-5 w-5 text-primary" />
         </Button>
       )}
+      {/* --- Unified Right Panel --- */}
+      <div
+        ref={panelRef}
+        className={cn(
+          "fixed top-16 right-0 h-[calc(100vh-4rem)] flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white transition-transform duration-300 will-change-transform",
+          panelVisible ? "translate-x-0" : "translate-x-full"
+        )}
+        style={{ maxHeight: "calc(100vh - 4rem)" }}
+        aria-hidden={!panelVisible}
+        tabIndex={-1}
+        onTransitionEnd={handlePanelTransitionEnd}
+      >
+        {/* Always render lastPanel content as long as lastPanel is set */}
+        {lastPanel && LastPanelComponent && (
+          <div style={{ height: '100%' }}>
+            <LastPanelComponent onClose={closePanel} />
+          </div>
+        )}
+      </div>
+      {/* Sidebar and overlay rendered after right panel for correct stacking */}
       <Sidebar
         isMobile={isMobile}
         isOpen={sidebarOpen}
@@ -161,25 +181,6 @@ export function MainLayout({
             )}
           >
             {children}
-          </div>
-          {/* --- Unified Right Panel --- */}
-          <div
-            ref={panelRef}
-            className={cn(
-              "fixed top-16 right-0 h-[calc(100vh-4rem)] flex flex-col min-w-[340px] max-w-[420px] w-full sm:w-[380px] md:w-[400px] lg:w-[420px] z-40 bg-white transition-transform duration-300 will-change-transform",
-              panelVisible ? "translate-x-0" : "translate-x-full"
-            )}
-            style={{ maxHeight: "calc(100vh - 4rem)" }}
-            aria-hidden={!panelVisible}
-            tabIndex={-1}
-            onTransitionEnd={handlePanelTransitionEnd}
-          >
-            {/* Always render lastPanel content as long as lastPanel is set */}
-            {lastPanel && LastPanelComponent && (
-              <div style={{ height: '100%' }}>
-                <LastPanelComponent onClose={closePanel} />
-              </div>
-            )}
           </div>
         </div>
       </div>

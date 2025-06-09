@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Target, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getApiBaseUrl } from '@/lib/apiBaseUrl';
+import { getSpectraGrowApiBaseUrl } from '@/lib/spectraGrowApiBaseUrl';
 
 // Fix: define libraries array outside the component to avoid performance warning
 const GOOGLE_MAP_LIBRARIES = ['geometry', 'places'] as any;
@@ -62,7 +64,7 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps> = ({
   const [waypoint, setWaypoint] = React.useState<{lat: number, lng: number} | null>(null);
   const fetchPrediction = async (lat: number, lon: number) => {
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_SPECTRAGROW_URL || 'http://127.0.0.1:8000';
+      const apiBaseUrl = getSpectraGrowApiBaseUrl();
       const response = await fetch(`${apiBaseUrl}/predict?lat=${lat}&lon=${lon}`);
       const data = await response.json();
       setPrediction(data);
