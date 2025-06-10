@@ -10,49 +10,154 @@ import remarkGfm from "remark-gfm"; // For GitHub-flavored markdown
 import rehypeRaw from "rehype-raw"; // To handle raw HTML safely
 import { ReactNode } from "react";
 
-// Adjusting the rendering of markdown content to ensure multi-line support
+// Define proper types for markdown components
+interface MarkdownComponentProps {
+  children?: ReactNode;
+  className?: string;
+  [key: string]: any;
+}
+
+// Enhanced MarkdownContent component with better styling
 const MarkdownContent = ({ content }: { content: string }) => {
   return (
-    <div className="markdown-content prose prose-sm max-w-none">
+    <div className="markdown-content prose prose-sm max-w-none dark:prose-invert">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]} // Enable GitHub-flavored markdown
-        rehypePlugins={[rehypeRaw]} // Handle raw HTML safely
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
         components={{
-          p: ({ ...props }: { children?: ReactNode }) => (
-            <p className="my-2 leading-relaxed" {...props} />
-          ), // Ensure proper spacing for paragraphs
-          code: ({
-            className,
-            children,
-            ...props
-          }: {
-            className?: string;
-            children?: ReactNode;
-          }) => {
+          // Headers with proper spacing and styling
+          h1: ({ children, ...props }: MarkdownComponentProps) => (
+            <h1 className="text-2xl font-bold text-gray-900 mb-4 mt-6 pb-2 border-b border-gray-200" {...props}>
+              {children}
+            </h1>
+          ),
+          h2: ({ children, ...props }: MarkdownComponentProps) => (
+            <h2 className="text-xl font-semibold text-gray-800 mb-3 mt-5 pb-1 border-b border-gray-100" {...props}>
+              {children}
+            </h2>
+          ),
+          h3: ({ children, ...props }: MarkdownComponentProps) => (
+            <h3 className="text-lg font-semibold text-gray-800 mb-2 mt-4" {...props}>
+              {children}
+            </h3>
+          ),
+          h4: ({ children, ...props }: MarkdownComponentProps) => (
+            <h4 className="text-base font-semibold text-gray-700 mb-2 mt-3" {...props}>
+              {children}
+            </h4>
+          ),
+          
+          // Paragraphs with proper spacing
+          p: ({ children, ...props }: MarkdownComponentProps) => (
+            <p className="mb-3 leading-relaxed text-gray-700" {...props}>
+              {children}
+            </p>
+          ),
+          
+          // Enhanced lists with better spacing and styling
+          ul: ({ children, ...props }: MarkdownComponentProps) => (
+            <ul className="mb-4 pl-6 space-y-2 list-disc marker:text-primary" {...props}>
+              {children}
+            </ul>
+          ),
+          ol: ({ children, ...props }: MarkdownComponentProps) => (
+            <ol className="mb-4 pl-6 space-y-2 list-decimal marker:text-primary marker:font-semibold" {...props}>
+              {children}
+            </ol>
+          ),
+          li: ({ children, ...props }: MarkdownComponentProps) => (
+            <li className="text-gray-700 leading-relaxed pl-1" {...props}>
+              {children}
+            </li>
+          ),
+          
+          // Enhanced blockquotes
+          blockquote: ({ children, ...props }: MarkdownComponentProps) => (
+            <blockquote className="border-l-4 border-primary/30 bg-gray-50 pl-4 pr-4 py-3 my-4 italic text-gray-700 rounded-r-md" {...props}>
+              {children}
+            </blockquote>
+          ),
+          
+          // Enhanced code blocks
+          code: ({ className, children, ...props }: MarkdownComponentProps) => {
             const match = /language-(\w+)/.exec(className || "");
             return !match ? (
-              <code className="bg-gray-100 px-1 rounded text-black" {...props}>
+              <code className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono border" {...props}>
                 {children}
               </code>
             ) : (
-              <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto my-2">
-                <code className={className || ""} {...props}>
-                  {String(children).trim()}
-                </code>
-              </pre>
+              <div className="my-4">
+                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto border shadow-sm">
+                  <code className={className || ""} {...props}>
+                    {String(children).trim()}
+                  </code>
+                </pre>
+              </div>
             );
           },
-          blockquote: ({ ...props }: { children?: ReactNode }) => (
-            <blockquote
-              className="border-l-4 border-gray-200 pl-4 italic my-3"
+          
+          // Enhanced tables with proper styling
+          table: ({ children, ...props }: MarkdownComponentProps) => (
+            <div className="my-4 overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg shadow-sm" {...props}>
+                {children}
+              </table>
+            </div>
+          ),
+          thead: ({ children, ...props }: MarkdownComponentProps) => (
+            <thead className="bg-gray-50" {...props}>
+              {children}
+            </thead>
+          ),
+          tbody: ({ children, ...props }: MarkdownComponentProps) => (
+            <tbody className="bg-white divide-y divide-gray-200" {...props}>
+              {children}
+            </tbody>
+          ),
+          tr: ({ children, ...props }: MarkdownComponentProps) => (
+            <tr className="hover:bg-gray-50 transition-colors" {...props}>
+              {children}
+            </tr>
+          ),
+          th: ({ children, ...props }: MarkdownComponentProps) => (
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b border-gray-200" {...props}>
+              {children}
+            </th>
+          ),
+          td: ({ children, ...props }: MarkdownComponentProps) => (
+            <td className="px-4 py-3 text-sm text-gray-700 border-b border-gray-100" {...props}>
+              {children}
+            </td>
+          ),
+          
+          // Enhanced horizontal rules
+          hr: ({ ...props }: MarkdownComponentProps) => (
+            <hr className="my-6 border-t border-gray-200" {...props} />
+          ),
+          
+          // Strong and emphasis
+          strong: ({ children, ...props }: MarkdownComponentProps) => (
+            <strong className="font-semibold text-gray-900" {...props}>
+              {children}
+            </strong>
+          ),
+          em: ({ children, ...props }: MarkdownComponentProps) => (
+            <em className="italic text-gray-800" {...props}>
+              {children}
+            </em>
+          ),
+          
+          // Links
+          a: ({ children, href, ...props }: MarkdownComponentProps) => (
+            <a 
+              href={href} 
+              className="text-primary hover:text-primary/80 underline font-medium transition-colors" 
+              target="_blank" 
+              rel="noopener noreferrer"
               {...props}
-            />
-          ),
-          ul: ({ ...props }: { children?: ReactNode }) => (
-            <ul className="list-disc pl-4 space-y-1 my-2" {...props} />
-          ),
-          ol: ({ ...props }: { children?: ReactNode }) => (
-            <ol className="list-decimal pl-4 space-y-1 my-2" {...props} />
+            >
+              {children}
+            </a>
           ),
         }}
       >
@@ -109,10 +214,10 @@ export default function ChatBubble({
 
       <div
         className={cn(
-          "p-4 shadow-sm max-w-[80%] whitespace-pre-wrap break-words font-sans",
+          "p-4 shadow-sm max-w-[80%] break-words font-sans rounded-lg",
           isUser
             ? "bg-primary text-white ml-3 chat-bubble-user"
-            : "bg-white text-gray-800 ml-3 chat-bubble-bot",
+            : "bg-white text-gray-800 ml-3 chat-bubble-bot border border-gray-100",
         )}
       >
         {isUser ? (
@@ -126,7 +231,7 @@ export default function ChatBubble({
             className="leading-relaxed text-base"
           />
         ) : (
-          <div className="markdown-content whitespace-pre-wrap break-words leading-relaxed">
+          <div className="break-words">
             <MarkdownContent content={message.content} />
           </div>
         )}

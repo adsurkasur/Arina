@@ -115,7 +115,7 @@ export function Sidebar({
     conversation: ChatConversation,
     e: any,
   ) => {
-    e.stopPropagation(); // Prevent loading the conversation when clicking the menu
+    e.stopPropagation();
     setCurrentConversation(conversation);
     setNewTitle(conversation.title);
     setIsRenameDialogOpen(true);
@@ -132,7 +132,7 @@ export function Sidebar({
 
   // Open delete dialog
   const handleDeleteClick = (conversationId: string, e: any) => {
-    e.stopPropagation(); // Prevent loading the conversation when clicking the menu
+    e.stopPropagation();
     setConversationToDelete(conversationId);
     setIsDeleteDialogOpen(true);
   };
@@ -154,6 +154,28 @@ export function Sidebar({
 
   return (
     <>
+      {/* Custom styles for scrollbar */}
+      <style>{`
+        .sidebar-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(34, 197, 94, 0.3) transparent;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar-thumb {
+          background-color: rgba(34, 197, 94, 0.3);
+          border-radius: 3px;
+          border: none;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(34, 197, 94, 0.5);
+        }
+      `}</style>
+
       {/* Overlay for mobile */}
       {isMobile && isOpen && (
         <div
@@ -161,16 +183,16 @@ export function Sidebar({
           onClick={() => setIsOpen(false)}
         />
       )}
+      
       {/* Sidebar */}
       <div className={cn(
         "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-[300ms] ease-in-out flex flex-col",
         isOpen
           ? "translate-x-0"
           : "-translate-x-full",
-      )}
-      >
+      )}>
         {/* Sidebar Header */}
-        <div className="p-4">
+        <div className="p-4 flex-shrink-0">
           <div className="flex justify-between items-center">
             <h2
               className="text-xl font-bold flex items-center font-sans cursor-pointer"
@@ -179,405 +201,339 @@ export function Sidebar({
             >
               <span className="mr-2"></span> Arina
             </h2>
+            {isMobile && (
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded-md hover:bg-white/10 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Main Menu Section */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar transition-all duration-[200ms] font-sans">
-          {/* Chat Menu Item */}
-          <div className="px-2 py-2">
-            <button
-              onClick={() => {
-                setMainView("chat");
-                clearActiveConversation();
-              }}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors mb-2"
-            >
-              <MessageSquare className="h-5 w-5 mr-3" />
-              <span>{t('sidebar.chat')}</span>
-            </button>
-          </div>
-
-          {/* Dashboard Dropdown */}
-          <div className="px-2 py-2">
-            <Collapsible
-              open={dashboardOpen}
-              onOpenChange={setDashboardOpen}
-              className="w-full"
-            >
-              <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
-                <div className="flex items-center">
-                  <span>{t('sidebar.dashboard')}</span>
-                </div>
-                {dashboardOpen ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </CollapsibleTrigger>
-              <CollapsibleContent
-                className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp"
-              >
-                <div className="pl-2 mt-1">
-                  <ul className="space-y-1">
-                    <li>
-                      <button
-                        onClick={() => setMainView('dashboardOverview')}
-                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                      >
-                        <LayoutDashboard className="h-5 w-5 mr-3 text-white" />
-                        <span>{t('sidebar.dashboardOverview') || 'Overview'}</span>
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => setMainView('dashboardNews')}
-                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                      >
-                        <Newspaper className="h-5 w-5 mr-3 text-white" />
-                        <span>{t('sidebar.dashboardNews') || 'News'}</span>
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => setMainView('dashboardAgriData')}
-                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                      >
-                        <ClipboardList className="h-5 w-5 mr-3 text-white" />
-                        <span>{t('sidebar.dashboardAgriData') || 'Agriculture Data'}</span>
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => setMainView('dashboardDevices')}
-                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                      >
-                        <Cpu className="h-5 w-5 mr-3 text-white" />
-                        <span>{t('sidebar.dashboardDevices') || 'Devices'}</span>
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-
-          {/* Analysis Tools Dropdown */}
-          <div className="px-2 py-2">
-            <Collapsible
-              open={analysisToolsOpen}
-              onOpenChange={setAnalysisToolsOpen}
-              className="w-full"
-            >
-              <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
-                <div className="flex items-center">
-                  <span className="mr-2">{t('sidebar.analysisTools')}</span>
-                </div>
-                {analysisToolsOpen ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </CollapsibleTrigger>
-              {/* Animate dropdown with slide/fade */}
-              <CollapsibleContent
-                className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp"
-              >
-                <div className="pl-2 mt-1">
-                  <ul className="space-y-1">
-                    <li>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => {
-                              if (activePanel === "businessFeasibility" && panelVisible) {
-                                closePanel();
-                              } else {
-                                openTool("businessFeasibility");
-                              }
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                          >
-                            <Calculator className="h-5 w-5 mr-3" />
-                            <span>{t('sidebar.businessFeasibility')}</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="right"
-                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
-                        >
-                          <p className="text-sm">
-                            {t('sidebar.businessFeasibilityDescription')}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </li>
-
-                    <li>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => {
-                              if (activePanel === "demandForecasting" && panelVisible) {
-                                closePanel();
-                              } else {
-                                openTool("demandForecasting");
-                              }
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                          >
-                            <BarChart3 className="h-5 w-5 mr-3" />
-                            <span>{t('sidebar.demandForecasting')}</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="right"
-                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
-                        >
-                          <p className="text-sm">
-                            {t('sidebar.demandForecastingDescription')}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </li>
-
-                    <li>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => {
-                              if (activePanel === "optimizationAnalysis" && panelVisible) {
-                                closePanel();
-                              } else {
-                                openTool("optimizationAnalysis");
-                              }
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                          >
-                            <ChevronsUp className="h-5 w-5 mr-3" />
-                            <span>{t('sidebar.optimizationAnalysis')}</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="right"
-                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
-                        >
-                          <p className="text-sm">
-                            {t('sidebar.optimizationAnalysisDescription')}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </li>
-
-                    <li>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => {
-                              if (activePanel === "recommendations" && panelVisible) {
-                                closePanel();
-                              } else {
-                                openTool("recommendations");
-                              }
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                          >
-                            <Lightbulb className="h-5 w-5 mr-3" />
-                            <span>{t('sidebar.smartRecommendations')}</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="right"
-                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
-                        >
-                          <p className="text-sm">
-                            {t('sidebar.smartRecommendationsDescription')}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </li>
-
-                    <li>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => {
-                              if (activePanel === "analysisHistory" && panelVisible) {
-                                closePanel();
-                              } else {
-                                openTool("analysisHistory");
-                              }
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
-                          >
-                            <History className="h-5 w-5 mr-3" />
-                            <span>{t('sidebar.analysisHistory')}</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="right"
-                          className="bg-cream text-primary max-w-[300px] p-3 font-body"
-                        >
-                          <p className="text-sm">
-                            {t('sidebar.analysisHistoryDescription')}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </li>
-                  </ul>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-
-          {/* Chat History Section */}
-          <div className="px-2 py-2">
-            <div className="flex items-center justify-between px-3 py-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                {t('sidebar.chatHistory')}
-              </h3>
+        <div className="flex-1 overflow-y-auto sidebar-scrollbar">
+          <div className="pb-4">
+            {/* Chat Menu Item */}
+            <div className="px-2 pb-2">
               <button
-                onClick={async () => {
-                  await createNewChat();
-                  setMainView("chat"); // Only switch to chat view
-                  if (isMobile) setIsOpen(false);
+                onClick={() => {
+                  setMainView("chat");
+                  clearActiveConversation();
+                  handleCloseSidebar();
                 }}
-                className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-                aria-label={t('sidebar.newChat')}
+                className="flex items-center w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors"
               >
-                <Plus className="h-3 w-3" />
+                <MessageSquare className="h-5 w-5 mr-3" />
+                <span>{t('sidebar.chat')}</span>
               </button>
             </div>
 
-            <div className="mt-1 space-y-1">
-              {conversations && conversations.length > 0 ? (
-                conversations.map((conversation) => (
-                  <div
-                    key={conversation.id}
-                    className="flex items-center relative group"
-                  >
+            {/* Dashboard Dropdown */}
+            <div className="px-2 pb-2">
+              <Collapsible
+                open={dashboardOpen}
+                onOpenChange={setDashboardOpen}
+                className="w-full"
+              >
+                <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
+                  <div className="flex items-center">
+                    <span>{t('other.features')}</span>
+                  </div>
+                  {dashboardOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
+                  <div className="pl-2 mt-1 space-y-1">
                     <button
                       onClick={() => {
-                        setMainView("chat");
-                        loadConversation(conversation.id);
-                        if (isMobile) setIsOpen(false);
+                        setMainView('dashboardOverview');
+                        handleCloseSidebar();
                       }}
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                     >
-                      <MessageSquare className="h-4 w-4 mr-3 text-white/70" />
-                      <span className="truncate mr-6">
-                        {conversation.title}
-                      </span>
+                      <LayoutDashboard className="h-5 w-5 mr-3 text-white" />
+                      <span>{t('sidebar.dashboardOverview') || 'Overview'}</span>
                     </button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-white/20"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreVertical className="h-4 w-4 text-white/70" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e: any) => handleRenameClick(conversation as ChatConversation, e)}
-                          className="cursor-pointer"
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          {t('sidebar.rename')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e: any) => handleDeleteClick(conversation.id, e)}
-                          className="cursor-pointer text-red-500 focus:text-red-500"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          {t('sidebar.delete')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <button
+                      onClick={() => {
+                        setMainView('dashboardNews');
+                        handleCloseSidebar();
+                      }}
+                      className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                    >
+                      <Newspaper className="h-5 w-5 mr-3 text-white" />
+                      <span>{t('sidebar.dashboardNews') || 'News'}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMainView('dashboardAgriData');
+                        handleCloseSidebar();
+                      }}
+                      className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                    >
+                      <ClipboardList className="h-5 w-5 mr-3 text-white" />
+                      <span>{t('sidebar.dashboardAgriData') || 'Agriculture Data'}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMainView('dashboardDevices');
+                        handleCloseSidebar();
+                      }}
+                      className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                    >
+                      <Cpu className="h-5 w-5 mr-3 text-white" />
+                      <span>{t('sidebar.dashboardDevices') || 'Devices'}</span>
+                    </button>
                   </div>
-                ))
-              ) : (
-                <p className="text-xs text-white/50 px-3 py-2">
-                  {t('sidebar.noConversations')}
-                </p>
-              )}
+                </CollapsibleContent>
+              </Collapsible>
             </div>
 
-            {/* Rename Dialog */}
-            <Dialog
-              open={isRenameDialogOpen}
-              onOpenChange={setIsRenameDialogOpen}
-            >
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>{t('sidebar.renameConversation')}</DialogTitle>
-                  <DialogDescription>
-                    {t('sidebar.enterNewName')}
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleRenameSubmit}>
-                  <div className="flex items-center gap-4 py-2">
-                    <Input
-                      value={newTitle}
-                      onChange={(e: any) => setNewTitle(e.target.value)}
-                      className="flex-1 text-black"
-                      placeholder={t('sidebar.enterNewTitle')}
-                    />
+            {/* Analysis Tools Dropdown */}
+            <div className="px-2 pb-2">
+              <Collapsible
+                open={analysisToolsOpen}
+                onOpenChange={setAnalysisToolsOpen}
+                className="w-full"
+              >
+                <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
+                  <div className="flex items-center">
+                    <span className="mr-2">{t('sidebar.analysisTools')}</span>
                   </div>
-                  <DialogFooter className="sm:justify-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsRenameDialogOpen(false)}
-                    >
-                      {t('sidebar.cancel')}
-                    </Button>
-                    <Button type="submit" disabled={!newTitle.trim()}>
-                      {t('sidebar.saveChanges')}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+                  {analysisToolsOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
+                  <div className="pl-2 mt-1 space-y-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            if (activePanel === "businessFeasibility" && panelVisible) {
+                              closePanel();
+                            } else {
+                              openTool("businessFeasibility");
+                            }
+                            handleCloseSidebar();
+                          }}
+                          className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                        >
+                          <Calculator className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-left">{t('sidebar.businessFeasibility')}</span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                      >
+                        <p className="text-sm">
+                          {t('sidebar.businessFeasibilityDescription')}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
 
-            {/* Delete Dialog */}
-            <Dialog
-              open={isDeleteDialogOpen}
-              onOpenChange={setIsDeleteDialogOpen}
-            >
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>{t('sidebar.deleteConversation')}</DialogTitle>
-                  <DialogDescription>
-                    {t('sidebar.confirmDelete')}
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="sm:justify-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={cancelDelete}
-                  >
-                    {t('sidebar.cancel')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={confirmDelete}
-                  >
-                    {t('sidebar.delete')}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            if (activePanel === "demandForecasting" && panelVisible) {
+                              closePanel();
+                            } else {
+                              openTool("demandForecasting");
+                            }
+                            handleCloseSidebar();
+                          }}
+                          className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                        >
+                          <BarChart3 className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-left">{t('sidebar.demandForecasting')}</span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                      >
+                        <p className="text-sm">
+                          {t('sidebar.demandForecastingDescription')}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            if (activePanel === "optimizationAnalysis" && panelVisible) {
+                              closePanel();
+                            } else {
+                              openTool("optimizationAnalysis");
+                            }
+                            handleCloseSidebar();
+                          }}
+                          className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                        >
+                          <ChevronsUp className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-left">{t('sidebar.optimizationAnalysis')}</span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                      >
+                        <p className="text-sm">
+                          {t('sidebar.optimizationAnalysisDescription')}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            if (activePanel === "recommendations" && panelVisible) {
+                              closePanel();
+                            } else {
+                              openTool("recommendations");
+                            }
+                            handleCloseSidebar();
+                          }}
+                          className="flex items-start w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                        >
+                          <Lightbulb className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5" />
+                          <span className="text-left leading-tight">
+                            <span className="block">{t('sidebar.smartRecommendations') || 'Smart Recommendations'}</span>
+                          </span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                      >
+                        <p className="text-sm">
+                          {t('sidebar.smartRecommendationsDescription')}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            if (activePanel === "analysisHistory" && panelVisible) {
+                              closePanel();
+                            } else {
+                              openTool("analysisHistory");
+                            }
+                            handleCloseSidebar();
+                          }}
+                          className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                        >
+                          <History className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-left">{t('sidebar.analysisHistory')}</span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="bg-cream text-primary max-w-[300px] p-3 font-body"
+                      >
+                        <p className="text-sm">
+                          {t('sidebar.analysisHistoryDescription')}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+
+            {/* Chat History Section */}
+            <div className="px-2 pb-2">
+              <div className="flex items-center justify-between px-3 py-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-white/50">
+                  {t('sidebar.chatHistory')}
+                </h3>
+                <button
+                  onClick={async () => {
+                    await createNewChat();
+                    setMainView("chat");
+                    handleCloseSidebar();
+                  }}
+                  className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  aria-label={t('sidebar.newChat')}
+                >
+                  <Plus className="h-3 w-3" />
+                </button>
+              </div>
+
+              <div className="mt-1 space-y-1 max-h-48 overflow-y-auto sidebar-scrollbar">
+                {conversations && conversations.length > 0 ? (
+                  conversations.map((conversation) => (
+                    <div
+                      key={conversation.id}
+                      className="flex items-center relative group"
+                    >
+                      <button
+                        onClick={() => {
+                          setMainView("chat");
+                          loadConversation(conversation.id);
+                          handleCloseSidebar();
+                        }}
+                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-3 text-white/70" />
+                        <span className="truncate mr-6">
+                          {conversation.title}
+                        </span>
+                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-white/20"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreVertical className="h-4 w-4 text-white/70" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e: any) => handleRenameClick(conversation as ChatConversation, e)}
+                            className="cursor-pointer"
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            {t('sidebar.rename')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e: any) => handleDeleteClick(conversation.id, e)}
+                            className="cursor-pointer text-red-500 focus:text-red-500"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            {t('sidebar.delete')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-white/50 px-3 py-2">
+                    {t('sidebar.noConversations')}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Debugging Side Panel */}
-        {/* <DebugPanel open={debugPanelOpen} onClose={() => setDebugPanelOpen(false)} /> */}
-        {/* Debug menu item: open DebugPanel as right panel */}
-        <div className="px-2 py-2">
+        {/* Bottom Section */}
+        <div className="flex-shrink-0 border-t border-white/10 p-2">
+          {/* Debug Panel */}
           <button
             onClick={() => {
               if (activePanel === "debug" && panelVisible) {
@@ -585,6 +541,7 @@ export function Sidebar({
               } else {
                 openTool("debug");
               }
+              handleCloseSidebar();
             }}
             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors mb-2"
             title="Open Debugging Panel"
@@ -592,10 +549,8 @@ export function Sidebar({
             <PanelLeft className="h-5 w-5 mr-3" />
             <span>{t('sidebar.debugging')}</span>
           </button>
-        </div>
 
-        {/* About Arina at bottom */}
-        <div className="mt-auto px-3 pb-4">
+          {/* About Arina */}
           <Dialog>
             <DialogTrigger asChild>
               <button className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors">
@@ -616,21 +571,11 @@ export function Sidebar({
                 <div className="space-y-2">
                   <h3 className="font-medium">{t('sidebar.coreFeatures')}</h3>
                   <ul className="list-disc pl-5 space-y-1 text-sm">
-                    <li>
-                      {t('sidebar.feasibilityAnalysis')}
-                    </li>
-                    <li>
-                      {t('sidebar.demandForecastingFeature')}
-                    </li>
-                    <li>
-                      {t('sidebar.optimizationAnalysisFeature')}
-                    </li>
-                    <li>
-                      {t('sidebar.aiRecommendations')}
-                    </li>
-                    <li>
-                      {t('sidebar.visualizations')}
-                    </li>
+                    <li>{t('sidebar.feasibilityAnalysis')}</li>
+                    <li>{t('sidebar.demandForecastingFeature')}</li>
+                    <li>{t('sidebar.optimizationAnalysisFeature')}</li>
+                    <li>{t('sidebar.aiRecommendations')}</li>
+                    <li>{t('sidebar.visualizations')}</li>
                   </ul>
                 </div>
                 <div className="space-y-2">
@@ -652,6 +597,60 @@ export function Sidebar({
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Rename Dialog */}
+        <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t('sidebar.renameConversation')}</DialogTitle>
+              <DialogDescription>
+                {t('sidebar.enterNewName')}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleRenameSubmit}>
+              <div className="flex items-center gap-4 py-2">
+                <Input
+                  value={newTitle}
+                  onChange={(e: any) => setNewTitle(e.target.value)}
+                  className="flex-1 text-black"
+                  placeholder={t('sidebar.enterNewTitle')}
+                />
+              </div>
+              <DialogFooter className="sm:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsRenameDialogOpen(false)}
+                >
+                  {t('sidebar.cancel')}
+                </Button>
+                <Button type="submit" disabled={!newTitle.trim()}>
+                  {t('sidebar.saveChanges')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Dialog */}
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t('sidebar.deleteConversation')}</DialogTitle>
+              <DialogDescription>
+                {t('sidebar.confirmDelete')}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="sm:justify-end">
+              <Button type="button" variant="outline" onClick={cancelDelete}>
+                {t('sidebar.cancel')}
+              </Button>
+              <Button type="button" variant="destructive" onClick={confirmDelete}>
+                {t('sidebar.delete')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );
