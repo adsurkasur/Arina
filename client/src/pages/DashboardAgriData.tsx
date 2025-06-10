@@ -349,7 +349,7 @@ export default function DashboardAgriData() {
 			</div>
 
 			{/* Custom Scrollbar Styles */}
-			<style jsx>{`
+			<style>{`
 				.scrollbar-thin::-webkit-scrollbar {
 					width: 6px;
 				}
