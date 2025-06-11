@@ -1,11 +1,6 @@
 {
   "name": "client",
   "version": "1.0.0",
-<<<<<<< HEAD
-  "description": "Client application for Arina",
-  "license": "Apache-2.0",
-=======
->>>>>>> parent of d17b4be (feat: Update package.json files for client and server with proper names, descriptions, and licenses; enhance logging and sanitization in updateConversation method)
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",

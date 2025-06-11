@@ -1,12 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-<<<<<<< HEAD
-  "description": "Server application for Arina",
-  "license": "Apache-2.0",
-=======
   "type": "module",
->>>>>>> parent of d17b4be (feat: Update package.json files for client and server with proper names, descriptions, and licenses; enhance logging and sanitization in updateConversation method)
   "scripts": {
     "build:server": "esbuild index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "build": "npm run build:server",
