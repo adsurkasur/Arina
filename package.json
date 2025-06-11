@@ -30,7 +30,8 @@
     "install-all": "node install-all.js",
     "predev": "npm run install-all && npm run copy-env",
     "prestart": "npm run install-all",
-    "dev:client:wait": "wait-on http-get://localhost:5000/api/health && npm run dev:client"
+    "dev:client:wait": "wait-on http-get://localhost:5000/api/health && npm run dev:client",
+    "vercel-build": "npm install --legacy-peer-deps && npm run build"
   },
   "devDependencies": {
     "@types/node": "^20.19.0",
