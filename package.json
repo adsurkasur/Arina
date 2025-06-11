@@ -1,8 +1,13 @@
 {
-  "name": "rest-express",
+  "name": "arina",
   "version": "1.0.0",
   "type": "module",
-  "license": "MIT",
+  "license": "Apache-2.0",
+  "description": "Arina full-stack application",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adsurkasur/Arina.git"
+  },
   "scripts": {
     "dev": "npm run build && npm run copy-env && concurrently --raw \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && npm run dev",
