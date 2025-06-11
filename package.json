@@ -1,8 +1,13 @@
 {
-  "name": "arina",
+  "name": "rest-express",
   "version": "1.0.0",
+<<<<<<< HEAD
   "description": "Arina is a full-stack application with a React client and Node.js server, designed for modern web development.",
   "license": "Apache-2.0",
+=======
+  "type": "module",
+  "license": "MIT",
+>>>>>>> parent of d17b4be (feat: Update package.json files for client and server with proper names, descriptions, and licenses; enhance logging and sanitization in updateConversation method)
   "scripts": {
     "dev": "npm run build && npm run copy-env && concurrently --raw \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && npm run dev",
