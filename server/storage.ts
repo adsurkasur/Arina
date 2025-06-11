@@ -179,6 +179,8 @@ export class DatabaseStorage {
     id: string,
     data: Partial<ChatConversation>,
   ): Promise<ChatConversation> {
+    // Sanitize id and add logging for debugging
+    const cleanId = typeof id === 'string' ? id.trim() : String(id);
     const updateData = {
       ...data,
       updated_at: new Date(),
@@ -186,11 +188,14 @@ export class DatabaseStorage {
     const result = await getDb()
       .collection("chat_conversations")
       .findOneAndUpdate(
-        { id },
+        { id: cleanId },
         { $set: updateData },
         { returnDocument: "after" },
       );
-    if (!result || !result.value) throw new Error("Conversation not found");
+    if (!result || !result.value) {
+      console.error("updateConversation: Conversation not found", { id: cleanId, updateData });
+      throw new Error("Conversation not found");
+    }
     const c = result.value;
     return {
       id: c.id,
