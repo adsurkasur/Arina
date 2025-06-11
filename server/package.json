@@ -1,7 +1,6 @@
 {
   "name": "arina-server",
   "version": "1.0.0",
-  "type": "module",
   "description": "Server application for Arina",
   "license": "Apache-2.0",
   "scripts": {

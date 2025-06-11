@@ -1,7 +1,6 @@
 {
   "name": "arina-client",
   "version": "1.0.0",
-  "type": "module",
   "description": "Client application for Arina",
   "license": "Apache-2.0",
   "scripts": {

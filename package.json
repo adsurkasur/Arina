@@ -1,7 +1,6 @@
 {
   "name": "arina",
   "version": "1.0.0",
-  "type": "module",
   "description": "Arina is a full-stack application with a React client and Node.js server, designed for modern web development.",
   "license": "Apache-2.0",
   "scripts": {
