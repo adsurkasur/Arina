@@ -39,25 +39,6 @@ interface BPSData {
   trend: 'up' | 'down' | 'stable';
 }
 
-// Updated WeatherData interface to match what we're using
-interface WeatherData {
-  temperature: number;
-  condition: string;
-  humidity: number;
-  windSpeed: number;
-  highTemp: number;
-  lowTemp: number;
-  location: string;
-  lastUpdated?: string; // Make this property optional
-}
-
-// Location interface for geolocation
-interface LocationData {
-  latitude: number;
-  longitude: number;
-  city?: string;
-}
-
 // Mock Data
 const mockNews: AgricultureNews[] = [
   {
@@ -148,174 +129,37 @@ const customScrollbarClass = `
   scrollbar-thumb-rounded-full
 `;
 
-// Weather Widget with Enhanced Geolocation
+// Weather Widget
 const WeatherWidget = React.memo(() => {
   const { t } = useTranslation();
   const { weatherData, loading, error, refreshWeather } = useWeather();
-  const [isLocating, setIsLocating] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<LocationData | null>(null);
 
   const WeatherIcon = weatherData?.condition?.includes('rain') ? Droplets : 
                      weatherData?.condition?.includes('cloud') ? Cloud : Sun;
 
-  // Function to get current location
-  const getCurrentLocation = useCallback(async () => {
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation tidak didukung oleh browser ini');
-      return;
-    }
-
-    setIsLocating(true);
-    setLocationError(null);
-
-    const options = {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 300000 // Cache location for 5 minutes
-    };
-
-    try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, options);
-      });
-
-      const { latitude, longitude } = position.coords;
-      
-      // Get city name from coordinates using reverse geocoding
-      const cityName = await getCityFromCoordinates(latitude, longitude);
-      
-      const location: LocationData = {
-        latitude,
-        longitude,
-        city: cityName
-      };
-      
-      setCurrentLocation(location);
-      setIsLocating(false);
-      setLocationError(null);
-      
-      // Refresh weather data with new location
-      refreshWeather();
-
-      console.log('Location found:', location);
-    } catch (error: any) {
-      setIsLocating(false);
-      let errorMessage = 'Gagal mendapatkan lokasi';
-      
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          errorMessage = 'Akses lokasi ditolak. Izinkan akses lokasi di browser Anda.';
-          break;
-        case error.POSITION_UNAVAILABLE:
-          errorMessage = 'Informasi lokasi tidak tersedia.';
-          break;
-        case error.TIMEOUT:
-          errorMessage = 'Timeout mendapatkan lokasi. Coba lagi.';
-          break;
-        default:
-          errorMessage = 'Terjadi kesalahan yang tidak diketahui.';
-          break;
-      }
-      
-      setLocationError(errorMessage);
-      console.error('Geolocation error:', error);
-      
-      // Auto clear error after 5 seconds
-      setTimeout(() => {
-        setLocationError(null);
-      }, 5000);
-    }
-  }, [refreshWeather]);
-
-  // Function to get city name from coordinates
-  const getCityFromCoordinates = async (lat: number, lng: number): Promise<string> => {
-    try {
-      // Using a free reverse geocoding service
-      const response = await fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        return data.city || data.locality || data.principalSubdivision || 'Lokasi Anda';
-      }
-    } catch (error) {
-      console.error('Error getting city name:', error);
-    }
-    
-    return 'Lokasi Anda';
-  };
-
-  // Auto-get location on component mount if not already available
-  useEffect(() => {
-    if (!currentLocation && !locationError && !isLocating) {
-      // Auto-get location with user permission
-      const hasPermission = localStorage.getItem('weather-location-permission');
-      if (hasPermission === 'granted') {
-        getCurrentLocation();
-      }
-    }
-  }, [getCurrentLocation, currentLocation, locationError, isLocating]);
-
-  if (loading || isLocating) {
+  if (loading) {
     return (
       <Card className="bg-gradient-to-br from-blue-400 to-blue-600 text-white h-full">
         <CardContent className="p-6 flex items-center justify-center h-full">
-          <div className="text-center">
-            <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
-            <p className="text-sm">
-              {isLocating ? 'Mencari lokasi...' : 'Memuat cuaca...'}
-            </p>
-          </div>
+          <RefreshCw className="h-8 w-8 animate-spin" />
         </CardContent>
       </Card>
     );
   }
 
-  if (error && !weatherData) {
+  if (error) {
     return (
       <Card className="bg-gradient-to-br from-gray-400 to-gray-600 text-white h-full">
         <CardContent className="p-6 text-center h-full flex flex-col justify-center">
-          <Cloud className="h-8 w-8 mx-auto mb-3 opacity-70" />
-          <p className="text-sm mb-3">{t('dashboard.weatherLoadError') || 'Gagal memuat data cuaca'}</p>
-          
-          {/* Location Error Display */}
-          {locationError && (
-            <div className="mb-3 p-2 bg-red-500/20 border border-red-300/30 rounded-md">
-              <p className="text-xs text-red-100">{locationError}</p>
-            </div>
-          )}
-          
-          <div className="space-y-2">
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              onClick={() => {
-                localStorage.setItem('weather-location-permission', 'granted');
-                getCurrentLocation();
-              }}
-              disabled={isLocating}
-              className="w-full"
-            >
-              {isLocating ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Navigation className="h-4 w-4 mr-2" />
-              )}
-              {t('dashboard.useMyLocation') || 'Gunakan Lokasi Saya'}
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => refreshWeather()}
-              className="w-full text-white hover:bg-white/20"
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              {t('dashboard.refresh') || 'Muat Ulang'}
-            </Button>
-          </div>
+          <p className="text-sm mb-2">{t('dashboard.weatherLoadError')}</p>
+          <Button variant="ghost" size="sm" onClick={refreshWeather} className="text-white mb-2">
+            <RefreshCw className="h-4 w-4 mr-1" />
+            {t('dashboard.refresh') || 'Refresh'}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={refreshWeather} className="text-white">
+            <Navigation className="h-4 w-4 mr-1" />
+            {t('dashboard.useMyLocation') || 'Use My Location'}
+          </Button>
         </CardContent>
       </Card>
     );
@@ -327,96 +171,40 @@ const WeatherWidget = React.memo(() => {
         <CardTitle className="text-lg flex items-center justify-between">
           <span className="flex items-center">
             <Cloud className="mr-2 h-5 w-5" />
-            <div className="flex flex-col">
-              <span>
-                Cuaca {currentLocation?.city || weatherData?.location || 'Jakarta'}
-              </span>
-              {currentLocation && (
-                <span className="text-xs opacity-80 font-normal">
-                  📍 Lokasi Saat Ini
-                </span>
-              )}
-            </div>
+            Cuaca {weatherData?.location || 'Jakarta'}
           </span>
-          <div className="flex gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => refreshWeather()} 
-              className="text-white h-8 w-8 hover:bg-white/20" 
-              title={t('dashboard.refresh') || 'Refresh'}
-              disabled={loading}
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <div className="flex gap-2">
+            <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8" title={t('dashboard.refresh') || 'Refresh'}>
+              <RefreshCw className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => {
-                localStorage.setItem('weather-location-permission', 'granted');
-                getCurrentLocation();
-              }}
-              disabled={isLocating}
-              className="text-white h-8 w-8 hover:bg-white/20" 
-              title={t('dashboard.useMyLocation') || 'Gunakan Lokasi Saya'}
-            >
-              {isLocating ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <Navigation className={`h-4 w-4 ${currentLocation ? 'text-yellow-300' : ''}`} />
-              )}
+            <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8" title={t('dashboard.useMyLocation') || 'Use My Location'}>
+              <Navigation className="h-4 w-4" />
             </Button>
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Location Error in Weather Widget */}
-        {locationError && (
-          <div className="p-2 bg-red-500/20 border border-red-300/30 rounded-md mb-3">
-            <p className="text-xs text-red-100">{locationError}</p>
-          </div>
-        )}
-        
         <div className="flex items-center justify-between">
           <div>
             <p className="text-2xl font-bold">{weatherData?.temperature || '30'}°C</p>
             <p className="text-sm opacity-90">{weatherData?.condition || 'Cerah'}</p>
-            {weatherData?.lastUpdated && (
-              <p className="text-xs opacity-70 mt-1">
-                Update: {new Date(weatherData.lastUpdated).toLocaleTimeString('id-ID', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
-            )}
           </div>
           <WeatherIcon className="h-10 w-10" />
         </div>
-        
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="flex items-center">
             <Thermometer className="h-3 w-3 mr-1" />
-            <span>{weatherData?.highTemp || '30'}°/{weatherData?.lowTemp || '20'}°</span>
+            {weatherData?.highTemp || '30'}°/{weatherData?.lowTemp || '20'}°
           </div>
           <div className="flex items-center">
             <Droplets className="h-3 w-3 mr-1" />
-            <span>{weatherData?.humidity || '65'}%</span>
+            {weatherData?.humidity || '65'}%
           </div>
           <div className="flex items-center">
             <Wind className="h-3 w-3 mr-1" />
-            <span>{weatherData?.windSpeed || '10'} km/h</span>
+            {weatherData?.windSpeed || '10'} km/h
           </div>
         </div>
-        
-        {/* Location Accuracy Indicator */}
-        {currentLocation && (
-          <div className="flex items-center justify-center">
-            <div className="flex items-center gap-1 text-xs opacity-80 bg-white/10 px-2 py-1 rounded-full">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span>Lokasi Akurat</span>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

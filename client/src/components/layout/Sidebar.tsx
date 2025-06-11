@@ -29,8 +29,7 @@ import {
   Info,
   LayoutDashboard,
   ChevronsUp,
-  Newspaper,
-  Sprout // Using Sprout as agriculture/plant icon for logo
+  Newspaper
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -103,7 +102,6 @@ export function Sidebar({
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
   const [debugPanelOpen, setDebugPanelOpen] = useState(false);
   const [dashboardOpen, setDashboardOpen] = useState(true);
-  const [chatHistoryOpen, setChatHistoryOpen] = useState(true); // Add state for chat history dropdown
 
   // Handle toggling the sidebar on mobile
   const handleCloseSidebar = () => {
@@ -176,22 +174,6 @@ export function Sidebar({
         .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
           background-color: rgba(34, 197, 94, 0.5);
         }
-        
-        /* Logo animation */
-        .logo-pulse {
-          animation: logo-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes logo-pulse {
-          0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.8;
-            transform: scale(1.05);
-          }
-        }
       `}</style>
 
       {/* Overlay for mobile */}
@@ -210,26 +192,15 @@ export function Sidebar({
           : "-translate-x-full",
       )}>
         {/* Sidebar Header */}
-        <div className="p-4 flex-shrink-0 border-b border-white/10">
+        <div className="p-4 flex-shrink-0">
           <div className="flex justify-between items-center">
-            <div
-              className="flex items-center cursor-pointer group"
+            <h2
+              className="text-xl font-bold flex items-center font-sans cursor-pointer"
               onClick={() => setDebugPanelOpen((v) => !v)}
               title="Open Debugging Panel"
             >
-              {/* Logo/Favicon */}
-              <div className="relative mr-3">
-                <div className="">
-                  <Sprout className="h-5 w-5 text-white" />
-                </div>
-              </div>
-              
-              {/* App Name */}
-              <h2 className="text-xl font-bold font-sans text-white truncate">
-                Arina
-              </h2>
-            </div>
-            
+              <span className="mr-2"></span> Arina
+            </h2>
             {isMobile && (
               <button
                 onClick={() => setIsOpen(false)}
@@ -239,18 +210,11 @@ export function Sidebar({
               </button>
             )}
           </div>
-          
-          {/* Optional: Add subtitle or version */}
-          <div className="mt-1">
-            <p className="text-xs text-white/60 font-medium">
-              Smart Agriculture Assistant
-            </p>
-          </div>
         </div>
 
         {/* Main Menu Section */}
         <div className="flex-1 overflow-y-auto sidebar-scrollbar">
-          <div className="pb-4 pt-2">
+          <div className="pb-4">
             {/* Chat Menu Item */}
             <div className="px-2 pb-2">
               <button
@@ -275,7 +239,6 @@ export function Sidebar({
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
                   <div className="flex items-center">
-                    <LayoutDashboard className="h-5 w-5 mr-3" />
                     <span>{t('other.features')}</span>
                   </div>
                   {dashboardOpen ? (
@@ -285,7 +248,7 @@ export function Sidebar({
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
-                  <div className="pl-6 mt-1 space-y-1">
+                  <div className="pl-2 mt-1 space-y-1">
                     <button
                       onClick={() => {
                         setMainView('dashboardOverview');
@@ -293,7 +256,7 @@ export function Sidebar({
                       }}
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                     >
-                      <LayoutDashboard className="h-4 w-4 mr-3 text-white/70" />
+                      <LayoutDashboard className="h-5 w-5 mr-3 text-white" />
                       <span>{t('sidebar.dashboardOverview') || 'Overview'}</span>
                     </button>
                     <button
@@ -303,7 +266,7 @@ export function Sidebar({
                       }}
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                     >
-                      <Newspaper className="h-4 w-4 mr-3 text-white/70" />
+                      <Newspaper className="h-5 w-5 mr-3 text-white" />
                       <span>{t('sidebar.dashboardNews') || 'News'}</span>
                     </button>
                     <button
@@ -313,7 +276,7 @@ export function Sidebar({
                       }}
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                     >
-                      <ClipboardList className="h-4 w-4 mr-3 text-white/70" />
+                      <ClipboardList className="h-5 w-5 mr-3 text-white" />
                       <span>{t('sidebar.dashboardAgriData') || 'Agriculture Data'}</span>
                     </button>
                     <button
@@ -323,7 +286,7 @@ export function Sidebar({
                       }}
                       className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                     >
-                      <Cpu className="h-4 w-4 mr-3 text-white/70" />
+                      <Cpu className="h-5 w-5 mr-3 text-white" />
                       <span>{t('sidebar.dashboardDevices') || 'Devices'}</span>
                     </button>
                   </div>
@@ -340,8 +303,7 @@ export function Sidebar({
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
                   <div className="flex items-center">
-                    <Calculator className="h-5 w-5 mr-3" />
-                    <span>{t('sidebar.analysisTools')}</span>
+                    <span className="mr-2">{t('sidebar.analysisTools')}</span>
                   </div>
                   {analysisToolsOpen ? (
                     <ChevronDown className="h-4 w-4" />
@@ -350,7 +312,7 @@ export function Sidebar({
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
-                  <div className="pl-6 mt-1 space-y-1">
+                  <div className="pl-2 mt-1 space-y-1">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
@@ -364,7 +326,7 @@ export function Sidebar({
                           }}
                           className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                         >
-                          <Calculator className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
+                          <Calculator className="h-5 w-5 mr-3 flex-shrink-0" />
                           <span className="text-left">{t('sidebar.businessFeasibility')}</span>
                         </button>
                       </TooltipTrigger>
@@ -391,7 +353,7 @@ export function Sidebar({
                           }}
                           className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                         >
-                          <BarChart3 className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
+                          <BarChart3 className="h-5 w-5 mr-3 flex-shrink-0" />
                           <span className="text-left">{t('sidebar.demandForecasting')}</span>
                         </button>
                       </TooltipTrigger>
@@ -418,7 +380,7 @@ export function Sidebar({
                           }}
                           className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                         >
-                          <ChevronsUp className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
+                          <ChevronsUp className="h-5 w-5 mr-3 flex-shrink-0" />
                           <span className="text-left">{t('sidebar.optimizationAnalysis')}</span>
                         </button>
                       </TooltipTrigger>
@@ -445,7 +407,7 @@ export function Sidebar({
                           }}
                           className="flex items-start w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                         >
-                          <Lightbulb className="h-4 w-4 mr-3 flex-shrink-0 mt-0.5 text-white/70" />
+                          <Lightbulb className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5" />
                           <span className="text-left leading-tight">
                             <span className="block">{t('sidebar.smartRecommendations') || 'Smart Recommendations'}</span>
                           </span>
@@ -474,7 +436,7 @@ export function Sidebar({
                           }}
                           className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
                         >
-                          <History className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
+                          <History className="h-5 w-5 mr-3 flex-shrink-0" />
                           <span className="text-left">{t('sidebar.analysisHistory')}</span>
                         </button>
                       </TooltipTrigger>
@@ -492,119 +454,79 @@ export function Sidebar({
               </Collapsible>
             </div>
 
-            {/* Chat History Section with Dropdown */}
+            {/* Chat History Section */}
             <div className="px-2 pb-2">
-              <Collapsible
-                open={chatHistoryOpen}
-                onOpenChange={setChatHistoryOpen}
-                className="w-full"
-              >
-                <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-white/10 transition-colors font-sans">
-                  <div className="flex items-center">
-                    <History className="h-5 w-5 mr-3" />
-                    <span>{t('sidebar.chatHistory')}</span>
-                    {conversations && conversations.length > 0 && (
-                      <span className="ml-2 bg-white/20 text-xs px-2 py-0.5 rounded-full">
-                        {conversations.length}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {/* Add New Chat Button */}
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        await createNewChat();
-                        setMainView("chat");
-                        handleCloseSidebar();
-                      }}
-                      className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-                      aria-label={t('sidebar.newChat')}
-                      title={t('sidebar.newChat')}
+              <div className="flex items-center justify-between px-3 py-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-white/50">
+                  {t('sidebar.chatHistory')}
+                </h3>
+                <button
+                  onClick={async () => {
+                    await createNewChat();
+                    setMainView("chat");
+                    handleCloseSidebar();
+                  }}
+                  className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  aria-label={t('sidebar.newChat')}
+                >
+                  <Plus className="h-3 w-3" />
+                </button>
+              </div>
+
+              <div className="mt-1 space-y-1 max-h-48 overflow-y-auto sidebar-scrollbar">
+                {conversations && conversations.length > 0 ? (
+                  conversations.map((conversation) => (
+                    <div
+                      key={conversation.id}
+                      className="flex items-center relative group"
                     >
-                      <Plus className="h-3 w-3" />
-                    </button
-                    >
-                    
-                    {/* Dropdown Arrow */}
-                    {chatHistoryOpen ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </div>
-                </CollapsibleTrigger>
-                
-                <CollapsibleContent className="overflow-hidden transition-all duration-[200ms] data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
-                  <div className="pl-6 mt-1 space-y-1 max-h-48 overflow-y-auto sidebar-scrollbar">
-                    {conversations && conversations.length > 0 ? (
-                      conversations.map((conversation) => (
-                        <div
-                          key={conversation.id}
-                          className="flex items-center relative group"
-                        >
+                      <button
+                        onClick={() => {
+                          setMainView("chat");
+                          loadConversation(conversation.id);
+                          handleCloseSidebar();
+                        }}
+                        className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-3 text-white/70" />
+                        <span className="truncate mr-6">
+                          {conversation.title}
+                        </span>
+                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                           <button
-                            onClick={() => {
-                              setMainView("chat");
-                              loadConversation(conversation.id);
-                              handleCloseSidebar();
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors"
+                            className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-white/20"
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            <MessageSquare className="h-4 w-4 mr-3 text-white/50 flex-shrink-0" />
-                            <span className="truncate mr-6 text-left">
-                              {conversation.title}
-                            </span>
+                            <MoreVertical className="h-4 w-4 text-white/70" />
                           </button>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button
-                                className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm hover:bg-white/20 transition-opacity"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <MoreVertical className="h-4 w-4 text-white/70" />
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={(e: any) => handleRenameClick(conversation as ChatConversation, e)}
-                                className="cursor-pointer"
-                              >
-                                <Pencil className="mr-2 h-4 w-4" />
-                                {t('sidebar.rename')}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={(e: any) => handleDeleteClick(conversation.id, e)}
-                                className="cursor-pointer text-red-500 focus:text-red-500"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                {t('sidebar.delete')}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="px-3 py-4 text-center">
-                        <MessageSquare className="h-8 w-8 text-white/30 mx-auto mb-2" />
-                        <p className="text-xs text-white/50 mb-2">
-                          {t('sidebar.noConversations')}
-                        </p>
-                        <button
-                          onClick={async () => {
-                            await createNewChat();
-                            setMainView("chat");
-                            handleCloseSidebar();
-                          }}
-                          className="text-xs text-green-300 hover:text-green-200 underline transition-colors"
-                        >
-                          {t('sidebar.startFirstChat') || 'Start your first chat'}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e: any) => handleRenameClick(conversation as ChatConversation, e)}
+                            className="cursor-pointer"
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            {t('sidebar.rename')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e: any) => handleDeleteClick(conversation.id, e)}
+                            className="cursor-pointer text-red-500 focus:text-red-500"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            {t('sidebar.delete')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-white/50 px-3 py-2">
+                    {t('sidebar.noConversations')}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -638,17 +560,9 @@ export function Sidebar({
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="h-10 w-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
-                    <Sprout className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-xl">
-                      {t('sidebar.arinaTitle')}
-                    </DialogTitle>
-                    <p className="text-sm text-gray-600">Smart Agriculture Assistant</p>
-                  </div>
-                </div>
+                <DialogTitle className="text-xl">
+                  {t('sidebar.arinaTitle')}
+                </DialogTitle>
                 <DialogDescription>
                   {t('sidebar.arinaDescription')}
                 </DialogDescription>
