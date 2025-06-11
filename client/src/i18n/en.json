@@ -41,6 +41,8 @@
   "chat.welcomeDesc": "Your AI-powered agricultural business assistant. I can help you with:",
   "chat.welcomeMessage": "Your AI-powered agricultural business assistant. Start a conversation to get insights and recommendations.",
   "chat.welcomeTitle": "Welcome to Arina",
+  "chat.generatingResponse": "Generating response...",
+  "chat.preparingResponse": "Preparing response...",
   "dashboard.aiInsights": "AI Insights",
   "dashboard.analysisHistory": "Analysis History",
   "dashboard.comingSoonLastAnalysisInfo": "Coming Soon Last Analysis Info",
@@ -529,5 +531,14 @@
   "userProfile.title": "User Profile",
   "userProfile.updatePassword": "Update Password",
   "userProfile.updated": "Profile Updated",
-  "userProfile.updatedDesc": "Your profile information has been successfully updated."
+  "userProfile.updatedDesc": "Your profile information has been successfully updated.",
+  "error.server_busy": "Server is busy. Please try again later.",
+  "error.general": "An error occurred. Please try again.",
+  "error.no_response": "No response from the server. Please check your internet connection.",
+  "error.gemini_api_key_not_configured": "Google Gemini API key is not configured. Please set it in the environment variables.",
+  "error.creating_chat_session": "Error creating chat session. Please try again later.",
+  "error.failed_to_initialize_chat_session": "Failed to initialize chat session. Please try again later.",
+  "error.chat_not_initialized": "Chat session is not initialized. Please start a new chat.",
+  "error.invalid_message": "Invalid message. Please check your input and try again.",
+  "error.analysis_failed": "Analysis failed. Please check your input data and try again."
 }

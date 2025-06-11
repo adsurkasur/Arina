@@ -1,8 +1,11 @@
 import React from "react";
 import { Sprout } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export default function ThinkingAnimation() {
+  const { t } = useTranslation();
+
   // Animation variants for thinking circles
   const containerVariants = {
     start: {
@@ -43,7 +46,7 @@ export default function ThinkingAnimation() {
       
       <div className="ml-3 bg-white p-4 rounded-tr-lg rounded-br-lg rounded-bl-lg shadow-sm max-w-[80%] font-sans">
         <div className="flex flex-col space-y-2">
-          <div className="text-xs text-gray-500 mb-1">Generating response...</div>
+          <div className="text-xs text-gray-500 mb-1">{t('chat.generatingResponse')}</div>
           <motion.div
             className="flex justify-center space-x-3"
             variants={containerVariants}
@@ -71,7 +74,7 @@ export default function ThinkingAnimation() {
               transition={{...circleTransition, delay: 0.6}}
             />
           </motion.div>
-          <div className="italic text-xs text-gray-400 mt-1">Analyzing agricultural data and preparing insights</div>
+          <div className="italic text-xs text-gray-400 mt-1">{t('chat.preparingResponse')}</div>
         </div>
       </div>
     </div>
