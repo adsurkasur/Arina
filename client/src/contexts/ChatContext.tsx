@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
 import { getApiBaseUrl } from "@/lib/apiBaseUrl";
+import { useTranslation } from "react-i18next";
 
 interface ChatContextProps {
   conversations: ChatConversation[];
@@ -59,6 +60,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const { analysisResults } = useAnalysisHistory();
+  const { t } = useTranslation();
 
   // Load chat history when user is authenticated
   useEffect(() => {
@@ -79,20 +81,18 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       console.error("Error loading chat history:", error);
       toast({
-        title: "Error loading chat history",
-        description: error.message || "Failed to load chat history",
+        title: t("chatContext.errorLoadingHistoryTitle"),
+        description: error.message || t("chatContext.errorLoadingHistoryDesc"),
         variant: "destructive",
       });
-      // Set empty conversations on error to prevent UI issues
       setConversations([]);
     } finally {
       setIsLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, t]);
 
   const createNewChat = useCallback(async () => {
-    if (!user) throw new Error("User not authenticated");
-
+    if (!user) throw new Error(t("chatContext.errorUserNotAuthenticated"));
     try {
       // Ensure user exists in database first
       const API_BASE = getApiBaseUrl();
@@ -138,23 +138,23 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         return newConversation;
       }
 
-      throw new Error("Failed to create new chat");
+      throw new Error(t("chatContext.errorCreateNewChat"));
     } catch (error: any) {
       toast({
-        title: "Error creating new chat",
+        title: t("chatContext.errorCreateNewChatTitle"),
         description: error.message,
         variant: "destructive",
       });
       throw error;
     }
-  }, [user, toast]);
+  }, [user, toast, t]);
 
   const loadConversation = useCallback(
     async (conversationId: string) => {
       try {
         setIsLoading(true);
         const conversation = conversations.find((c: ChatConversation) => c.id === conversationId);
-        if (!conversation) throw new Error("Conversation not found");
+        if (!conversation) throw new Error(t("chatContext.errorConversationNotFound"));
         setActiveConversation(conversation);
         const { data, error } = await getChatMessages(conversationId);
         if (error) throw error;
@@ -167,21 +167,21 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             }));
             const session = await createChatSession(chatMessages);
             if (!session) {
-              throw new Error("Failed to create chat session");
+              throw new Error(t("chatContext.errorCreateSession"));
             }
             setChatSession(session);
           } catch (error) {
             console.error("Error initializing chat session:", error);
             toast({
-              title: "Chat Error",
-              description: "Failed to initialize chat. Please try again.",
+              title: t("chatContext.errorChatTitle"),
+              description: t("chatContext.errorChatDesc"),
               variant: "destructive",
             });
           }
         }
       } catch (error: any) {
         toast({
-          title: "Error loading conversation",
+          title: t("chatContext.errorLoadingConversationTitle"),
           description: error.message,
           variant: "destructive",
         });
@@ -189,29 +189,27 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false);
       }
     },
-    [conversations, toast],
+    [conversations, toast, t],
   );
 
   const sendMessage = useCallback(
     async (content: string) => {
       if (!activeConversation || !chatSession) {
-        // Create a new conversation if none is active
         try {
           const newConversation = await createNewChat();
           await _sendMessage(newConversation.id, content);
         } catch (error) {
           toast({
-            title: "Error sending message",
-            description: "Failed to create a new conversation",
+            title: t("chatContext.errorSendMessageTitle"),
+            description: t("chatContext.errorSendMessageDesc"),
             variant: "destructive",
           });
         }
         return;
       }
-
       await _sendMessage(activeConversation.id, content);
     },
-    [activeConversation, chatSession, createNewChat, toast],
+    [activeConversation, chatSession, createNewChat, toast, t],
   );
 
   // Internal function to handle message sending
@@ -235,7 +233,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         aiResponse = await sendGeminiMessage(
           chatSession,
           content,
-          analysisResults, // Pass analysis history for context
+          analysisResults,
         );
         if (!aiResponse) {
           console.error("Chat response is null:", {
@@ -243,7 +241,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             content,
             analysisResults: analysisResults?.length,
           });
-          throw new Error("Empty response from model");
+          throw new Error(t("chatContext.errorEmptyModelResponse"));
         }
         // Add AI response to UI
         const assistantMessage: ChatMessage = {
@@ -262,8 +260,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           const errorMessage: ChatMessage = {
             conversation_id: conversationId,
             role: "assistant",
-            content:
-              "I'm receiving too many requests right now. Please wait a moment before trying again.",
+            content: t("chatContext.errorRateLimit"),
             sender_id: "assistant",
           };
           setMessages((prev: ChatMessage[]) => [...prev, errorMessage]);
@@ -273,8 +270,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         const errorMessage: ChatMessage = {
           conversation_id: conversationId,
           role: "assistant",
-          content:
-            "I apologize, but I encountered an error processing your request. Please try again.",
+          content: t("chatContext.errorProcessingRequest"),
           sender_id: "assistant",
         };
         setMessages((prev: ChatMessage[]) => [...prev, errorMessage]);
@@ -285,7 +281,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       // Update conversation title if it's the first message
       if (
         messages.length === 0 &&
-        activeConversation?.title === "New Conversation"
+        activeConversation?.title === t("chatContext.newConversationTitle")
       ) {
         const newTitle =
           content.length > 30 ? content.substring(0, 30) + "..." : content;
@@ -293,7 +289,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error: any) {
       toast({
-        title: "Error sending message",
+        title: t("chatContext.errorSendMessageTitle"),
         description: error.message,
         variant: "destructive",
       });
@@ -306,68 +302,56 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     async (conversationId: string, title: string) => {
       try {
         const { error } = await updateChatTitle(conversationId, title);
-
         if (error) throw error;
-
-        // Update conversations list
         setConversations((prev) =>
           prev.map((conv) =>
             conv.id === conversationId ? { ...conv, title } : conv,
           ),
         );
-
-        // Update active conversation if needed
         if (activeConversation?.id === conversationId) {
           setActiveConversation((prev) => (prev ? { ...prev, title } : null));
         }
-
         toast({
-          title: "Conversation renamed",
-          description: "The conversation has been renamed successfully",
+          title: t("chatContext.conversationRenamedTitle"),
+          description: t("chatContext.conversationRenamedDesc"),
         });
       } catch (error: any) {
         toast({
-          title: "Error renaming conversation",
+          title: t("chatContext.errorRenamingConversationTitle"),
           description: error.message,
           variant: "destructive",
         });
       }
     },
-    [activeConversation, toast],
+    [activeConversation, toast, t],
   );
 
   const deleteConversation = useCallback(
     async (conversationId: string) => {
       try {
         const { error } = await deleteChat(conversationId);
-
         if (error) throw error;
-
-        // Remove from state
         setConversations((prev) =>
           prev.filter((conv) => conv.id !== conversationId),
         );
-
-        // Clear active conversation if it was deleted
         if (activeConversation?.id === conversationId) {
           setActiveConversation(null);
           setMessages([]);
           setChatSession(null);
         }
-
         toast({
-          title: "Conversation deleted",
-          description: "The conversation has been deleted successfully",
+          title: t("chatContext.conversationDeletedTitle"),
+          description: t("chatContext.conversationDeletedDesc"),
         });
       } catch (error: any) {
         toast({
-          title: "Error deleting conversation",
+          title: t("chatContext.errorDeletingConversationTitle"),
           description: error.message,
           variant: "destructive",
         });
       }
     },
-    [activeConversation, toast],
+    [activeConversation, toast, t],
   );
 
   const clearActiveConversation = useCallback(() => {
