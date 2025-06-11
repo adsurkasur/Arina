@@ -218,75 +218,11 @@ const FarmLocationWidget = React.memo(() => {
   // Add shared state for map center and zoom
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: -6.2088, lng: 106.8456 });
   const [mapZoom, setMapZoom] = useState<number>(13);
-  const [isLocating, setIsLocating] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
 
   // Handler to sync map location from either map
   const handleMapChange = useCallback((center: { lat: number; lng: number }, zoom: number) => {
     setMapCenter(center);
     setMapZoom(zoom);
-  }, []);
-
-  // Function to get current location
-  const getCurrentLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation tidak didukung oleh browser ini');
-      return;
-    }
-
-    setIsLocating(true);
-    setLocationError(null);
-
-    const options = {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 60000 // Cache location for 1 minute
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const newCenter = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        
-        setMapCenter(newCenter);
-        setMapZoom(16); // Zoom in closer for current location
-        setIsLocating(false);
-        setLocationError(null);
-        
-        // Optional: Show success message
-        console.log('Location found:', newCenter);
-      },
-      (error) => {
-        setIsLocating(false);
-        let errorMessage = 'Gagal mendapatkan lokasi';
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage = 'Akses lokasi ditolak. Izinkan akses lokasi di browser Anda.';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Informasi lokasi tidak tersedia.';
-            break;
-          case error.TIMEOUT:
-            errorMessage = 'Timeout mendapatkan lokasi. Coba lagi.';
-            break;
-          default:
-            errorMessage = 'Terjadi kesalahan yang tidak diketahui.';
-            break;
-        }
-        
-        setLocationError(errorMessage);
-        console.error('Geolocation error:', error);
-        
-        // Auto clear error after 5 seconds
-        setTimeout(() => {
-          setLocationError(null);
-        }, 5000);
-      },
-      options
-    );
   }, []);
 
   return (
@@ -326,34 +262,14 @@ const FarmLocationWidget = React.memo(() => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={getCurrentLocation}
-                disabled={isLocating}
-                className="h-8 w-8"
-                title={t('dashboard.useMyLocation') || 'Gunakan Lokasi Saya'}
-              >
-                {isLocating ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Navigation className="h-4 w-4" />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
                 onClick={() => setIsMapFullScreen(true)}
-                className="h-8 w-8"
+                className="h-8 w-8 ml-2"
                 title={t('dashboard.fullscreenMap') || 'Fullscreen Map'}
               >
                 <Maximize className="h-4 w-4" />
               </Button>
             </div>
           </div>
-          {/* Location Error Message */}
-          {locationError && (
-            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-xs text-red-600">{locationError}</p>
-            </div>
-          )}
         </CardHeader>
         <CardContent className="flex-1 flex flex-col space-y-3">
           {/* Map Area */}
@@ -415,31 +331,11 @@ const FarmLocationWidget = React.memo(() => {
                 <Satellite className="h-4 w-4 mr-1" />
                 {t('dashboard.satellite')}
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={getCurrentLocation}
-                disabled={isLocating}
-                className="h-8 w-8"
-                title={t('dashboard.useMyLocation') || 'Gunakan Lokasi Saya'}
-              >
-                {isLocating ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Navigation className="h-4 w-4" />
-                )}
-              </Button>
               <Button variant="ghost" size="icon" onClick={() => setIsMapFullScreen(false)}>
                 <LayoutDashboard className="h-6 w-6" />
               </Button>
             </div>
           </div>
-          {/* Location Error Message in Fullscreen */}
-          {locationError && (
-            <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{locationError}</p>
-            </div>
-          )}
           <div className="flex-1 flex flex-col justify-center items-center">
             <div className="w-full h-full">
               <GoogleMapReactComponent
