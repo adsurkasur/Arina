@@ -6,6 +6,7 @@ import { Target, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getApiBaseUrl } from '@/lib/apiBaseUrl';
 import { getSpectraGrowApiBaseUrl } from '@/lib/spectraGrowApiBaseUrl';
+import { useToast } from '@/hooks/use-toast';
 
 // Fix: define libraries array outside the component to avoid performance warning
 const GOOGLE_MAP_LIBRARIES = ['geometry', 'places'] as any;
@@ -49,6 +50,7 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps & { isFullScreen?:
   onMapChange,
 }) => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [selected, setSelected] = React.useState<MapMarker | null>(null);
   const [userLocation, setUserLocation] = React.useState<{ lat: number; lng: number } | null>(null);
   const [prediction, setPrediction] = React.useState<any>(null); // State for prediction result
@@ -94,7 +96,12 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps & { isFullScreen?:
       const data = await response.json();
       setPrediction(data);
     } catch (err) {
-      alert("Failed to fetch prediction from backend");
+      toast({
+        title: t('map.predictionErrorTitle') || 'Prediction Error',
+        description: t('map.predictionErrorDesc') || 'Failed to fetch prediction from backend',
+        variant: 'destructive',
+        alsoNotifyPanel: true,
+      });
     }
   };
   const handleMapClick = (e: google.maps.MapMouseEvent) => {
@@ -279,7 +286,7 @@ export const GoogleMapReactComponent: React.FC<GoogleMapProps & { isFullScreen?:
           variant="secondary"
           onClick={getUserLocation}
           className="h-8 w-8 p-0 bg-white text-[#1F3A13] shadow-md hover:bg-gray-100"
-          title="Use My Location"
+          title={t('dashboard.useMyLocation')}
         >
           <Target className="h-4 w-4" />
         </Button>

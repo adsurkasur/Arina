@@ -154,11 +154,11 @@ const WeatherWidget = React.memo(() => {
           <p className="text-sm mb-2">{t('dashboard.weatherLoadError')}</p>
           <Button variant="ghost" size="sm" onClick={refreshWeather} className="text-white mb-2">
             <RefreshCw className="h-4 w-4 mr-1" />
-            {t('dashboard.refresh') || 'Refresh'}
+            {t('dashboard.refresh')}
           </Button>
           <Button variant="secondary" size="sm" onClick={refreshWeather} className="text-white">
             <Navigation className="h-4 w-4 mr-1" />
-            {t('dashboard.useMyLocation') || 'Use My Location'}
+            {t('dashboard.useMyLocation')}
           </Button>
         </CardContent>
       </Card>
@@ -174,10 +174,10 @@ const WeatherWidget = React.memo(() => {
             Cuaca {weatherData?.location || 'Jakarta'}
           </span>
           <div className="flex gap-2">
-            <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8" title={t('dashboard.refresh') || 'Refresh'}>
+            <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8" title={t('dashboard.refresh')}>
               <RefreshCw className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8" title={t('dashboard.useMyLocation') || 'Use My Location'}>
+            <Button variant="ghost" size="icon" onClick={refreshWeather} className="text-white h-8 w-8" title={t('dashboard.useMyLocation')}>
               <Navigation className="h-4 w-4" />
             </Button>
           </div>
@@ -218,6 +218,16 @@ const FarmLocationWidget = React.memo(() => {
   // Add shared state for map center and zoom
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: -6.2088, lng: 106.8456 });
   const [mapZoom, setMapZoom] = useState<number>(13);
+
+  // Handle ESC key to exit fullscreen map
+  useEffect(() => {
+    if (!isMapFullScreen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMapFullScreen(false);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isMapFullScreen]);
 
   // Handler to sync map location from either map
   const handleMapChange = useCallback((center: { lat: number; lng: number }, zoom: number) => {
@@ -264,7 +274,7 @@ const FarmLocationWidget = React.memo(() => {
                 size="icon"
                 onClick={() => setIsMapFullScreen(true)}
                 className="h-8 w-8 ml-2"
-                title={t('dashboard.fullscreenMap') || 'Fullscreen Map'}
+                title={t('dashboard.fullscreenMap')}
               >
                 <Maximize className="h-4 w-4" />
               </Button>
@@ -308,10 +318,16 @@ const FarmLocationWidget = React.memo(() => {
       {isMapFullScreen && (
         <div className="fixed inset-0 z-50 bg-white flex flex-col">
           <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
-            <div className="flex items-center">
-              <MapPin className="mr-3 h-7 w-7 text-green-600" />
-              <span className="text-2xl font-bold">{t('dashboard.spectragrow')}</span>
-            </div>
+            {/* Use the same CardTitle as the small map */}
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MapPin className="h-8 w-8 text-green-600" />
+              <div className="flex flex-col items-start">
+                {t('dashboard.mapInsight')}
+                <div className="text-xs text-gray-500 ml-0">
+                  {t('dashboard.poweredBy', { provName: 'Spectragrow' })}
+                </div>
+              </div>
+            </CardTitle>
             <div className="flex items-center space-x-2">
               <Button
                 variant={viewMode === 'map' ? 'default' : 'outline'}

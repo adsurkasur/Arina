@@ -16,11 +16,18 @@ export function Toaster() {
 
   // Set the notificationAdd function for toast()
   React.useEffect(() => {
-    setNotificationAdd(addNotification)
+    setNotificationAdd((n) => {
+      // Map the type property if needed, or cast as NotificationType
+      addNotification({
+        title: n.title,
+        description: n.description,
+        type: n.type as any, // Replace 'any' with 'NotificationType' if imported
+      })
+    })
   }, [addNotification])
 
   return (
-    <ToastProvider>
+    <ToastProvider swipeDirection="right" swipeThreshold={350}>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>

@@ -138,7 +138,7 @@ function dispatch(action: Action) {
   })
 }
 
-type Toast = Omit<ToasterToast, "id">
+type Toast = Omit<ToasterToast, "id"> & { alsoNotifyPanel?: boolean };
 
 // Add a helper to allow toast to also send to NotificationContext
 let notificationAdd: ((n: { title: string; description?: string; type?: string }) => void) | null = null;
@@ -147,11 +147,11 @@ export function setNotificationAdd(fn: typeof notificationAdd) {
   notificationAdd = fn;
 }
 
-function toast({ ...props }: Toast) {
+function toast({ alsoNotifyPanel = false, ...props }: Toast) {
   const id = genId();
 
-  // Always add to NotificationContext for notification panel
-  if (notificationAdd) {
+  // Only add to NotificationContext if explicitly requested
+  if (notificationAdd && alsoNotifyPanel) {
     let titleString = "";
     let descriptionString = undefined;
     if (typeof props.title === "string") {

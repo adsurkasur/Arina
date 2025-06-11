@@ -1,6 +1,5 @@
 import React from "react";
 import { Switch, Route, Redirect } from "wouter";
-import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -42,7 +41,7 @@ function UniversalLoadingScreen() {
 function App() {
   return (
     <>
-      <Toaster />
+      {/* <Toaster /> Removed to prevent duplicate toasts */}
       <AuthModal />
       <Switch>
         <Route path="/login" component={Login} />

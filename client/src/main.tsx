@@ -130,20 +130,23 @@ function RootApp() {
 
   if (!settingsLoaded || !i18nReady) return <UniversalLoadingScreen />;
 
+  // Show LocalhostToast only after loading screen is gone
   return (
-    <ThemeProvider darkMode={darkMode} setDarkMode={setDarkMode}>
-      <LanguageProvider language={language}>
-        <TooltipProvider>
-          <NotificationProvider>
-            <ChatProvider>
-              <Toaster />
-              <LocalhostToast />
-              <App />
-            </ChatProvider>
-          </NotificationProvider>
-        </TooltipProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+    <>
+      <LocalhostToast />
+      <ThemeProvider darkMode={darkMode} setDarkMode={setDarkMode}>
+        <LanguageProvider language={language}>
+          <TooltipProvider>
+            <NotificationProvider>
+              <ChatProvider>
+                <Toaster />
+                <App />
+              </ChatProvider>
+            </NotificationProvider>
+          </TooltipProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </>
   );
 }
 
