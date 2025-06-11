@@ -248,13 +248,12 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
 
   return (
     <PanelContainer onClose={onClose} title={t('tools.demandForecasting.title')}>
-      <div className="space-y-6">
-        {/* Section: Forecast Info */}
-        <div className="mb-4">
-          <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.infoTitle')}</h3>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
-              {/* Product Name */}
+      <div className="space-y-6 text-[15px] leading-[1.7]">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit as any)}>
+            {/* Section: Forecast Info */}
+            <div className="mb-4">
+              <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.infoTitle')}</h3>
               <FormField
                 control={form.control as any}
                 name="productName"
@@ -278,15 +277,11 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                   </FormItem>
                 )}
               />
-            </form>
-          </Form>
-        </div>
+            </div>
 
-        {/* Section: Historical Demand */}
-        <div className="mb-4">
-          <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.historicalTitle')}</h3>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+            {/* Section: Historical Demand */}
+            <div className="mb-4">
+              <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.historicalTitle')}</h3>
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-base font-medium text-gray-700">
                   {t('tools.demandForecasting.historicalDemand')}
@@ -302,7 +297,6 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                 <p className="text-sm text-muted-foreground">
                   {t('tools.demandForecasting.historicalDemandDesc')}
                 </p>
-
                 <div className="grid grid-cols-12 gap-2 mb-2">
                   <div className="col-span-5">
                     <label className="text-xs flex items-center gap-2 font-medium text-gray-700">
@@ -332,7 +326,6 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                   </div>
                   <div className="col-span-2"></div>
                 </div>
-
                 {fields.map((field, index) => (
                   <div
                     key={field.id}
@@ -364,21 +357,20 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                                 type="number"
                                 step="1"
                                 min="0"
-                                max={Math.pow(2, 63) - 1} // 64 BBit signed integer max value
+                                max={Math.pow(2, 63) - 1}
                                 onKeyDown={(e) => {
                                   let prohibitedKeys = ["e", "E", "+", "-", ".", ","];
                                   if (prohibitedKeys.includes(e.key)) {
                                     e.preventDefault();
                                   }
-
                                   if (!isNaN(parseFloat(e.key))) {
                                     // check if the input value is a 0
                                     // ts-ignore-next-line
                                     const input = e.target as HTMLInputElement;
                                     if (input.value === "0" && e.key !== "0") {	
-                                      input.value = e.key; // replace 0 with the pressed key
-                                      e.preventDefault(); // prevent default behavior
-                                      field.onChange(parseFloat(e.key)); // update the field value
+                                      input.value = e.key;
+                                      e.preventDefault();
+                                      field.onChange(parseFloat(e.key));
                                     }
                                   }
                                 }}
@@ -411,7 +403,6 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                     </div>
                   </div>
                 ))}
-
                 <Button
                   type="button"
                   variant="outline"
@@ -428,157 +419,150 @@ export default function DemandForecasting({ onClose }: { onClose: () => void }) 
                   {t('tools.demandForecasting.addPeriod')}
                 </Button>
               </div>
-            </form>
-          </Form>
-        </div>
+            </div>
 
-        {/* Section: Forecast Method */}
-        <div className="mb-4">
-          <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.methodTitle')}</h3>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
-              {/* Forecast Method */}
-              <FormField
-                control={form.control as any}
-                name="method"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      {t('tools.demandForecasting.method')}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-gray-500" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[300px]">
-                          {t('tools.demandForecasting.methodTooltip')}
-                        </TooltipContent>
-                      </Tooltip>
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t('tools.demandForecasting.methodPlaceholder')} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="sma">
-                          {t('tools.demandForecasting.sma')}
-                        </SelectItem>
-                        <SelectItem value="exponential">
-                          {t('tools.demandForecasting.exponential')}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      {method === "sma"
-                        ? t('tools.demandForecasting.smaDesc')
-                        : t('tools.demandForecasting.exponentialDesc')}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
+            {/* Section: Forecast Method */}
+            <div className="mb-4">
+              <h3 className="font-medium text-lg mb-2">{t('tools.demandForecasting.methodTitle')}</h3>
+              <div className="space-y-4">
+                <FormField
+                  control={form.control as any}
+                  name="method"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        {t('tools.demandForecasting.method')}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-500" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[300px]">
+                            {t('tools.demandForecasting.methodTooltip')}
+                          </TooltipContent>
+                        </Tooltip>
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('tools.demandForecasting.methodPlaceholder')} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="sma">
+                            {t('tools.demandForecasting.sma')}
+                          </SelectItem>
+                          <SelectItem value="exponential">
+                            {t('tools.demandForecasting.exponential')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {method === "sma"
+                          ? t('tools.demandForecasting.smaDesc')
+                          : t('tools.demandForecasting.exponentialDesc')}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {method === "exponential" && (
+                  <FormField
+                    control={form.control as any}
+                    name="smoothingFactor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          {t('tools.demandForecasting.smoothingFactor')}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-4 w-4 text-gray-500" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-[300px]">
+                              {t('tools.demandForecasting.smoothingFactorTooltip')}
+                            </TooltipContent>
+                          </Tooltip>
+                        </FormLabel>
+                        <FormControl>
+                          <Slider
+                            min={0}
+                            max={1}
+                            step={0.05}
+                            value={[field.value || 0.3]}
+                            onValueChange={(vals) => field.onChange(vals[0])}
+                            className="py-4"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
-              />
 
-              {/* Method-specific parameters */}
+                {method === "sma" && (
+                  <FormField
+                    control={form.control as any}
+                    name="periodLength"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          {t('tools.demandForecasting.periodLength')}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-4 w-4 text-gray-500" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-[300px]">
+                              {t('tools.demandForecasting.periodLengthTooltip')}
+                            </TooltipContent>
+                          </Tooltip>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={2}
+                            max={12}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value) || 3)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+            </div>
 
-              {method === "exponential" && (
-                <FormField
-                  control={form.control as any}
-                  name="smoothingFactor"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        {t('tools.demandForecasting.smoothingFactor')}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-gray-500" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-[300px]">
-                            {t('tools.demandForecasting.smoothingFactorTooltip')}
-                          </TooltipContent>
-                        </Tooltip>
-                      </FormLabel>
-                      <FormControl>
-                        <Slider
-                          min={0}
-                          max={1}
-                          step={0.05}
-                          value={[field.value || 0.3]}
-                          onValueChange={(vals) => field.onChange(vals[0])}
-                          className="py-4"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {method === "sma" && (
-                <FormField
-                  control={form.control as any}
-                  name="periodLength"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        {t('tools.demandForecasting.periodLength')}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-gray-500" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-[300px]">
-                            {t('tools.demandForecasting.periodLengthTooltip')}
-                          </TooltipContent>
-                        </Tooltip>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={2}
-                          max={12}
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(parseInt(e.target.value) || 3)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </form>
-          </Form>
-        </div>
-
-        {/* Section: Results/Actions */}
-        <div className="flex justify-end gap-3 mt-6">
-          {/* Forecast Buttons */}
-          <Button
-            type="submit"
-            className="bg-primary hover:bg-primary/90"
-            disabled={isCalculating}
-            onClick={form.handleSubmit(onSubmit as any)}
-          >
-            {isCalculating ? (
-              <>
-                <span className="animate-spin mr-2"></span>
-                {t('tools.demandForecasting.calculating')}
-              </>
-            ) : (
-              <>
-                <CalculatorIcon className="mr-2 h-4 w-4" />
-                {t('tools.demandForecasting.generateForecast')}
-              </>
-            )}
-          </Button>
-          <Button type="button" variant="outline" onClick={resetForm}>
-            {t('form.reset')}
-          </Button>
-        </div>
+            {/* Analysis Buttons */}
+            <div className="flex justify-end space-x-3 pt-2">
+              <Button type="button" variant="outline" onClick={resetForm}>
+                {t('form.reset')}
+              </Button>
+              <Button
+                type="submit"
+                className="bg-primary hover:bg-primary/90"
+                disabled={isCalculating}
+              >
+                {isCalculating ? (
+                  <>
+                    <span className="animate-spin mr-2"></span>
+                    {t('tools.demandForecasting.calculating')}
+                  </>
+                ) : (
+                  <>
+                    <CalculatorIcon className="mr-2 h-4 w-4" />
+                    {t('tools.demandForecasting.generateForecast')}
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
 
         {/* Results Section */}
         {results && (

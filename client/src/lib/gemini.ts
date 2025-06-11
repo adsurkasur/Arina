@@ -5,7 +5,7 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // Default model
-const defaultModelName = "gemini-1.5-flash"; // Menggunakan model yang lebih baru dan umum
+const defaultModelName = "gemini-2.5-flash-preview-05-20"; 
 
 // Chat history interface
 export interface ChatMessage {

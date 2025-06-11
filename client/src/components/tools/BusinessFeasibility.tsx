@@ -253,9 +253,9 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
 
   return (
     <PanelContainer onClose={onClose} title={t('tools.businessFeasibility.title')}>
-      <div className="space-y-6">
+      <div className="space-y-6 text-[15px] leading-[1.7]">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             {/* Section: Business Info */}
             <div className="mb-4">
               <h3 className="font-medium text-lg mb-2">{t('tools.businessFeasibility.infoTitle')}</h3>
@@ -1040,7 +1040,7 @@ export default function BusinessFeasibility({ onClose }: BusinessFeasibilityProp
             </div>
           </div>
         )}
-      </div>
+      </div> {/* <-- This closes the main container div for the panel content */}
     </PanelContainer>
   );
 }

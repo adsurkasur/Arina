@@ -21,28 +21,29 @@ export default function Recommendations({ onClose, open }: RecommendationsProps)
   if (!open) return null;
   return (
     <PanelContainer onClose={onClose} title={t("tools.recommendations.title")}>
-      <div className="flex-1 overflow-auto p-6">
+      <div className="space-y-6 text-[15px] leading-[1.7]">
         {/* Recommendations List Header */}
-        <div className="flex items-center gap-2">
-          <h3 className="text-lg font-medium text-primary">
-            {t("tools.recommendations.listTitle")}
-          </h3>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className="h-4 w-4 text-gray-500" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[300px]">
-              {t("tools.recommendations.listTooltip")}
-            </TooltipContent>
-          </Tooltip>
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="font-medium text-lg">
+              {t("tools.recommendations.listTitle")}
+            </h3>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-gray-500" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                {t("tools.recommendations.listTooltip")}
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          {/* Recommendations List */}
+          <RecommendationsList />
         </div>
 
-        {/* Recommendations List */}
-        <RecommendationsList />
-
         {/* Additional Insights Section */}
-        <div className="mt-6">
-          <h4 className="text-md font-medium text-primary flex items-center gap-2">
+        <div className="mb-4">
+          <h4 className="text-md font-medium text-primary flex items-center gap-2 mb-2">
             {t("tools.recommendations.additionalInsights")}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -53,7 +54,7 @@ export default function Recommendations({ onClose, open }: RecommendationsProps)
               </TooltipContent>
             </Tooltip>
           </h4>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-gray-600">
             {t("tools.recommendations.additionalInsightsDesc")}
           </p>
         </div>

@@ -684,9 +684,11 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
   if (error) {
     return (
       <PanelContainer onClose={onClose} title={t('tools.analysisHistory.title')}>
-        <div className="flex flex-col items-center justify-center h-64">
-          <p className="text-red-500 mb-2">{t('tools.analysisHistory.loadError')}</p>
-          <Button onClick={() => window.location.reload()}>{t('form.retry')}</Button>
+        <div className="space-y-6 text-[15px] leading-[1.7]">
+          <div className="flex flex-col items-center justify-center h-64">
+            <p className="text-red-500 mb-2">{t('tools.analysisHistory.loadError')}</p>
+            <Button onClick={() => window.location.reload()}>{t('form.retry')}</Button>
+          </div>
         </div>
       </PanelContainer>
     );
@@ -694,112 +696,114 @@ export default function AnalysisHistory({ onClose }: AnalysisHistoryProps) {
 
   return (
     <PanelContainer onClose={onClose} title={t('tools.analysisHistory.title')}>
-      <div className="flex flex-col md:flex-row gap-3 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t('tools.analysisHistory.searchPlaceholder')}
-            value={searchQuery}
-            // @ts-ignore
-            onChange={e => setSearchQuery(e.target.value)}
-            className="pl-8"
-          />
+      <div className="space-y-6 text-[15px] leading-[1.7]">
+        <div className="flex flex-col md:flex-row gap-3 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('tools.analysisHistory.searchPlaceholder')}
+              value={searchQuery}
+              // @ts-ignore
+              onChange={e => setSearchQuery(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <Select
+            value={typeFilter}
+            onValueChange={setTypeFilter}
+          >
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder={t('tools.analysisHistory.allTypes')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('tools.analysisHistory.allTypes')}</SelectItem>
+              <SelectItem value="business_feasibility">{t('tools.analysisHistory.businessFeasibility')}</SelectItem>
+              <SelectItem value="demand_forecast">{t('tools.analysisHistory.demandForecasting')}</SelectItem>
+              <SelectItem value="optimization">{t('tools.analysisHistory.optimizationAnalysis')}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select
-          value={typeFilter}
-          onValueChange={setTypeFilter}
-        >
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder={t('tools.analysisHistory.allTypes')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t('tools.analysisHistory.allTypes')}</SelectItem>
-            <SelectItem value="business_feasibility">{t('tools.analysisHistory.businessFeasibility')}</SelectItem>
-            <SelectItem value="demand_forecast">{t('tools.analysisHistory.demandForecasting')}</SelectItem>
-            <SelectItem value="optimization">{t('tools.analysisHistory.optimizationAnalysis')}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center flex-1">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-          <p>{t('tools.analysisHistory.loading')}</p>
-        </div>
-      ) : filteredResults.length === 0 ? (
-        <div className="flex flex-col items-center justify-center flex-1 text-center">
-          <ClipboardList className="h-12 w-12 text-gray-400 mb-2" />
-          <h3 className="text-lg font-medium mb-1">{t('tools.analysisHistory.noResultsTitle')}</h3>
-          <p className="text-muted-foreground max-w-md">
-            {filteredResults.length === 0
-              ? t('tools.analysisHistory.noResultsDesc')
-              : t('tools.analysisHistory.noResultsFilter')}
-          </p>
-        </div>
-      ) : (
-        <ScrollArea className="flex-1 pr-4 -mr-4">
-          <Accordion type="multiple" className="space-y-4">
-            {filteredResults.map((result) => (
-              <Card key={result.id} className="overflow-hidden">
-                <CardHeader className="py-4 px-5">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center">
-                      <div className="mr-3 p-2 rounded-full bg-primary/10 text-primary">
-                        {getTypeIcon(result.type)}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center flex-1">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+            <p>{t('tools.analysisHistory.loading')}</p>
+          </div>
+        ) : filteredResults.length === 0 ? (
+          <div className="flex flex-col items-center justify-center flex-1 text-center">
+            <ClipboardList className="h-12 w-12 text-gray-400 mb-2" />
+            <h3 className="text-lg font-medium mb-1">{t('tools.analysisHistory.noResultsTitle')}</h3>
+            <p className="text-muted-foreground max-w-md">
+              {filteredResults.length === 0
+                ? t('tools.analysisHistory.noResultsDesc')
+                : t('tools.analysisHistory.noResultsFilter')}
+            </p>
+          </div>
+        ) : (
+          <ScrollArea className="flex-1 pr-4 -mr-4">
+            <Accordion type="multiple" className="space-y-4">
+              {filteredResults.map((result) => (
+                <Card key={result.id} className="overflow-hidden">
+                  <CardHeader className="py-4 px-5">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center">
+                        <div className="mr-3 p-2 rounded-full bg-primary/10 text-primary">
+                          {getTypeIcon(result.type)}
+                        </div>
+                        <div>
+                          <CardTitle className="text-base">
+                            {(result.data as any)?.title || getTypeLabel(result.type)}
+                          </CardTitle>
+                          <CardDescription className="flex items-center mt-1">
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>{formatDate(result.created_at)}</span>
+                          </CardDescription>
+                        </div>
                       </div>
-                      <div>
-                        <CardTitle className="text-base">
-                          {(result.data as any)?.title || getTypeLabel(result.type)}
-                        </CardTitle>
-                        <CardDescription className="flex items-center mt-1">
-                          <Clock className="h-3 w-3 mr-1" />
-                          <span>{formatDate(result.created_at)}</span>
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <Badge variant="outline">
-                      {getTypeLabel(result.type)}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <AccordionItem value={result.id} className="border-0">
-                  <AccordionTrigger className="py-0 px-5 text-sm hover:no-underline">
-                    <span className="text-muted-foreground">View details</span>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-0 px-5 pb-4">
-                    <CardContent className="p-0 pt-4">
-                      <div>
-                        {renderAnalysisData(result.data, result.type)}
-                      </div>
-                    </CardContent>
-                    <CardFooter className="px-0 pt-4 pb-0 flex justify-end space-x-2">
-                      <Badge>
-                        {formatDate(result.created_at)}
+                      <Badge variant="outline">
+                        {getTypeLabel(result.type)}
                       </Badge>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="text-xs"
-                        onClick={async () => {
-                          try {
-                            await deleteAnalysis(result.id);
-                          } catch (error) {
-                            console.error("Failed to delete analysis:", error);
-                          }
-                        }}
-                        disabled={isDeletingAnalysis}
-                      >
-                        {isDeletingAnalysis && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}
-                        <Trash2 className="h-3 w-3 mr-1" />
-                        Delete
-                      </Button>
-                    </CardFooter>
-                  </AccordionContent>
-                </AccordionItem>
-              </Card>
-            ))}
-          </Accordion>
-        </ScrollArea>
-      )}
+                    </div>
+                  </CardHeader>
+                  <AccordionItem value={result.id} className="border-0">
+                    <AccordionTrigger className="py-0 px-5 text-sm hover:no-underline">
+                      <span className="text-muted-foreground">View details</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-0 px-5 pb-4">
+                      <CardContent className="p-0 pt-4">
+                        <div>
+                          {renderAnalysisData(result.data, result.type)}
+                        </div>
+                      </CardContent>
+                      <CardFooter className="px-0 pt-4 pb-0 flex justify-end space-x-2">
+                        <Badge>
+                          {formatDate(result.created_at)}
+                        </Badge>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="text-xs"
+                          onClick={async () => {
+                            try {
+                              await deleteAnalysis(result.id);
+                            } catch (error) {
+                              console.error("Failed to delete analysis:", error);
+                            }
+                          }}
+                          disabled={isDeletingAnalysis}
+                        >
+                          {isDeletingAnalysis && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Delete
+                        </Button>
+                      </CardFooter>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Card>
+              ))}
+            </Accordion>
+          </ScrollArea>
+        )}
+      </div>
     </PanelContainer>
   );
 }
