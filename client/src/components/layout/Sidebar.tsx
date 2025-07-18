@@ -33,7 +33,8 @@ import {
   Sprout,
   Wrench,
   Cpu,
-  Book
+  Book,
+  Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -65,6 +66,7 @@ import {
 import { ChatConversation } from "@/types";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useTranslation } from 'react-i18next';
+import { PricingPage } from "@/components/subscription/PricingPage";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -106,6 +108,7 @@ export function Sidebar({
   const [debugPanelOpen, setDebugPanelOpen] = useState(false);
   const [dashboardOpen, setDashboardOpen] = useState(true);
   const [chatHistoryOpen, setChatHistoryOpen] = useState(true); // Add state for chat history dropdown
+  const [showPricingPage, setShowPricingPage] = useState(false);
 
   // Handle toggling the sidebar on mobile
   const handleCloseSidebar = () => {
@@ -158,6 +161,11 @@ export function Sidebar({
 
   return (
     <>
+      {/* Pricing Page Overlay */}
+      {showPricingPage && (
+        <PricingPage onClose={() => setShowPricingPage(false)} />
+      )}
+
       {/* Custom styles for scrollbar */}
       <style>{`
         .sidebar-scrollbar {
@@ -210,6 +218,7 @@ export function Sidebar({
         isOpen
           ? "translate-x-0"
           : "-translate-x-full",
+        showPricingPage ? "z-30" : "z-50" // Lower z-index when pricing page is open
       )}>
         {/* Sidebar Header */}
         <div className="p-4 flex-shrink-0 border-b border-white/10">
@@ -609,21 +618,17 @@ export function Sidebar({
 
         {/* Bottom Section */}
         <div className="flex-shrink-0 border-t border-white/10 p-2">
-          {/* Debug Panel */}
+          {/* Subscription Button */}
           <button
             onClick={() => {
-              if (activePanel === "debug" && panelVisible) {
-                openTool("");
-              } else {
-                openTool("debug");
-              }
+              setShowPricingPage(true);
               handleCloseSidebar();
             }}
             className="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-colors mb-2"
-            title="Open Debugging Panel"
+            title={t('sidebar.subscriptionTooltip')}
           >
-            <PanelLeft className="h-5 w-5 mr-3" />
-            <span>{t('sidebar.debugging')}</span>
+            <Crown className="h-5 w-5 mr-3" />
+            <span>{t('sidebar.subscription')}</span>
           </button>
 
           {/* About Arina */}
